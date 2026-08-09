@@ -1,23 +1,23 @@
-import { Navigate, createBrowserRouter } from 'react-router-dom'
-import { BranchPage } from './pages/branch/branch-page'
-import { CashierPage } from './pages/cashier/cashier-page'
-import { HqPage } from './pages/hq/hq-page'
+import { Navigate, createBrowserRouter } from "react-router-dom";
+import { BranchPage } from "./pages/branch/branch-page";
+import { CashierPage } from "./pages/cashier/cashier-page";
+import { HqPage } from "./pages/hq/hq-page";
 
 export const router = createBrowserRouter([
   {
-    path: '/',
+    path: "/",
     element: <Navigate to="/hq" replace />,
   },
   {
-    path: '/hq',
+    path: "/hq",
     element: <HqPage />,
   },
   {
-    path: '/branch',
+    path: "/branch",
     element: <BranchPage />,
   },
   {
-    path: '/cashier',
+    path: "/cashier",
     element: <CashierPage />,
   },
-])
+]);
