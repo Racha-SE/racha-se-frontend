@@ -1,3 +1,3 @@
 export function HqPage() {
-  return <h1>HQ page</h1>
+  return <h1>HQ page</h1>;
 }
