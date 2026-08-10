@@ -51,6 +51,28 @@ Reusable UI components live here.
 - Components in this folder should not know about backend endpoints.
 - shadcn/ui files are source code in this repo, not ignored generated files. Keep them linted and formatted.
 
+Example:
+
+```tsx
+type PageTitleProps = {
+  title: string;
+};
+
+export function PageTitle({ title }: PageTitleProps) {
+  return <h1>{title}</h1>;
+}
+```
+
+Use it from a page:
+
+```tsx
+import { PageTitle } from "@/components/page-title";
+
+export function HqPage() {
+  return <PageTitle title="HQ" />;
+}
+```
+
 ### `src/lib/`
 
 Generic frontend utilities live here.
