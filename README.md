@@ -1,73 +1,124 @@
-# React + TypeScript + Vite
+# racha-se-frontend
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Frontend app for RachaCPALL, built with [Vite](https://vite.dev/), [React](https://react.dev/), [TypeScript](https://www.typescriptlang.org/), [Tailwind CSS](https://tailwindcss.com/), and [shadcn/ui](https://ui.shadcn.com/).
 
-Currently, two official plugins are available:
+## Prerequisites
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+- [Bun](https://bun.sh) (JS runtime + package manager)
+- [pre-commit](https://pre-commit.com)
 
-## React Compiler
+Install `pre-commit` with your preferred system package manager. Examples:
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
-
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
-
-```js
-export default defineConfig([
-  globalIgnores(["dist"]),
-  {
-    files: ["**/*.{ts,tsx}"],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ["./tsconfig.node.json", "./tsconfig.app.json"],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-]);
+```bash
+brew install pre-commit
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+```bash
+pip install pre-commit
+```
 
-```js
-// eslint.config.js
-import reactX from "eslint-plugin-react-x";
-import reactDom from "eslint-plugin-react-dom";
+## Setup
 
-export default defineConfig([
-  globalIgnores(["dist"]),
-  {
-    files: ["**/*.{ts,tsx}"],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs["recommended-typescript"],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ["./tsconfig.node.json", "./tsconfig.app.json"],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-]);
+```bash
+# 1. install dependencies
+bun install
+
+# 2. copy env vars
+cp .env.example .env
+
+# 3. install git hooks
+pre-commit install
+pre-commit install --hook-type commit-msg
+pre-commit install --hook-type pre-push
+
+# 4. run the dev server
+bun run dev
+```
+
+The frontend is now available at `http://localhost:5173`.
+
+The local backend API base URL is configured in `.env`:
+
+```env
+VITE_API_BASE_URL=http://localhost:6767/v1
+```
+
+## Scripts
+
+| Command              | What it does                          |
+| -------------------- | ------------------------------------- |
+| `bun run dev`        | Start the Vite dev server             |
+| `bun run build`      | Type-check and build for production   |
+| `bun run lint`       | Run ESLint                            |
+| `bun run lint:fix`   | Run ESLint with auto-fix              |
+| `bun run format`     | Check formatting with Prettier        |
+| `bun run format:fix` | Format files with Prettier            |
+| `bun run typecheck`  | Run TypeScript without emitting files |
+| `bun run preview`    | Preview the production build locally  |
+
+## Frontend Runtime
+
+```bash
+bun run dev
+```
+
+The frontend talks to the backend through `VITE_API_BASE_URL`. When the backend is run through Docker Compose, the backend app listens internally on port `3000`, but is exposed to the host on port `6767`; the frontend should use the exposed host URL:
+
+```txt
+http://localhost:6767/v1
+```
+
+API calls should go through `src/api/client.ts`, not direct `fetch(...)` calls inside pages. Feature-specific API wrappers can live beside it, for example `src/api/mock-users.ts`.
+
+## Routing
+
+Routes are registered in `src/router.tsx`. Current top-level route groups are:
+
+| Route      | Viewpoint         |
+| ---------- | ----------------- |
+| `/hq`      | Headquarter admin |
+| `/branch`  | Branch user       |
+| `/cashier` | Cashier / POS     |
+
+## UI
+
+This project uses Tailwind CSS and shadcn/ui. shadcn components are copied into this repo under:
+
+```txt
+src/components/ui/
+```
+
+Because these files are project source code, they are checked by ESLint, Prettier, and TypeScript like any other source file.
+
+## Pre-commit
+
+`.pre-commit-config.yaml` installs checks at three git stages:
+
+- **`pre-commit`**: file hygiene, TypeScript, ESLint, and Prettier
+- **`commit-msg`**: commitlint for Conventional Commits
+- **`pre-push`**: blocks direct pushes to `main`
+
+Install all three hook stages:
+
+```bash
+pre-commit install
+pre-commit install --hook-type commit-msg
+pre-commit install --hook-type pre-push
+```
+
+Run all hooks manually:
+
+```bash
+pre-commit run --all-files
+```
+
+## Testing
+
+There is no dedicated test suite yet. Before opening a PR, run:
+
+```bash
+bun run typecheck
+bun run lint
+bun run format
+bun run build
 ```
