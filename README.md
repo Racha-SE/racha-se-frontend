@@ -80,8 +80,6 @@ Routes are registered in `src/router.tsx`. Current top-level route groups are:
 | `/branch`  | Branch user       |
 | `/cashier` | Cashier / POS     |
 
-Detailed page creation rules and route conventions should live in `CONTRIBUTING.md`, not in this README.
-
 ## UI
 
 This project uses Tailwind CSS and shadcn/ui. shadcn components are copied into this repo under:
