@@ -73,6 +73,28 @@ export function HqPage() {
 }
 ```
 
+### Reuse Guidelines
+
+Reuse primitives and patterns before reusing whole feature components. Two dialogs can both contain text fields, selects, and submit buttons without needing to be the same shared component.
+
+- Keep feature-specific dialogs and forms near the page that owns them.
+- Reuse shadcn/ui primitives such as `Button`, `Input`, `Select`, and `Dialog`.
+- Move a component to `src/components/` only when multiple features share the same behavior and props.
+- Do not extract a shared component only because two screens look similar.
+
+Example:
+
+```txt
+src/pages/hq/users/create-user-dialog.tsx
+src/pages/hq/products/create-product-dialog.tsx
+```
+
+These can stay separate because their fields, validation, and submit behavior are different. If both need the same confirm-delete behavior later, create a shared component such as:
+
+```txt
+src/components/confirm-dialog.tsx
+```
+
 ### `src/lib/`
 
 Generic frontend utilities live here.
