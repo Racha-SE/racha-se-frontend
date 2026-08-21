@@ -95,6 +95,32 @@ These can stay separate because their fields, validation, and submit behavior ar
 src/components/confirm-dialog.tsx
 ```
 
+### Forms
+
+Use React Hook Form for form state and Zod for validation when a form has real validation rules. Use shadcn/ui field components for the visual form layout.
+
+- Use `useForm` from `react-hook-form` to own form state.
+- Use `zod` schemas for validation when validation is needed.
+- Use `zodResolver` from `@hookform/resolvers/zod` to connect Zod to React Hook Form.
+- Use `Controller` for shadcn `Select`, custom inputs, and other controlled components.
+- Keep create/update forms for one feature near that feature page.
+
+`Controller` connects React Hook Form to UI components that do not behave exactly like a native input. It passes the field value and change handler into the component so React Hook Form can track it.
+
+Example:
+
+```tsx
+<Controller
+  name="categoryId"
+  control={form.control}
+  render={({ field }) => (
+    <Select value={field.value} onValueChange={field.onChange}>
+      {/* SelectTrigger and SelectContent go here */}
+    </Select>
+  )}
+/>
+```
+
 ### `src/lib/`
 
 Generic frontend utilities live here.
