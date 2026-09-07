@@ -201,7 +201,7 @@ code {
   --color-sidebar-middle: var(--sidebar-middle);
   --color-sidebar-top: var(--sidebar-top);
   --color-textbox: var(--textbox);
-  --color-alert-border:(--alert-border);
+  --color-alert-border: var(--alert-border);
   --color-chart-5: var(--chart-5);
   --color-chart-4: var(--chart-4);
   --color-chart-3: var(--chart-3);
