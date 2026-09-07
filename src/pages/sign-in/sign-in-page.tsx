@@ -1,7 +1,9 @@
+import { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Alert } from "@/components/alert";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -22,8 +24,12 @@ const SignInSchema = z.object({
 type SignInForm = z.infer<typeof SignInSchema>;
 
 export function SignInPage() {
+  const [showAlert, setShowAlert] = useState(false);
+
   const onSubmit = (data: SignInForm) => {
     console.log(data);
+
+    setShowAlert(true);
   };
 
   const { control, register, handleSubmit } = useForm<SignInForm>({
@@ -37,7 +43,14 @@ export function SignInPage() {
 
   return (
     <div className="flex h-screen items-center justify-center w-full">
-      <div className="flex flex-col items-center w-[706px] h-[502px] pt-[40px] gap-4 rounded-xl border border-black">
+      {showAlert && (
+        <Alert
+          title="Invalid Username"
+          description="This username doesn't exist."
+          onClose={() => setShowAlert(false)}
+        />
+      )}
+      <div className="flex flex-col items-center w-[706px] h-[502px] pt-[40px] gap-4 rounded-xl border border-sidebar-top bg-textbox">
         <h3 className="text-5xl font-bold">Welcome to RachaCPALL</h3>
 
         <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-6">
@@ -47,7 +60,7 @@ export function SignInPage() {
             </Label>
             <Input
               id="username"
-              className="h-[40px] placeholder:text-base"
+              className="h-[40px] placeholder:text-base bg-background"
               type="text"
               placeholder="Username"
               {...register("username")}
@@ -58,7 +71,7 @@ export function SignInPage() {
             </Label>
             <Input
               id="password"
-              className="h-[40px] placeholder:text-base"
+              className="h-[40px] placeholder:text-base bg-background"
               type="password"
               placeholder="Password"
               {...register("password")}
@@ -91,8 +104,8 @@ export function SignInPage() {
           </FieldGroup>
 
           <div className="flex justify-center">
-            <Button type="submit" size="lg">
-              Sign In
+            <Button className="primary rounded-sm" type="submit" size="lg">
+              Sign in
             </Button>
           </div>
         </form>
