@@ -95,10 +95,10 @@ export function ProductForm({
               >
                 Description
               </FieldLabel>
-              <Input
+              <textarea
                 {...field}
                 id="product-description"
-                className="h-9 max-w-[280px] rounded-md bg-textbox px-3 py-2 text-sm"
+                className="h-[72px] w-full max-w-[420px] resize-none overflow-y-auto rounded-md border border-input bg-textbox px-3 py-2 text-sm transition-colors outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 aria-invalid:border-destructive aria-invalid:ring-3 aria-invalid:ring-destructive/20"
                 aria-invalid={fieldState.invalid}
               />
               <FieldError errors={[fieldState.error]} />
