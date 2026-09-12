@@ -6,65 +6,79 @@
 @custom-variant dark (&:is(.dark *));
 
 :root {
-  --background: oklch(1 0 0);
+  /* Figma Base Color collection */
+  --base-red-50: #fef2f2;
+  --base-red-100: #facccc;
+  --base-red-200: #fecaca;
+  --base-red-300: #facccc;
+  --base-red-500: #ef4444;
+  --base-red-strong: #e50000;
+  --base-red-deep: #9f0712;
+  --base-red-800: #9a1717;
+  --base-red-bright: #ff0004;
+  --base-neutral-50: #f8fafc;
+  --base-neutral-100: #b1c1d7;
+  --base-neutral-200: #6b82a2;
+  --base-neutral-400: #385275;
+  --base-neutral-600: #1b2d46;
+  --base-neutral-800: #0f172a;
+  --base-neutral-stroke: #cbd5e1;
+  --base-green: #33ad5c;
+  --base-green-light: #66c285;
+  --base-blue-50: #eff6ff;
+  --base-blue-400: #3b82f6;
+  --base-blue-600: #1f51bf;
+  --base-blue-800: #1b3c9a;
 
-  --foreground: oklch(0.145 0 0);
+  /* Figma Semantic collection */
+  --surface: #ffffff;
+  --textbox: var(--base-neutral-50);
+  --currency-card: var(--base-neutral-100);
+  --searchbar: var(--base-neutral-200);
+  --sidebar-bottom: var(--base-neutral-400);
+  --sidebar-middle: var(--base-neutral-600);
+  --sidebar-top: var(--base-neutral-800);
+  --primary-subtle: var(--base-blue-50);
+  --focus: var(--base-blue-400);
+  --primary-action: var(--base-blue-600);
+  --active: var(--base-blue-800);
+  --destructive-subtle: var(--base-red-50);
+  --destructive-action: var(--base-red-500);
+  --destructive-active: var(--base-red-800);
 
-  --card: oklch(1 0 0);
-
-  --card-foreground: oklch(0.145 0 0);
-
-  --popover: oklch(1 0 0);
-
-  --popover-foreground: oklch(0.145 0 0);
-
-  --primary: oklch(0.205 0 0);
-
-  --primary-foreground: oklch(0.985 0 0);
-
-  --secondary: oklch(0.97 0 0);
-
-  --secondary-foreground: oklch(0.205 0 0);
-
-  --muted: oklch(0.97 0 0);
-
-  --muted-foreground: oklch(0.556 0 0);
-
-  --accent-foreground: oklch(0.205 0 0);
-
-  --destructive: oklch(0.577 0.245 27.325);
-
-  --input: oklch(0.922 0 0);
-
-  --ring: oklch(0.708 0 0);
-
-  --chart-1: oklch(0.87 0 0);
-
-  --chart-2: oklch(0.556 0 0);
-
-  --chart-3: oklch(0.439 0 0);
-
-  --chart-4: oklch(0.371 0 0);
-
-  --chart-5: oklch(0.269 0 0);
-
+  /* shadcn semantic aliases */
+  --background: var(--surface);
+  --foreground: var(--sidebar-top);
+  --card: var(--surface);
+  --card-foreground: var(--sidebar-top);
+  --popover: var(--surface);
+  --popover-foreground: var(--sidebar-top);
+  --primary: var(--primary-action);
+  --primary-foreground: var(--surface);
+  --secondary: var(--primary-subtle);
+  --secondary-foreground: var(--active);
+  --muted: var(--textbox);
+  --muted-foreground: var(--searchbar);
+  --accent: var(--primary-subtle);
+  --accent-foreground: var(--active);
+  --destructive: var(--destructive-action);
+  --border: var(--base-neutral-stroke);
+  --input: var(--base-neutral-stroke);
+  --ring: var(--focus);
+  --chart-1: var(--base-blue-600);
+  --chart-2: var(--base-green);
+  --chart-3: var(--base-neutral-400);
+  --chart-4: var(--base-green-light);
+  --chart-5: var(--base-red-500);
   --radius: 0.625rem;
-
-  --sidebar: oklch(0.985 0 0);
-
-  --sidebar-foreground: oklch(0.145 0 0);
-
-  --sidebar-primary: oklch(0.205 0 0);
-
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-
-  --sidebar-accent: oklch(0.97 0 0);
-
-  --sidebar-accent-foreground: oklch(0.205 0 0);
-
-  --sidebar-border: oklch(0.922 0 0);
-
-  --sidebar-ring: oklch(0.708 0 0);
+  --sidebar: var(--sidebar-middle);
+  --sidebar-foreground: var(--surface);
+  --sidebar-primary: var(--focus);
+  --sidebar-primary-foreground: var(--surface);
+  --sidebar-accent: var(--primary-subtle);
+  --sidebar-accent-foreground: var(--active);
+  --sidebar-border: var(--sidebar-bottom);
+  --sidebar-ring: var(--focus);
 }
 
 @theme inline {
@@ -101,6 +115,23 @@
   --color-card: var(--card);
   --color-foreground: var(--foreground);
   --color-background: var(--background);
+  --color-surface: var(--surface);
+  --color-textbox: var(--textbox);
+  --color-currency-card: var(--currency-card);
+  --color-searchbar: var(--searchbar);
+  --color-sidebar-bottom: var(--sidebar-bottom);
+  --color-sidebar-middle: var(--sidebar-middle);
+  --color-sidebar-top: var(--sidebar-top);
+  --color-primary-subtle: var(--primary-subtle);
+  --color-focus: var(--focus);
+  --color-active: var(--active);
+  --color-destructive-subtle: var(--destructive-subtle);
+  --color-destructive-active: var(--destructive-active);
+  --color-success: var(--base-green);
+  --color-success-light: var(--base-green-light);
+  --color-base-red-strong: var(--base-red-strong);
+  --color-base-red-deep: var(--base-red-deep);
+  --color-base-red-bright: var(--base-red-bright);
   --radius-sm: calc(var(--radius) * 0.6);
   --radius-md: calc(var(--radius) * 0.8);
   --radius-lg: var(--radius);
