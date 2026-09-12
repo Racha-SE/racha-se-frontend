@@ -1,14 +1,9 @@
 import { UserRoundPlus } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
+import { mockProductCategories } from "./mock-products";
 import { ProductForm } from "./product-form";
 import type { ProductFormValues } from "./product-form-schema";
-
-const categories = [
-  { label: "Beverages", value: "beverages" },
-  { label: "Bakery", value: "bakery" },
-  { label: "Household", value: "household" },
-];
 
 export function AddProductPage() {
   const navigate = useNavigate();
@@ -32,7 +27,7 @@ export function AddProductPage() {
 
       <section className="mt-6 px-3">
         <ProductForm
-          categories={categories}
+          categories={[...mockProductCategories]}
           onSubmit={handleSubmit}
           onCancel={handleCancel}
         />

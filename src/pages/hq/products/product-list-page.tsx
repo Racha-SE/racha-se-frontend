@@ -13,68 +13,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 
-const products = [
-  {
-    pId: "P001001",
-    name: "Drinking Water 600ml",
-    category: "Beverages",
-    status: "Active",
-  },
-  {
-    pId: "P001002",
-    name: "Coke 325ml",
-    category: "Beverages",
-    status: "Active",
-  },
-  {
-    pId: "P002015",
-    name: "Milk Bread",
-    category: "Snacks & Bakery",
-    status: "Active",
-  },
-  {
-    pId: "P003020",
-    name: "Cooling Shampoo",
-    category: "Personal Care",
-    status: "Active",
-  },
-  {
-    pId: "P004010",
-    name: "Bar Soap 90g",
-    category: "Household",
-    status: "Active",
-  },
-  {
-    pId: "P005011",
-    name: "Green Tea 500ml",
-    category: "Beverages",
-    status: "Active",
-  },
-  {
-    pId: "P006012",
-    name: "Butter Croissant",
-    category: "Snacks & Bakery",
-    status: "Active",
-  },
-  {
-    pId: "P007013",
-    name: "Toothpaste 150g",
-    category: "Personal Care",
-    status: "Active",
-  },
-  {
-    pId: "P008014",
-    name: "Laundry Detergent",
-    category: "Household",
-    status: "Active",
-  },
-  {
-    pId: "P009015",
-    name: "Orange Juice 1L",
-    category: "Beverages",
-    status: "Active",
-  },
-] as const;
+import { mockProducts } from "./mock-products";
 
 const blueButtonClassName =
   "h-8 bg-primary text-sm text-primary-foreground hover:bg-active focus-visible:ring-focus/30";
@@ -139,7 +78,7 @@ export function ProductListPage() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {products.map((product) => (
+              {mockProducts.map((product) => (
                 <TableRow
                   key={product.pId}
                   className="border-border even:bg-textbox hover:bg-primary-subtle"
@@ -154,7 +93,7 @@ export function ProductListPage() {
                     {product.category}
                   </TableCell>
                   <TableCell className="h-auto border-r border-border px-4 py-2 text-base">
-                    {product.status}
+                    {product.status === "active" ? "Active" : "Inactive"}
                   </TableCell>
                   <TableCell className="h-auto px-4 py-2">
                     <div className="flex items-center gap-0.5">
@@ -173,6 +112,11 @@ export function ProductListPage() {
                         size="icon-xs"
                         className="text-foreground [&_svg]:size-3.5!"
                         aria-label={`Edit ${product.name}`}
+                        onClick={() =>
+                          navigate(
+                            `/hq/products/${encodeURIComponent(product.pId)}/edit`,
+                          )
+                        }
                       >
                         <FilePenLine />
                       </Button>
@@ -194,7 +138,7 @@ export function ProductListPage() {
         </div>
 
         <div className="flex items-center justify-between text-base text-foreground">
-          <span>Showing {products.length} items</span>
+          <span>Showing {mockProducts.length} items</span>
           <nav className="flex items-center gap-1" aria-label="Pagination">
             <Button
               type="button"
