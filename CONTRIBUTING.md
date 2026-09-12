@@ -73,6 +73,54 @@ export function HqPage() {
 }
 ```
 
+### Reuse Guidelines
+
+Reuse primitives and patterns before reusing whole feature components. Two dialogs can both contain text fields, selects, and submit buttons without needing to be the same shared component.
+
+- Keep feature-specific dialogs and forms near the page that owns them.
+- Reuse shadcn/ui primitives such as `Button`, `Input`, `Select`, and `Dialog`.
+- Move a component to `src/components/` only when multiple features share the same behavior and props.
+- Do not extract a shared component only because two screens look similar.
+
+Example:
+
+```txt
+src/pages/hq/users/create-user-dialog.tsx
+src/pages/hq/products/create-product-dialog.tsx
+```
+
+These can stay separate because their fields, validation, and submit behavior are different. If both need the same confirm-delete behavior later, create a shared component such as:
+
+```txt
+src/components/confirm-dialog.tsx
+```
+
+### Forms
+
+Use React Hook Form for form state and Zod for validation when a form has real validation rules. Use shadcn/ui field components for the visual form layout.
+
+- Use `useForm` from `react-hook-form` to own form state.
+- Use `zod` schemas for validation when validation is needed.
+- Use `zodResolver` from `@hookform/resolvers/zod` to connect Zod to React Hook Form.
+- Use `Controller` for shadcn `Select`, custom inputs, and other controlled components.
+- Keep create/update forms for one feature near that feature page.
+
+`Controller` connects React Hook Form to UI components that do not behave exactly like a native input. It passes the field value and change handler into the component so React Hook Form can track it.
+
+Example:
+
+```tsx
+<Controller
+  name="categoryId"
+  control={form.control}
+  render={({ field }) => (
+    <Select value={field.value} onValueChange={field.onChange}>
+      {/* SelectTrigger and SelectContent go here */}
+    </Select>
+  )}
+/>
+```
+
 ### `src/lib/`
 
 Generic frontend utilities live here.

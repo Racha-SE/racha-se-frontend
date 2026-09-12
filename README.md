@@ -65,7 +65,7 @@ bun run dev
 The frontend talks to the backend through `VITE_API_BASE_URL`. When the backend is run through Docker Compose, the backend app listens internally on port `3000`, but is exposed to the host on port `6767`; the frontend should use the exposed host URL:
 
 ```txt
-http://localhost:6767/v1
+http://localhost:6767/api/v1
 ```
 
 API calls should go through `src/api/client.ts`, not direct `fetch(...)` calls inside pages. Feature-specific API wrappers can live beside it, for example `src/api/mock-users.ts`.
