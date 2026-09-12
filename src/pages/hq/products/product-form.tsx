@@ -106,57 +106,65 @@ export function ProductForm({
           )}
         />
 
-        <Controller
-          name="sellingPrice"
-          control={form.control}
-          render={({ field, fieldState }) => (
-            <Field className="gap-1" data-invalid={fieldState.invalid}>
-              <FieldLabel
-                htmlFor="selling-price"
-                className="text-sm font-normal text-active"
+        <div className="flex w-full max-w-[420px] gap-4">
+          <Controller
+            name="sellingPrice"
+            control={form.control}
+            render={({ field, fieldState }) => (
+              <Field
+                className="min-w-0 flex-1 gap-1"
+                data-invalid={fieldState.invalid}
               >
-                Selling Price *
-              </FieldLabel>
-              <Input
-                {...field}
-                id="selling-price"
-                type="number"
-                inputMode="decimal"
-                min="0.01"
-                step="0.01"
-                className="h-9 max-w-[280px] rounded-md bg-textbox px-3 py-2 text-sm"
-                aria-invalid={fieldState.invalid}
-              />
-              <FieldError errors={[fieldState.error]} />
-            </Field>
-          )}
-        />
+                <FieldLabel
+                  htmlFor="selling-price"
+                  className="text-sm font-normal text-active"
+                >
+                  Selling Price *
+                </FieldLabel>
+                <Input
+                  {...field}
+                  id="selling-price"
+                  type="number"
+                  inputMode="decimal"
+                  min="0.01"
+                  step="0.01"
+                  className="h-9 max-w-[280px] rounded-md bg-textbox px-3 py-2 text-sm"
+                  aria-invalid={fieldState.invalid}
+                />
+                <FieldError errors={[fieldState.error]} />
+              </Field>
+            )}
+          />
 
-        <Controller
-          name="costPrice"
-          control={form.control}
-          render={({ field, fieldState }) => (
-            <Field className="gap-1" data-invalid={fieldState.invalid}>
-              <FieldLabel
-                htmlFor="cost-price"
-                className="text-sm font-normal text-active"
+          <Controller
+            name="costPrice"
+            control={form.control}
+            render={({ field, fieldState }) => (
+              <Field
+                className="min-w-0 flex-1 gap-1"
+                data-invalid={fieldState.invalid}
               >
-                Cost Price *
-              </FieldLabel>
-              <Input
-                {...field}
-                id="cost-price"
-                type="number"
-                inputMode="decimal"
-                min="0.01"
-                step="0.01"
-                className="h-9 max-w-[280px] rounded-md bg-textbox px-3 py-2 text-sm"
-                aria-invalid={fieldState.invalid}
-              />
-              <FieldError errors={[fieldState.error]} />
-            </Field>
-          )}
-        />
+                <FieldLabel
+                  htmlFor="cost-price"
+                  className="text-sm font-normal text-active"
+                >
+                  Cost Price *
+                </FieldLabel>
+                <Input
+                  {...field}
+                  id="cost-price"
+                  type="number"
+                  inputMode="decimal"
+                  min="0.01"
+                  step="0.01"
+                  className="h-9 max-w-[280px] rounded-md bg-textbox px-3 py-2 text-sm"
+                  aria-invalid={fieldState.invalid}
+                />
+                <FieldError errors={[fieldState.error]} />
+              </Field>
+            )}
+          />
+        </div>
 
         <Controller
           name="category"
@@ -203,57 +211,65 @@ export function ProductForm({
           )}
         />
 
-        <Controller
-          name="minStockHq"
-          control={form.control}
-          render={({ field, fieldState }) => (
-            <Field className="gap-1" data-invalid={fieldState.invalid}>
-              <FieldLabel
-                htmlFor="minimum-stock-hq"
-                className="text-sm font-normal text-active"
+        <div className="flex w-full max-w-[420px] gap-4">
+          <Controller
+            name="minStockHq"
+            control={form.control}
+            render={({ field, fieldState }) => (
+              <Field
+                className="min-w-0 flex-1 gap-1"
+                data-invalid={fieldState.invalid}
               >
-                Minimum Stock HQ *
-              </FieldLabel>
-              <Input
-                {...field}
-                id="minimum-stock-hq"
-                type="number"
-                inputMode="numeric"
-                min="0"
-                step="1"
-                className="h-9 max-w-[280px] rounded-md bg-textbox px-3 py-2 text-sm"
-                aria-invalid={fieldState.invalid}
-              />
-              <FieldError errors={[fieldState.error]} />
-            </Field>
-          )}
-        />
+                <FieldLabel
+                  htmlFor="minimum-stock-hq"
+                  className="text-sm font-normal text-active"
+                >
+                  Minimum Stock HQ *
+                </FieldLabel>
+                <Input
+                  {...field}
+                  id="minimum-stock-hq"
+                  type="number"
+                  inputMode="numeric"
+                  min="0"
+                  step="1"
+                  className="h-9 max-w-[280px] rounded-md bg-textbox px-3 py-2 text-sm"
+                  aria-invalid={fieldState.invalid}
+                />
+                <FieldError errors={[fieldState.error]} />
+              </Field>
+            )}
+          />
 
-        <Controller
-          name="minStockBranch"
-          control={form.control}
-          render={({ field, fieldState }) => (
-            <Field className="gap-1" data-invalid={fieldState.invalid}>
-              <FieldLabel
-                htmlFor="minimum-stock-branch"
-                className="text-sm font-normal text-active"
+          <Controller
+            name="minStockBranch"
+            control={form.control}
+            render={({ field, fieldState }) => (
+              <Field
+                className="min-w-0 flex-1 gap-1"
+                data-invalid={fieldState.invalid}
               >
-                Minimum Stock Branch *
-              </FieldLabel>
-              <Input
-                {...field}
-                id="minimum-stock-branch"
-                type="number"
-                inputMode="numeric"
-                min="0"
-                step="1"
-                className="h-9 max-w-[280px] rounded-md bg-textbox px-3 py-2 text-sm"
-                aria-invalid={fieldState.invalid}
-              />
-              <FieldError errors={[fieldState.error]} />
-            </Field>
-          )}
-        />
+                <FieldLabel
+                  htmlFor="minimum-stock-branch"
+                  className="text-sm font-normal text-active"
+                >
+                  Minimum Stock Branch *
+                </FieldLabel>
+                <Input
+                  {...field}
+                  id="minimum-stock-branch"
+                  type="number"
+                  inputMode="numeric"
+                  min="0"
+                  step="1"
+                  className="h-9 max-w-[280px] rounded-md bg-textbox px-3 py-2 text-sm"
+                  aria-invalid={fieldState.invalid}
+                />
+                <FieldError errors={[fieldState.error]} />
+              </Field>
+            )}
+          />
+        </div>
 
         <Controller
           name="status"
