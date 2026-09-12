@@ -76,12 +76,15 @@ const products = [
   },
 ] as const;
 
+const PAGE_SIZE = 15;
+
 const blueButtonClassName =
   "h-8 bg-primary text-sm text-primary-foreground hover:bg-active focus-visible:ring-focus/30";
 
 export function ProductListPage() {
   const navigate = useNavigate();
   const [search, setSearch] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
 
   const filteredProducts = useMemo(() => {
     const query = search.trim().toLowerCase();
@@ -96,6 +99,21 @@ export function ProductListPage() {
         product.name.toLowerCase().includes(query),
     );
   }, [search]);
+
+  const totalPages = Math.max(
+    1,
+    Math.ceil(filteredProducts.length / PAGE_SIZE),
+  );
+  const pageStart = (currentPage - 1) * PAGE_SIZE;
+  const visibleProducts = filteredProducts.slice(
+    pageStart,
+    pageStart + PAGE_SIZE,
+  );
+
+  function handleSearchChange(value: string) {
+    setSearch(value);
+    setCurrentPage(1);
+  }
 
   return (
     <main className="min-h-screen bg-background p-6 text-left text-foreground">
@@ -113,7 +131,7 @@ export function ProductListPage() {
             value={search}
             placeholder="Search product name / ID"
             aria-label="Search products"
-            onChange={(event) => setSearch(event.target.value)}
+            onChange={(event) => handleSearchChange(event.target.value)}
           />
 
           <div className="flex gap-3">
@@ -153,7 +171,7 @@ export function ProductListPage() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {filteredProducts.map((product) => (
+              {visibleProducts.map((product) => (
                 <TableRow
                   key={product.pId}
                   className="border-border even:bg-textbox hover:bg-primary-subtle"
@@ -208,32 +226,39 @@ export function ProductListPage() {
         </div>
 
         <div className="flex items-center justify-between text-base text-foreground">
-          <span>
-            Showing {search.trim() ? filteredProducts.length : 10} items
-          </span>
+          <span>Showing {visibleProducts.length} items</span>
           <nav className="flex items-center gap-1" aria-label="Pagination">
             <Button
               type="button"
               variant="ghost"
               size="xs"
               aria-label="Previous page"
+              disabled={currentPage === 1}
+              onClick={() => setCurrentPage((page) => page - 1)}
             >
               ‹
             </Button>
-            {[1, 2, 3, 4, 5].map((page) => (
-              <Button key={page} type="button" variant="ghost" size="xs">
-                {page}
-              </Button>
-            ))}
-            <span>...</span>
-            <Button type="button" variant="ghost" size="xs">
-              50
-            </Button>
+            {Array.from({ length: totalPages }, (_, index) => index + 1).map(
+              (page) => (
+                <Button
+                  key={page}
+                  type="button"
+                  variant={currentPage === page ? "default" : "ghost"}
+                  size="xs"
+                  aria-current={currentPage === page ? "page" : undefined}
+                  onClick={() => setCurrentPage(page)}
+                >
+                  {page}
+                </Button>
+              ),
+            )}
             <Button
               type="button"
               variant="ghost"
               size="xs"
               aria-label="Next page"
+              disabled={currentPage === totalPages}
+              onClick={() => setCurrentPage((page) => page + 1)}
             >
               ›
             </Button>
