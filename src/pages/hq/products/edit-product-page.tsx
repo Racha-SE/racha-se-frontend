@@ -40,8 +40,12 @@ export function EditProductPage() {
           categories={[...mockProductCategories]}
           initialValues={{
             productName: product.name,
+            description: product.description,
             sellingPrice: String(product.sellingPrice),
+            costPrice: String(product.costPrice),
             category: product.categoryValue,
+            minStockHq: String(product.minStockHq),
+            minStockBranch: String(product.minStockBranch),
             status: product.status,
           }}
           onSubmit={handleSubmit}

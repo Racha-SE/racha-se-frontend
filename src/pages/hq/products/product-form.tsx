@@ -45,8 +45,12 @@ export function ProductForm({
     resolver: zodResolver(productFormSchema),
     defaultValues: {
       productName: initialValues.productName ?? "",
+      description: initialValues.description ?? "",
       sellingPrice: initialValues.sellingPrice ?? "",
+      costPrice: initialValues.costPrice ?? "",
       category: initialValues.category ?? "",
+      minStockHq: initialValues.minStockHq ?? "",
+      minStockBranch: initialValues.minStockBranch ?? "",
       status: initialValues.status ?? "active",
     },
   });
@@ -81,6 +85,28 @@ export function ProductForm({
         />
 
         <Controller
+          name="description"
+          control={form.control}
+          render={({ field, fieldState }) => (
+            <Field className="gap-1" data-invalid={fieldState.invalid}>
+              <FieldLabel
+                htmlFor="product-description"
+                className="text-sm font-normal text-active"
+              >
+                Description
+              </FieldLabel>
+              <Input
+                {...field}
+                id="product-description"
+                className="h-9 max-w-[280px] rounded-md bg-textbox px-3 py-2 text-sm"
+                aria-invalid={fieldState.invalid}
+              />
+              <FieldError errors={[fieldState.error]} />
+            </Field>
+          )}
+        />
+
+        <Controller
           name="sellingPrice"
           control={form.control}
           render={({ field, fieldState }) => (
@@ -96,7 +122,33 @@ export function ProductForm({
                 id="selling-price"
                 type="number"
                 inputMode="decimal"
-                min="0"
+                min="0.01"
+                step="0.01"
+                className="h-9 max-w-[280px] rounded-md bg-textbox px-3 py-2 text-sm"
+                aria-invalid={fieldState.invalid}
+              />
+              <FieldError errors={[fieldState.error]} />
+            </Field>
+          )}
+        />
+
+        <Controller
+          name="costPrice"
+          control={form.control}
+          render={({ field, fieldState }) => (
+            <Field className="gap-1" data-invalid={fieldState.invalid}>
+              <FieldLabel
+                htmlFor="cost-price"
+                className="text-sm font-normal text-active"
+              >
+                Cost Price *
+              </FieldLabel>
+              <Input
+                {...field}
+                id="cost-price"
+                type="number"
+                inputMode="decimal"
+                min="0.01"
                 step="0.01"
                 className="h-9 max-w-[280px] rounded-md bg-textbox px-3 py-2 text-sm"
                 aria-invalid={fieldState.invalid}
@@ -146,6 +198,58 @@ export function ProductForm({
                   ))}
                 </SelectContent>
               </Select>
+              <FieldError errors={[fieldState.error]} />
+            </Field>
+          )}
+        />
+
+        <Controller
+          name="minStockHq"
+          control={form.control}
+          render={({ field, fieldState }) => (
+            <Field className="gap-1" data-invalid={fieldState.invalid}>
+              <FieldLabel
+                htmlFor="minimum-stock-hq"
+                className="text-sm font-normal text-active"
+              >
+                Minimum Stock HQ *
+              </FieldLabel>
+              <Input
+                {...field}
+                id="minimum-stock-hq"
+                type="number"
+                inputMode="numeric"
+                min="0"
+                step="1"
+                className="h-9 max-w-[280px] rounded-md bg-textbox px-3 py-2 text-sm"
+                aria-invalid={fieldState.invalid}
+              />
+              <FieldError errors={[fieldState.error]} />
+            </Field>
+          )}
+        />
+
+        <Controller
+          name="minStockBranch"
+          control={form.control}
+          render={({ field, fieldState }) => (
+            <Field className="gap-1" data-invalid={fieldState.invalid}>
+              <FieldLabel
+                htmlFor="minimum-stock-branch"
+                className="text-sm font-normal text-active"
+              >
+                Minimum Stock Branch *
+              </FieldLabel>
+              <Input
+                {...field}
+                id="minimum-stock-branch"
+                type="number"
+                inputMode="numeric"
+                min="0"
+                step="1"
+                className="h-9 max-w-[280px] rounded-md bg-textbox px-3 py-2 text-sm"
+                aria-invalid={fieldState.invalid}
+              />
               <FieldError errors={[fieldState.error]} />
             </Field>
           )}
