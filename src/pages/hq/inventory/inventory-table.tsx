@@ -1,4 +1,4 @@
-import { Eye, FilePenLine, FileX } from "lucide-react";
+import { Eye } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -14,9 +14,10 @@ import type { MockInventoryItem } from "./mock-inventory";
 
 interface InventoryTableProps {
   items: readonly MockInventoryItem[];
+  onViewProduct: (productId: string) => void;
 }
 
-export function InventoryTable({ items }: InventoryTableProps) {
+export function InventoryTable({ items, onViewProduct }: InventoryTableProps) {
   return (
     <div className="border border-border">
       <Table>
@@ -35,7 +36,7 @@ export function InventoryTable({ items }: InventoryTableProps) {
               Quantity
             </TableHead>
             <TableHead className="h-auto border-r border-border px-4 py-2 text-base font-semibold">
-              Selling Price
+              Cost Price
             </TableHead>
             <TableHead className="h-auto border-r border-border px-4 py-2 text-base font-semibold">
               Expiry Date
@@ -48,7 +49,7 @@ export function InventoryTable({ items }: InventoryTableProps) {
         <TableBody>
           {items.map((item) => (
             <TableRow
-              key={`${item.productId}-${item.expiryDate}`}
+              key={item.lotId}
               className="border-border even:bg-textbox hover:bg-primary-subtle"
             >
               <TableCell className="h-auto border-r border-border px-4 py-2 text-base">
@@ -64,7 +65,7 @@ export function InventoryTable({ items }: InventoryTableProps) {
                 {item.quantity}
               </TableCell>
               <TableCell className="h-auto border-r border-border px-4 py-2 text-base">
-                ฿{item.sellingPrice.toFixed(2)}
+                ฿{item.costPrice.toFixed(2)}
               </TableCell>
               <TableCell className="h-auto border-r border-border px-4 py-2 text-base">
                 {item.expiryDate}
@@ -76,27 +77,10 @@ export function InventoryTable({ items }: InventoryTableProps) {
                     variant="ghost"
                     size="icon-xs"
                     className="text-foreground [&_svg]:size-3.5!"
-                    aria-label={`View ${item.productName} stock`}
+                    aria-label={`View ${item.productName} details`}
+                    onClick={() => onViewProduct(item.productId)}
                   >
                     <Eye />
-                  </Button>
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="icon-xs"
-                    className="text-foreground [&_svg]:size-3.5!"
-                    aria-label={`Edit ${item.productName} stock`}
-                  >
-                    <FilePenLine />
-                  </Button>
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="icon-xs"
-                    className="text-foreground [&_svg]:size-3.5!"
-                    aria-label={`Delete ${item.productName} stock`}
-                  >
-                    <FileX />
                   </Button>
                 </div>
               </TableCell>

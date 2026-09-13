@@ -1,6 +1,3 @@
-import { Eye, FilePenLine, FileX } from "lucide-react";
-
-import { Button } from "@/components/ui/button";
 import {
   Table,
   TableBody,
@@ -11,10 +8,10 @@ import {
 } from "@/components/ui/table";
 import { cn } from "@/lib/utils";
 
-import type { MockInventoryItem } from "./mock-inventory";
+import type { MockInventoryLot } from "./mock-inventory";
 
 interface InventoryLotTableProps {
-  items: readonly MockInventoryItem[];
+  items: readonly MockInventoryLot[];
   emptyRows?: number;
   stickyHeader?: boolean;
 }
@@ -30,17 +27,14 @@ export function InventoryLotTable({
         className={cn(stickyHeader && "sticky top-0 z-10 bg-surface")}
       >
         <TableRow className="border-border hover:bg-transparent">
-          <TableHead className="h-10 w-[18%] border-r border-border px-3 text-sm font-semibold">
+          <TableHead className="h-10 w-1/4 border-r border-border px-3 text-sm font-semibold">
             Quantity
           </TableHead>
-          <TableHead className="h-10 w-[27%] border-r border-border px-3 text-sm font-semibold">
-            Selling Price
+          <TableHead className="h-10 w-[35%] border-r border-border px-3 text-sm font-semibold">
+            Cost Price
           </TableHead>
-          <TableHead className="h-10 border-r border-border px-3 text-sm font-semibold">
+          <TableHead className="h-10 w-[40%] px-3 text-sm font-semibold">
             Expiry Date
-          </TableHead>
-          <TableHead className="h-10 w-24 px-2 text-sm font-semibold">
-            Actions
           </TableHead>
         </TableRow>
       </TableHeader>
@@ -56,7 +50,6 @@ export function InventoryLotTable({
           >
             <TableCell className="border-r border-border" />
             <TableCell className="border-r border-border" />
-            <TableCell className="border-r border-border" />
             <TableCell />
           </TableRow>
         ))}
@@ -65,49 +58,16 @@ export function InventoryLotTable({
   );
 }
 
-function InventoryLotRow({ item }: { item: MockInventoryItem }) {
+function InventoryLotRow({ item }: { item: MockInventoryLot }) {
   return (
     <TableRow className="h-11 border-border even:bg-textbox hover:bg-primary-subtle">
       <TableCell className="border-r border-border px-3 py-2 text-sm">
         {item.quantity}
       </TableCell>
       <TableCell className="border-r border-border px-3 py-2 text-sm">
-        ฿{item.sellingPrice.toFixed(2)}
+        ฿{item.costPrice.toFixed(2)}
       </TableCell>
-      <TableCell className="border-r border-border px-3 py-2 text-sm">
-        {item.expiryDate}
-      </TableCell>
-      <TableCell className="w-24 px-2 py-2">
-        <div className="flex items-center gap-0.5">
-          <Button
-            type="button"
-            variant="ghost"
-            size="icon-xs"
-            className="text-foreground [&_svg]:size-3.5!"
-            aria-label={`View lot ${item.lotId}`}
-          >
-            <Eye />
-          </Button>
-          <Button
-            type="button"
-            variant="ghost"
-            size="icon-xs"
-            className="text-foreground [&_svg]:size-3.5!"
-            aria-label={`Edit lot ${item.lotId}`}
-          >
-            <FilePenLine />
-          </Button>
-          <Button
-            type="button"
-            variant="ghost"
-            size="icon-xs"
-            className="text-foreground [&_svg]:size-3.5!"
-            aria-label={`Delete lot ${item.lotId}`}
-          >
-            <FileX />
-          </Button>
-        </div>
-      </TableCell>
+      <TableCell className="px-3 py-2 text-sm">{item.expiryDate}</TableCell>
     </TableRow>
   );
 }

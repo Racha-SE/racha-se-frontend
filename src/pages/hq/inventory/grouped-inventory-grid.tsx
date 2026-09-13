@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Eye } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 
@@ -10,9 +11,13 @@ const visibleLotCount = 4;
 
 interface GroupedInventoryGridProps {
   groups: readonly MockInventoryProductGroup[];
+  onViewProduct: (productId: string) => void;
 }
 
-export function GroupedInventoryGrid({ groups }: GroupedInventoryGridProps) {
+export function GroupedInventoryGrid({
+  groups,
+  onViewProduct,
+}: GroupedInventoryGridProps) {
   const [selectedGroup, setSelectedGroup] =
     useState<MockInventoryProductGroup | null>(null);
 
@@ -30,9 +35,21 @@ export function GroupedInventoryGrid({ groups }: GroupedInventoryGridProps) {
             >
               <header className="flex min-h-16 items-center justify-between gap-3 border-b border-border bg-textbox px-4 py-3">
                 <div className="min-w-0">
-                  <h2 className="truncate text-base font-semibold text-active">
-                    {group.productName}
-                  </h2>
+                  <div className="flex items-center gap-1">
+                    <h2 className="truncate text-base font-semibold text-active">
+                      {group.productName}
+                    </h2>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon-xs"
+                      className="shrink-0 text-foreground [&_svg]:size-3.5!"
+                      aria-label={`View ${group.productName} details`}
+                      onClick={() => onViewProduct(group.productId)}
+                    >
+                      <Eye />
+                    </Button>
+                  </div>
                   <p className="text-sm text-foreground">
                     {group.productId} · {group.category}
                   </p>
