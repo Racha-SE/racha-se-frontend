@@ -13,8 +13,16 @@ import {
   TableRow,
 } from "@/components/ui/table";
 
-import { mockProducts, type MockProduct } from "./mock-products";
+import {
+  mockProductCategories,
+  mockProducts,
+  type MockProduct,
+} from "./mock-products";
 import { ProductDetailDialog } from "./product-detail-dialog";
+import {
+  ProductFilterDialog,
+  type ProductFilterValues,
+} from "./product-filter-dialog";
 
 const blueButtonClassName =
   "h-8 bg-primary text-sm text-primary-foreground hover:bg-active focus-visible:ring-focus/30";
@@ -25,6 +33,7 @@ export function ProductListPage() {
   const [selectedProduct, setSelectedProduct] = useState<MockProduct | null>(
     null,
   );
+  const [filters, setFilters] = useState<ProductFilterValues>({});
 
   return (
     <main className="min-h-screen bg-background p-6 text-left text-foreground">
@@ -54,9 +63,11 @@ export function ProductListPage() {
             >
               Add Product
             </Button>
-            <Button type="button" size="sm" className={blueButtonClassName}>
-              Filter
-            </Button>
+            <ProductFilterDialog
+              categories={mockProductCategories}
+              value={filters}
+              onApply={setFilters}
+            />
           </div>
         </div>
 
