@@ -1,21 +1,22 @@
 import { useState } from "react";
 import { Boxes } from "lucide-react";
 
-import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
 import { ProductDetailDialog } from "@/pages/hq/products/product-detail-dialog";
 import {
+  mockProductCategories,
   mockProducts,
   type MockProduct,
 } from "@/pages/hq/products/mock-products";
 
 import { GroupedInventoryGrid } from "./grouped-inventory-grid";
+import {
+  InventoryFilterDialog,
+  type InventoryFilterValues,
+} from "./inventory-filter-dialog";
 import { InventoryTable } from "./inventory-table";
 import { mockGroupedInventory, mockInventory } from "./mock-inventory";
-
-const blueButtonClassName =
-  "h-8 bg-primary text-sm text-primary-foreground hover:bg-active focus-visible:ring-focus/30";
 
 export function InventoryListPage() {
   const [search, setSearch] = useState("");
@@ -23,6 +24,7 @@ export function InventoryListPage() {
   const [selectedProduct, setSelectedProduct] = useState<MockProduct | null>(
     null,
   );
+  const [filters, setFilters] = useState<InventoryFilterValues>({});
 
   function handleViewProduct(productId: string) {
     const product = mockProducts.find((item) => item.pId === productId);
@@ -57,9 +59,11 @@ export function InventoryListPage() {
               />
               Group by product
             </label>
-            <Button type="button" size="sm" className={blueButtonClassName}>
-              Filter
-            </Button>
+            <InventoryFilterDialog
+              categories={mockProductCategories}
+              value={filters}
+              onApply={setFilters}
+            />
           </div>
         </div>
 
