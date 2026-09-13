@@ -8,6 +8,7 @@ export const mockProductCategories = [
 export const mockProducts = [
   {
     pId: "P001001",
+    barcode: "8850001001001",
     name: "Drinking Water 600ml",
     description: "Purified drinking water in a 600ml bottle.",
     sellingPrice: 10,
@@ -20,6 +21,7 @@ export const mockProducts = [
   },
   {
     pId: "P001002",
+    barcode: "8850001002008",
     name: "Coke 325ml",
     description: "Carbonated cola drink in a 325ml can.",
     sellingPrice: 18,
@@ -32,6 +34,7 @@ export const mockProducts = [
   },
   {
     pId: "P002015",
+    barcode: "8850002015007",
     name: "Milk Bread",
     description: "Soft sliced milk bread.",
     sellingPrice: 35,
@@ -44,6 +47,7 @@ export const mockProducts = [
   },
   {
     pId: "P003020",
+    barcode: "8850003020000",
     name: "Cooling Shampoo",
     description: "Cooling shampoo for daily hair care.",
     sellingPrice: 129,
@@ -56,6 +60,7 @@ export const mockProducts = [
   },
   {
     pId: "P004010",
+    barcode: "8850004010000",
     name: "Bar Soap 90g",
     description: "Everyday cleansing bar soap.",
     sellingPrice: 29,
@@ -68,6 +73,7 @@ export const mockProducts = [
   },
   {
     pId: "P005011",
+    barcode: "8850005011006",
     name: "Green Tea 500ml",
     description: "Ready-to-drink green tea.",
     sellingPrice: 25,
@@ -80,6 +86,7 @@ export const mockProducts = [
   },
   {
     pId: "P006012",
+    barcode: "8850006012002",
     name: "Butter Croissant",
     description: "Flaky croissant made with butter.",
     sellingPrice: 45,
@@ -92,6 +99,7 @@ export const mockProducts = [
   },
   {
     pId: "P007013",
+    barcode: "8850007013008",
     name: "Toothpaste 150g",
     description: "Fluoride toothpaste for daily use.",
     sellingPrice: 89,
@@ -104,6 +112,7 @@ export const mockProducts = [
   },
   {
     pId: "P008014",
+    barcode: "8850008014004",
     name: "Laundry Detergent",
     description: "Concentrated liquid laundry detergent.",
     sellingPrice: 159,
@@ -116,6 +125,7 @@ export const mockProducts = [
   },
   {
     pId: "P009015",
+    barcode: "8850009015000",
     name: "Orange Juice 1L",
     description: "Orange juice in a one-liter bottle.",
     sellingPrice: 65,
@@ -127,3 +137,5 @@ export const mockProducts = [
     status: "active",
   },
 ] as const;
+
+export type MockProduct = (typeof mockProducts)[number];

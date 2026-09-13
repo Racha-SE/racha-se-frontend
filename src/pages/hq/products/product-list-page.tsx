@@ -13,7 +13,8 @@ import {
   TableRow,
 } from "@/components/ui/table";
 
-import { mockProducts } from "./mock-products";
+import { mockProducts, type MockProduct } from "./mock-products";
+import { ProductDetailDialog } from "./product-detail-dialog";
 
 const blueButtonClassName =
   "h-8 bg-primary text-sm text-primary-foreground hover:bg-active focus-visible:ring-focus/30";
@@ -21,6 +22,9 @@ const blueButtonClassName =
 export function ProductListPage() {
   const navigate = useNavigate();
   const [search, setSearch] = useState("");
+  const [selectedProduct, setSelectedProduct] = useState<MockProduct | null>(
+    null,
+  );
 
   return (
     <main className="min-h-screen bg-background p-6 text-left text-foreground">
@@ -103,6 +107,7 @@ export function ProductListPage() {
                         size="icon-xs"
                         className="text-foreground [&_svg]:size-3.5!"
                         aria-label={`View ${product.name}`}
+                        onClick={() => setSelectedProduct(product)}
                       >
                         <Eye />
                       </Button>
@@ -169,6 +174,13 @@ export function ProductListPage() {
           </nav>
         </div>
       </section>
+
+      <ProductDetailDialog
+        product={selectedProduct}
+        onOpenChange={(open) => {
+          if (!open) setSelectedProduct(null);
+        }}
+      />
     </main>
   );
 }
