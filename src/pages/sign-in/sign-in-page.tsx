@@ -6,6 +6,8 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Alert } from "@/components/alert";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useNavigate, useSearchParams } from "react-router-dom";
+import { signInWithEmail } from "@/api/auth";
 import { z } from "zod";
 import {
   Field,
@@ -16,20 +18,67 @@ import {
 } from "@/components/ui/field";
 
 const SignInSchema = z.object({
-  username: z.string(),
-  password: z.string(),
+  username: z.string().min(1),
+  password: z.string().min(1),
   terms: z.boolean().refine((value) => value === true),
 });
 
 type SignInForm = z.infer<typeof SignInSchema>;
 
+type AlertState = {
+  title: string;
+  description: string;
+};
+
 export function SignInPage() {
-  const [showAlert, setShowAlert] = useState(false);
+  const [searchParams, setSearchParams] = useSearchParams();
+  const navigate = useNavigate();
+  const [alert, setAlert] = useState<AlertState | null>(null);
 
-  const onSubmit = (data: SignInForm) => {
-    console.log(data);
+  const invalidToken = searchParams.get("error") === "invalid-token";
 
-    setShowAlert(true);
+  const displayedAlert: AlertState | null = invalidToken
+    ? {
+        title: "Invalid Link",
+        description: "This reset account link has expired.",
+      }
+    : alert;
+
+  const closeAlert = () => {
+    if (invalidToken) {
+      setSearchParams({}, { replace: true });
+      return;
+    }
+    setAlert(null);
+  };
+
+  const onSubmit = async (data: SignInForm) => {
+    setAlert(null);
+
+    const result = await signInWithEmail(data.username, data.password);
+
+    if (result.error) {
+      const status = result.error.status;
+
+      if (status === 403) {
+        setAlert({
+          title: "Account is deactivated",
+          description:
+            "Please activate your account in user management. Then try again.",
+        });
+        return;
+      }
+
+      if (status === 401) {
+        setAlert({
+          title: "Invalid Username or Password",
+          description: "Username or Password is incorrect.",
+        });
+        return;
+      }
+      return;
+    }
+    navigate("/user-management");
   };
 
   const { control, register, handleSubmit } = useForm<SignInForm>({
@@ -43,11 +92,11 @@ export function SignInPage() {
 
   return (
     <div className="flex h-screen items-center justify-center w-full">
-      {showAlert && (
+      {displayedAlert && (
         <Alert
-          title="Invalid Username"
-          description="This username doesn't exist."
-          onClose={() => setShowAlert(false)}
+          title={displayedAlert.title}
+          description={displayedAlert.description}
+          onClose={closeAlert}
         />
       )}
       <div className="flex flex-col items-center w-[706px] h-[502px] pt-[40px] gap-4 rounded-xl border border-sidebar-top bg-textbox">
