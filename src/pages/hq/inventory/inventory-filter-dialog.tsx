@@ -18,10 +18,12 @@ import {
 import { Switch } from "@/components/ui/switch";
 
 export type InventorySortBy = "expiryDate" | "costPrice";
+export type InventorySortOrder = "asc" | "desc";
 
 export interface InventoryFilterValues {
   category?: string;
   sortBy?: InventorySortBy;
+  sortOrder?: InventorySortOrder;
 }
 
 interface InventoryFilterDialogProps {
@@ -33,6 +35,11 @@ interface InventoryFilterDialogProps {
 const sortOptions = [
   { label: "Expiry Date", value: "expiryDate" },
   { label: "Cost Price", value: "costPrice" },
+] as const;
+
+const sortOrderOptions = [
+  { label: "Ascending", value: "asc" },
+  { label: "Descending", value: "desc" },
 ] as const;
 
 export function InventoryFilterDialog({
@@ -49,6 +56,9 @@ export function InventoryFilterDialog({
   const [sortBy, setSortBy] = useState<InventorySortBy>(
     value.sortBy ?? "expiryDate",
   );
+  const [sortOrder, setSortOrder] = useState<InventorySortOrder>(
+    value.sortOrder ?? "asc",
+  );
 
   function handleOpenChange(nextOpen: boolean) {
     if (nextOpen) {
@@ -56,6 +66,7 @@ export function InventoryFilterDialog({
       setCategory(value.category ?? "");
       setSortEnabled(value.sortBy !== undefined);
       setSortBy(value.sortBy ?? "expiryDate");
+      setSortOrder(value.sortOrder ?? "asc");
     }
 
     setOpen(nextOpen);
@@ -65,6 +76,7 @@ export function InventoryFilterDialog({
     onApply({
       category: categoryEnabled && category ? category : undefined,
       sortBy: sortEnabled ? sortBy : undefined,
+      sortOrder: sortEnabled ? sortOrder : undefined,
     });
     setOpen(false);
   }
@@ -73,6 +85,7 @@ export function InventoryFilterDialog({
     setCategoryEnabled(false);
     setCategory("");
     setSortEnabled(false);
+    setSortOrder("asc");
     onApply({});
     setOpen(false);
   }
@@ -156,29 +169,52 @@ export function InventoryFilterDialog({
               </div>
 
               {sortEnabled && (
-                <Select
-                  items={sortOptions}
-                  value={sortBy}
-                  onValueChange={(nextValue) => {
-                    if (
-                      nextValue === "expiryDate" ||
-                      nextValue === "costPrice"
-                    ) {
-                      setSortBy(nextValue);
-                    }
-                  }}
-                >
-                  <SelectTrigger className="h-10! w-full rounded-md bg-surface px-3 text-base">
-                    <SelectValue placeholder="Sort by" />
-                  </SelectTrigger>
-                  <SelectContent align="start" alignItemWithTrigger={false}>
-                    {sortOptions.map((option) => (
-                      <SelectItem key={option.value} value={option.value}>
-                        {option.label}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                <div className="space-y-2">
+                  <Select
+                    items={sortOptions}
+                    value={sortBy}
+                    onValueChange={(nextValue) => {
+                      if (
+                        nextValue === "expiryDate" ||
+                        nextValue === "costPrice"
+                      ) {
+                        setSortBy(nextValue);
+                      }
+                    }}
+                  >
+                    <SelectTrigger className="h-10! w-full rounded-md bg-surface px-3 text-base">
+                      <SelectValue placeholder="Sort by" />
+                    </SelectTrigger>
+                    <SelectContent align="start" alignItemWithTrigger={false}>
+                      {sortOptions.map((option) => (
+                        <SelectItem key={option.value} value={option.value}>
+                          {option.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+
+                  <Select
+                    items={sortOrderOptions}
+                    value={sortOrder}
+                    onValueChange={(nextValue) => {
+                      if (nextValue === "asc" || nextValue === "desc") {
+                        setSortOrder(nextValue);
+                      }
+                    }}
+                  >
+                    <SelectTrigger className="h-10! w-full rounded-md bg-surface px-3 text-base">
+                      <SelectValue placeholder="Select an order" />
+                    </SelectTrigger>
+                    <SelectContent align="start" alignItemWithTrigger={false}>
+                      {sortOrderOptions.map((option) => (
+                        <SelectItem key={option.value} value={option.value}>
+                          {option.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
               )}
             </div>
           </div>
