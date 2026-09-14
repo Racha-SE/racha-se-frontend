@@ -12,24 +12,21 @@ import {
 import { OrderProductFields } from "./order-product-fields";
 
 interface OrderFormProps {
-  categories: readonly { label: string; value: string }[];
   suppliers: readonly { label: string; value: string }[];
   initialValues?: Partial<OrderFormInput>;
   onSubmit: (values: OrderFormValues) => void | Promise<void>;
   onCancel: () => void;
 }
 
-const emptyProduct: OrderFormInput["products"][number] = {
-  productName: "",
-  category: "",
-  supplier: "",
-  quantity: "",
-  costPrice: "",
+const emptyProduct: OrderFormInput["items"][number] = {
+  pId: "",
+  supplierId: "",
+  amount: "",
+  basePrice: "",
   expiryDate: "",
 };
 
 export function OrderForm({
-  categories,
   suppliers,
   initialValues = {},
   onSubmit,
@@ -38,15 +35,15 @@ export function OrderForm({
   const form = useForm<OrderFormInput, unknown, OrderFormValues>({
     resolver: zodResolver(orderFormSchema),
     defaultValues: {
-      products:
-        initialValues.products && initialValues.products.length > 0
-          ? initialValues.products
+      items:
+        initialValues.items && initialValues.items.length > 0
+          ? initialValues.items
           : [{ ...emptyProduct }],
     },
   });
   const { fields, append } = useFieldArray({
     control: form.control,
-    name: "products",
+    name: "items",
   });
 
   return (
@@ -61,7 +58,6 @@ export function OrderForm({
             key={field.id}
             index={index}
             control={form.control}
-            categories={categories}
             suppliers={suppliers}
           />
         ))}

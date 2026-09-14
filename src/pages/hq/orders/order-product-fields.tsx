@@ -12,11 +12,11 @@ import {
 } from "@/components/ui/select";
 
 import type { OrderFormInput, OrderFormValues } from "./order-form-schema";
+import { ProductSearchSelect } from "./product-search-select";
 
 interface OrderProductFieldsProps {
   index: number;
   control: Control<OrderFormInput, unknown, OrderFormValues>;
-  categories: readonly { label: string; value: string }[];
   suppliers: readonly { label: string; value: string }[];
 }
 
@@ -28,7 +28,6 @@ const selectTriggerClassName =
 export function OrderProductFields({
   index,
   control,
-  categories,
   suppliers,
 }: OrderProductFieldsProps) {
   const fieldIdPrefix = `order-product-${index}`;
@@ -42,20 +41,21 @@ export function OrderProductFields({
       <div className="grid grid-cols-1 gap-x-14 gap-y-5 md:grid-cols-2">
         <div className="space-y-5">
           <Controller
-            name={`products.${index}.productName`}
+            name={`items.${index}.pId`}
             control={control}
             render={({ field, fieldState }) => (
               <Field className="gap-1" data-invalid={fieldState.invalid}>
                 <FieldLabel
-                  htmlFor={`${fieldIdPrefix}-name`}
+                  htmlFor={`${fieldIdPrefix}-product`}
                   className="text-sm font-normal text-active"
                 >
-                  Product Name *
+                  Product *
                 </FieldLabel>
-                <Input
-                  {...field}
-                  id={`${fieldIdPrefix}-name`}
-                  className={inputClassName}
+                <ProductSearchSelect
+                  id={`${fieldIdPrefix}-product`}
+                  value={field.value}
+                  onValueChange={field.onChange}
+                  onBlur={field.onBlur}
                   aria-invalid={fieldState.invalid}
                 />
                 <FieldError errors={[fieldState.error]} />
@@ -64,44 +64,7 @@ export function OrderProductFields({
           />
 
           <Controller
-            name={`products.${index}.category`}
-            control={control}
-            render={({ field, fieldState }) => (
-              <Field className="gap-1" data-invalid={fieldState.invalid}>
-                <FieldLabel
-                  htmlFor={`${fieldIdPrefix}-category`}
-                  className="text-sm font-normal text-active"
-                >
-                  Product Category *
-                </FieldLabel>
-                <Select
-                  items={categories}
-                  value={field.value || null}
-                  onValueChange={(value) => field.onChange(value ?? "")}
-                >
-                  <SelectTrigger
-                    id={`${fieldIdPrefix}-category`}
-                    className={selectTriggerClassName}
-                    aria-invalid={fieldState.invalid}
-                    onBlur={field.onBlur}
-                  >
-                    <SelectValue placeholder="Select an option" />
-                  </SelectTrigger>
-                  <SelectContent align="start" alignItemWithTrigger={false}>
-                    {categories.map((category) => (
-                      <SelectItem key={category.value} value={category.value}>
-                        {category.label}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                <FieldError errors={[fieldState.error]} />
-              </Field>
-            )}
-          />
-
-          <Controller
-            name={`products.${index}.supplier`}
+            name={`items.${index}.supplierId`}
             control={control}
             render={({ field, fieldState }) => (
               <Field className="gap-1" data-invalid={fieldState.invalid}>
@@ -140,7 +103,7 @@ export function OrderProductFields({
 
         <div className="space-y-5">
           <Controller
-            name={`products.${index}.quantity`}
+            name={`items.${index}.amount`}
             control={control}
             render={({ field, fieldState }) => (
               <Field className="gap-1" data-invalid={fieldState.invalid}>
@@ -166,7 +129,7 @@ export function OrderProductFields({
           />
 
           <Controller
-            name={`products.${index}.costPrice`}
+            name={`items.${index}.basePrice`}
             control={control}
             render={({ field, fieldState }) => (
               <Field className="gap-1" data-invalid={fieldState.invalid}>
@@ -192,7 +155,7 @@ export function OrderProductFields({
           />
 
           <Controller
-            name={`products.${index}.expiryDate`}
+            name={`items.${index}.expiryDate`}
             control={control}
             render={({ field, fieldState }) => (
               <Field className="gap-1" data-invalid={fieldState.invalid}>
