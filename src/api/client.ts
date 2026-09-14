@@ -50,7 +50,11 @@ async function parseResponseBody(response: Response): Promise<unknown> {
     return null;
   }
 
-  return JSON.parse(text) as unknown;
+  try {
+    return JSON.parse(text) as unknown;
+  } catch {
+    return text;
+  }
 }
 
 async function request<TResponse>(
