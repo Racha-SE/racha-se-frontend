@@ -49,7 +49,10 @@ export function OrderListPage() {
           </div>
         </div>
 
-        <OrderTableList orders={mockOrders} />
+        <OrderTableList
+          orders={mockOrders}
+          onEditOrder={(orderId) => navigate(`/hq/orders/${orderId}/edit`)}
+        />
       </section>
     </main>
   );

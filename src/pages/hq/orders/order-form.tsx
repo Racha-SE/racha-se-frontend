@@ -14,6 +14,7 @@ import { OrderProductFields } from "./order-product-fields";
 interface OrderFormProps {
   categories: readonly { label: string; value: string }[];
   suppliers: readonly { label: string; value: string }[];
+  initialValues?: Partial<OrderFormInput>;
   onSubmit: (values: OrderFormValues) => void | Promise<void>;
   onCancel: () => void;
 }
@@ -30,13 +31,17 @@ const emptyProduct: OrderFormInput["products"][number] = {
 export function OrderForm({
   categories,
   suppliers,
+  initialValues = {},
   onSubmit,
   onCancel,
 }: OrderFormProps) {
   const form = useForm<OrderFormInput, unknown, OrderFormValues>({
     resolver: zodResolver(orderFormSchema),
     defaultValues: {
-      products: [{ ...emptyProduct }],
+      products:
+        initialValues.products && initialValues.products.length > 0
+          ? initialValues.products
+          : [{ ...emptyProduct }],
     },
   });
   const { fields, append } = useFieldArray({

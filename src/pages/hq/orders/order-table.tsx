@@ -1,4 +1,4 @@
-import { Eye, PackageX, Settings } from "lucide-react";
+import { FilePenLine, PackageX } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -14,9 +14,10 @@ import type { MockOrder } from "./mock-orders";
 
 interface OrderTableProps {
   order: MockOrder;
+  onEditOrder: (orderId: string) => void;
 }
 
-export function OrderTable({ order }: OrderTableProps) {
+export function OrderTable({ order, onEditOrder }: OrderTableProps) {
   return (
     <section className="overflow-hidden border border-border bg-surface">
       <header className="flex h-10 items-center justify-between bg-currency-card px-3">
@@ -28,18 +29,10 @@ export function OrderTable({ order }: OrderTableProps) {
             variant="ghost"
             size="icon-xs"
             className="text-foreground [&_svg]:size-3.5!"
-            aria-label={`View order ${order.orderId}`}
+            aria-label={`Edit order ${order.orderId}`}
+            onClick={() => onEditOrder(order.orderId)}
           >
-            <Eye />
-          </Button>
-          <Button
-            type="button"
-            variant="ghost"
-            size="icon-xs"
-            className="text-foreground [&_svg]:size-3.5!"
-            aria-label={`Manage order ${order.orderId}`}
-          >
-            <Settings />
+            <FilePenLine />
           </Button>
           <Button
             type="button"

@@ -2,8 +2,10 @@ export interface MockOrderItem {
   orderItemId: string;
   productId: string;
   productCategory: string;
+  productCategoryValue: string;
   productName: string;
   supplier: string;
+  supplierValue: string;
   quantity: number;
   costPrice: number;
   expiryDate: string;
@@ -15,6 +17,7 @@ export interface MockOrder {
 }
 
 export const mockSupplierOptions = [
+  { label: "Lethal Com", value: "lethal-com" },
   { label: "Goonsquad", value: "goonsquad" },
   { label: "CP ALL", value: "cp-all" },
   { label: "Racha Bakery", value: "racha-bakery" },
@@ -28,8 +31,10 @@ export const mockOrders: MockOrder[] = [
         orderItemId: "ORDER-001-WATER",
         productId: "W00001",
         productCategory: "Water",
+        productCategoryValue: "beverages",
         productName: "Pure Water 100%",
         supplier: "Lethal Com",
+        supplierValue: "lethal-com",
         quantity: 1,
         costPrice: 10,
         expiryDate: "10/09/2025",
@@ -38,8 +43,10 @@ export const mockOrders: MockOrder[] = [
         orderItemId: "ORDER-001-CAR",
         productId: "W00002",
         productCategory: "Car",
+        productCategoryValue: "household",
         productName: "Porchey car",
         supplier: "CP ALL",
+        supplierValue: "cp-all",
         quantity: 1,
         costPrice: 1,
         expiryDate: "10/09/2025",
@@ -53,8 +60,10 @@ export const mockOrders: MockOrder[] = [
         orderItemId: "ORDER-002-COKE",
         productId: "P001002",
         productCategory: "Beverages",
+        productCategoryValue: "beverages",
         productName: "Coke 325ml",
         supplier: "CP ALL",
+        supplierValue: "cp-all",
         quantity: 48,
         costPrice: 12,
         expiryDate: "17/06/2027",
@@ -63,8 +72,10 @@ export const mockOrders: MockOrder[] = [
         orderItemId: "ORDER-002-BREAD",
         productId: "P002015",
         productCategory: "Bakery",
+        productCategoryValue: "bakery",
         productName: "Milk Bread",
         supplier: "Racha Bakery",
+        supplierValue: "racha-bakery",
         quantity: 24,
         costPrice: 22,
         expiryDate: "10/09/2026",
