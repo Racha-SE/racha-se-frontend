@@ -6,6 +6,9 @@ import { Layout } from "@/layouts/layout";
 import { UserManagementPage } from "./pages/user-management/user-management-page";
 import { ChangePasswordPage } from "./pages/user-management/change-password-page";
 import { ResetPasswordPage } from "./pages/user-management/reset-password-page";
+import { SignInPage } from "./pages/sign-in/sign-in-page";
+import { InventoryListPage } from "./pages/hq/inventory/inventory-list-page";
+import { AddOrderPage } from "./pages/hq/orders/add-order-page";
 import { AddProductPage } from "./pages/hq/products/add-product-page";
 import { EditProductPage } from "./pages/hq/products/edit-product-page";
 import { ProductListPage } from "./pages/hq/products/product-list-page";
@@ -24,6 +27,14 @@ export const router = createBrowserRouter([
   {
     path: "/hq/products",
     element: <ProductListPage />,
+  },
+  {
+    path: "/hq/inventory",
+    element: <InventoryListPage />,
+  },
+  {
+    path: "/hq/orders/new",
+    element: <AddOrderPage />,
   },
   {
     path: "/hq/products/new",
@@ -65,5 +76,9 @@ export const router = createBrowserRouter([
         element: <ResetPasswordPage />,
       },
     ],
+  },
+  {
+    path: "/sign-in",
+    element: <SignInPage />,
   },
 ]);
