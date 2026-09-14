@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { SlidersHorizontal } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -98,6 +99,7 @@ export function InventoryFilterDialog({
         className="h-8 bg-primary text-sm text-primary-foreground hover:bg-active focus-visible:ring-focus/30"
         onClick={() => handleOpenChange(true)}
       >
+        <SlidersHorizontal />
         Filter
       </Button>
 
