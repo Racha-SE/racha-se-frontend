@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { PackageOpen } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -11,6 +12,7 @@ const blueButtonClassName =
   "h-8 bg-primary text-sm text-primary-foreground hover:bg-active focus-visible:ring-focus/30";
 
 export function OrderListPage() {
+  const navigate = useNavigate();
   const [search, setSearch] = useState("");
 
   return (
@@ -33,7 +35,12 @@ export function OrderListPage() {
           />
 
           <div className="flex items-center gap-3">
-            <Button type="button" size="sm" className={blueButtonClassName}>
+            <Button
+              type="button"
+              size="sm"
+              className={blueButtonClassName}
+              onClick={() => navigate("/hq/orders/new")}
+            >
               Add order
             </Button>
             <Button type="button" size="sm" className={blueButtonClassName}>
