@@ -6,18 +6,23 @@ import { SuccessAlert } from "@/components/alert";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { UserRoundCog, CircleAlert } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
+import { resetPassword } from "@/api/auth";
 import { z } from "zod";
 
 const ResetPasswordSchema = z.object({
-  newPassword: z.string().min(8, "Invalid password."),
+  newPassword: z.string().min(8),
 });
 
 type ResetPasswordForm = z.infer<typeof ResetPasswordSchema>;
 
 export function ResetPasswordPage() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const [showSuccess, setShowSuccess] = useState(false);
+  const [wrongPassword, setWrongPassword] = useState(false);
+
+  const token = searchParams.get("token");
 
   const {
     register,
@@ -30,8 +35,32 @@ export function ResetPasswordPage() {
     },
   });
 
-  const onSubmit = (data: ResetPasswordForm) => {
-    console.log(data);
+  const onSubmit = async (data: ResetPasswordForm) => {
+    setWrongPassword(false);
+    setShowSuccess(false);
+
+    if (!token) {
+      navigate("/sign-in?error=invalid-token", {
+        replace: true,
+      });
+      return;
+    }
+
+    const result = await resetPassword({
+      newPassword: data.newPassword,
+      token,
+    });
+
+    if (result.error) {
+      if (result.error.code === "INVALID_TOKEN") {
+        navigate("/sign-in?error=invalid-token", {
+          replace: true,
+        });
+        return;
+      }
+      setWrongPassword(true);
+      return;
+    }
 
     setShowSuccess(true);
   };
@@ -65,7 +94,7 @@ export function ResetPasswordPage() {
           <div className="flex flex-col w-[380px] gap-2 text-2xl">
             <Label
               htmlFor="newPassword"
-              className={`text-sm ${errors.newPassword ? "text-invalid" : ""}`}
+              className={`text-sm ${errors.newPassword || wrongPassword ? "text-base-red-bright" : ""}`}
             >
               New Password
             </Label>
@@ -73,14 +102,14 @@ export function ResetPasswordPage() {
             <Input
               id="newPassword"
               type="password"
-              className={`bg-background ${errors.newPassword ? "border-invalid" : ""}`}
+              className={`bg-background ${errors.newPassword || wrongPassword ? "border-base-red-bright" : ""}`}
               {...register("newPassword")}
             />
 
-            {errors.newPassword && (
-              <div className="flex flex-row items-center gap-1 text-invalid text-xs">
+            {(errors.newPassword || wrongPassword) && (
+              <div className="flex flex-row items-center gap-1 text-base-red-bright text-xs">
                 <CircleAlert className="mt-0.5 w-3 h-3" />
-                <p>{errors.newPassword.message}</p>
+                <p>Invalid password.</p>
               </div>
             )}
           </div>

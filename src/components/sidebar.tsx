@@ -1,12 +1,27 @@
 import { NavLink } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { LogOut, UserRoundCog, Gem } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { signOut } from "@/api/auth";
 
 export function Sidebar() {
+  const navigate = useNavigate();
+
+  const handleLogout = async () => {
+    const result = await signOut();
+
+    if (result.error) {
+      return;
+    }
+
+    navigate("/sign-in", { replace: true });
+    console.log(result);
+  };
+
   return (
     <div className="flex w-[270px] shrink-0 flex-col bg-sidebar-middle gap-4 text-textbox">
       <div className="flex flex-row bg-sidebar-top gap-1 p-[10px] items-center">
-        <Gem className="text-selected-tab" />
+        <Gem className="text-focus" />
         <p className="font-medium text-xl">RachaCPALL</p>
       </div>
 
@@ -16,7 +31,7 @@ export function Sidebar() {
             <Button
               className={
                 isActive
-                  ? "flex w-[90%] h-[40px] justify-center bg-selected-tab text-white text-sm"
+                  ? "flex w-[90%] h-[40px] justify-center bg-focus text-white text-sm"
                   : "flex w-[90%] h-[40px] justify-center bg-sidebar-top text-sm"
               }
             >
@@ -30,7 +45,7 @@ export function Sidebar() {
             <Button
               className={
                 isActive
-                  ? "flex w-[90%] h-[40px] justify-center bg-selected-tab text-white text-sm"
+                  ? "flex w-[90%] h-[40px] justify-center bg-focus text-white text-sm"
                   : "flex w-[90%] h-[40px] justify-center bg-sidebar-top text-sm"
               }
             >
@@ -44,7 +59,7 @@ export function Sidebar() {
             <Button
               className={
                 isActive
-                  ? "flex w-[90%] h-[40px] justify-center bg-selected-tab text-white text-sm"
+                  ? "flex w-[90%] h-[40px] justify-center bg-focus text-white text-sm"
                   : "flex w-[90%] h-[40px] justify-center bg-sidebar-top text-sm"
               }
             >
@@ -58,7 +73,7 @@ export function Sidebar() {
             <Button
               className={
                 isActive
-                  ? "flex w-[90%] h-[40px] justify-center bg-selected-tab text-white text-sm"
+                  ? "flex w-[90%] h-[40px] justify-center bg-focus text-white text-sm"
                   : "flex w-[90%] h-[40px] justify-center bg-sidebar-top text-sm"
               }
             >
@@ -86,7 +101,11 @@ export function Sidebar() {
             </Button>
           </NavLink>
 
-          <Button className="bg-sidebar-bottom">
+          <Button
+            type="button"
+            className="bg-sidebar-bottom"
+            onClick={handleLogout}
+          >
             <LogOut className="h-4 w-4 text-foreground" />
           </Button>
         </div>
