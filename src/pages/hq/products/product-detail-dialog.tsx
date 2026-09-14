@@ -6,10 +6,23 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 
-import type { MockProduct } from "./mock-products";
+export interface ProductDetails {
+  pId: number | string;
+  name: string;
+  description?: string | null;
+  barcode?: string;
+  sellingPrice?: number;
+  costPrice: number;
+  category?: string;
+  categories?: Array<{ categoryName: string }>;
+  minStockHq?: number;
+  minStockBranch?: number;
+  status?: "active" | "inactive";
+  isActive?: boolean;
+}
 
 interface ProductDetailDialogProps {
-  product: MockProduct | null;
+  product: ProductDetails | null;
   onOpenChange: (open: boolean) => void;
 }
 
@@ -53,7 +66,7 @@ export function ProductDetailDialog({
           <div className="space-y-4">
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               <DetailField label="Product ID" value={product.pId} />
-              <DetailField label="Barcode" value={product.barcode} />
+              <DetailField label="Barcode" value={product.barcode ?? "—"} />
             </div>
 
             <DetailField label="Product Name" value={product.name} />
@@ -65,27 +78,42 @@ export function ProductDetailDialog({
               </div>
             </div>
 
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-              <DetailField label="Selling Price" value={product.sellingPrice} />
-              <DetailField label="Cost Price" value={product.costPrice} />
-            </div>
+            <DetailField
+              label="Selling Price"
+              value={product.sellingPrice ?? product.costPrice}
+            />
 
-            <DetailField label="Category" value={product.category} />
+            <DetailField
+              label="Category"
+              value={
+                product.categories && product.categories.length > 0
+                  ? product.categories
+                      .map((category) => category.categoryName)
+                      .join(", ")
+                  : (product.category ?? "—")
+              }
+            />
 
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               <DetailField
                 label="Minimum Stock HQ"
-                value={product.minStockHq}
+                value={product.minStockHq ?? "—"}
               />
               <DetailField
                 label="Minimum Stock Branch"
-                value={product.minStockBranch}
+                value={product.minStockBranch ?? "—"}
               />
             </div>
 
             <DetailField
               label="Status"
-              value={product.status === "active" ? "Active" : "Inactive"}
+              value={
+                product.isActive === undefined && product.status === undefined
+                  ? "—"
+                  : product.isActive === true || product.status === "active"
+                    ? "Active"
+                    : "Inactive"
+              }
             />
           </div>
         )}

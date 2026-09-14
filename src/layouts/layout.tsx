@@ -6,9 +6,9 @@ export function Layout() {
     <div className="flex min-h-screen">
       <Sidebar />
 
-      <main className="flex-1">
+      <div className="min-w-0 flex-1">
         <Outlet />
-      </main>
+      </div>
     </div>
   );
 }
