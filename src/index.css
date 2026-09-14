@@ -45,6 +45,8 @@
   --destructive-subtle: var(--base-red-50);
   --destructive-action: var(--base-red-500);
   --destructive-active: var(--base-red-800);
+  --destructive-background: var(--base-red-100);
+  --alert-border: var(--base-neutral-stroke);
 
   /* shadcn semantic aliases */
   --background: var(--surface);
@@ -101,6 +103,8 @@
   --color-input: var(--input);
   --color-border: var(--border);
   --color-destructive: var(--destructive);
+  --color-destructive-background: var(--destructive-background);
+  --color-alert-border: var(--alert-border);
   --color-accent-foreground: var(--accent-foreground);
   --color-accent: var(--accent);
   --color-muted-foreground: var(--muted-foreground);
