@@ -2,34 +2,63 @@ import { useEffect, useState } from "react";
 import { PackagePlus } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
-import { getCategories } from "@/api/category";
+import { createHqOrder, getOrderSuppliers } from "@/api/orders";
 
-import { mockSupplierOptions } from "./mock-suppliers";
 import { OrderForm } from "./order-form";
 import type { OrderFormValues } from "./order-form-schema";
 
 export function AddOrderPage() {
   const navigate = useNavigate();
-  const [categories, setCategories] = useState<
+  const [suppliers, setSuppliers] = useState<
     Array<{ label: string; value: string }>
   >([]);
+  const [isLoadingSuppliers, setIsLoadingSuppliers] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    async function loadCategories() {
-      const response = await getCategories();
-      setCategories(
-        response.data.result.map((category) => ({
-          label: category.categoryName,
-          value: String(category.categoryId),
-        })),
-      );
+    let cancelled = false;
+
+    async function loadSuppliers() {
+      try {
+        const response = await getOrderSuppliers();
+        if (cancelled) return;
+
+        setSuppliers(
+          response.data.result.map((supplier) => ({
+            label: supplier.name,
+            value: String(supplier.supplierId),
+          })),
+        );
+      } catch {
+        if (!cancelled) setError("Couldn't load suppliers. Please try again.");
+      } finally {
+        if (!cancelled) setIsLoadingSuppliers(false);
+      }
     }
 
-    void loadCategories();
+    loadSuppliers();
+
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
-  function handleSubmit(values: OrderFormValues) {
-    console.log("Order form values:", values);
+  async function handleSubmit(values: OrderFormValues) {
+    setError(null);
+
+    try {
+      await createHqOrder({
+        items: values.items.map((item) => ({
+          ...item,
+          expiredDate: `${item.expiryDate}T23:59:59.999Z`,
+        })),
+      });
+      navigate("/hq/inventory");
+    } catch {
+      setError(
+        "Couldn't create the order. Please check the form and try again.",
+      );
+    }
   }
 
   function handleCancel() {
@@ -46,12 +75,24 @@ export function AddOrderPage() {
       </header>
 
       <section className="mt-4 px-3">
-        <OrderForm
-          categories={categories}
-          suppliers={mockSupplierOptions}
-          onSubmit={handleSubmit}
-          onCancel={handleCancel}
-        />
+        {isLoadingSuppliers ? (
+          <p className="py-6 text-sm text-muted-foreground">
+            Loading suppliers...
+          </p>
+        ) : (
+          <>
+            {error && (
+              <p className="mb-4 text-sm text-destructive" role="alert">
+                {error}
+              </p>
+            )}
+            <OrderForm
+              suppliers={suppliers}
+              onSubmit={handleSubmit}
+              onCancel={handleCancel}
+            />
+          </>
+        )}
       </section>
     </main>
   );

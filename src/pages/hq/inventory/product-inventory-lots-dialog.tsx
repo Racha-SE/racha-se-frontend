@@ -6,14 +6,14 @@ import {
 } from "@/components/ui/dialog";
 
 import { InventoryLotTable } from "./inventory-lot-table";
-import type { MockInventoryLot } from "./mock-inventory";
+import type { InventoryLot } from "./inventory-types";
 
 interface ProductInventoryLotsDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   productName: string;
   productId: string;
-  items: readonly MockInventoryLot[];
+  items: readonly InventoryLot[];
 }
 
 export function ProductInventoryLotsDialog({

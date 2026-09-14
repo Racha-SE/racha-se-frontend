@@ -4,14 +4,17 @@ import { Eye } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 import { InventoryLotTable } from "./inventory-lot-table";
-import type { MockInventoryProductGroup } from "./mock-inventory";
+import type {
+  InventoryProduct,
+  InventoryProductGroup,
+} from "./inventory-types";
 import { ProductInventoryLotsDialog } from "./product-inventory-lots-dialog";
 
 const visibleLotCount = 4;
 
 interface GroupedInventoryGridProps {
-  groups: readonly MockInventoryProductGroup[];
-  onViewProduct: (productId: string) => void;
+  groups: readonly InventoryProductGroup[];
+  onViewProduct: (product: InventoryProduct) => void;
 }
 
 export function GroupedInventoryGrid({
@@ -19,7 +22,7 @@ export function GroupedInventoryGrid({
   onViewProduct,
 }: GroupedInventoryGridProps) {
   const [selectedGroup, setSelectedGroup] =
-    useState<MockInventoryProductGroup | null>(null);
+    useState<InventoryProductGroup | null>(null);
 
   return (
     <>
@@ -45,7 +48,7 @@ export function GroupedInventoryGrid({
                       size="icon-xs"
                       className="shrink-0 text-foreground [&_svg]:size-3.5!"
                       aria-label={`View ${group.productName} details`}
-                      onClick={() => onViewProduct(group.productId)}
+                      onClick={() => onViewProduct(group)}
                     >
                       <Eye />
                     </Button>
