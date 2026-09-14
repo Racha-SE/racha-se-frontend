@@ -3,6 +3,7 @@ import { BranchPage } from "./pages/branch/branch-page";
 import { CashierPage } from "./pages/cashier/cashier-page";
 import { HqPage } from "./pages/hq/hq-page";
 import { SignInPage } from "./pages/sign-in/sign-in-page";
+import { CategoryListPage } from "./pages/hq/products/categories/category-list-page";
 import { InventoryListPage } from "./pages/hq/inventory/inventory-list-page";
 import { AddOrderPage } from "./pages/hq/orders/add-order-page";
 import { AddProductPage } from "./pages/hq/products/add-product-page";
@@ -21,6 +22,10 @@ export const router = createBrowserRouter([
   {
     path: "/hq/products",
     element: <ProductListPage />,
+  },
+  {
+    path: "/hq/products/categories",
+    element: <CategoryListPage />,
   },
   {
     path: "/hq/inventory",

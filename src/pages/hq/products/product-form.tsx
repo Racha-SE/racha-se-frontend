@@ -1,6 +1,9 @@
 import { zodResolver } from "@hookform/resolvers/zod";
+import { Plus } from "lucide-react";
+import { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 
+import { AddCategoryDialog } from "@/components/add-category-dialog";
 import { Button } from "@/components/ui/button";
 import {
   Field,
@@ -13,6 +16,7 @@ import {
   Select,
   SelectContent,
   SelectItem,
+  SelectSeparator,
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
@@ -35,12 +39,15 @@ const statusOptions = [
   { label: "Inactive", value: "inactive" },
 ] as const;
 
+const addCategoryValue = "__add-category__";
+
 export function ProductForm({
   categories,
   initialValues = {},
   onSubmit,
   onCancel,
 }: ProductFormProps) {
+  const [addCategoryOpen, setAddCategoryOpen] = useState(false);
   const form = useForm<ProductFormInput, unknown, ProductFormValues>({
     resolver: zodResolver(productFormSchema),
     defaultValues: {
@@ -178,9 +185,19 @@ export function ProductForm({
                 Category *
               </FieldLabel>
               <Select
-                items={categories}
+                items={[
+                  ...categories,
+                  { label: "Add new category", value: addCategoryValue },
+                ]}
                 value={field.value || null}
-                onValueChange={(value) => field.onChange(value ?? "")}
+                onValueChange={(value) => {
+                  if (value === addCategoryValue) {
+                    setAddCategoryOpen(true);
+                    return;
+                  }
+
+                  field.onChange(value ?? "");
+                }}
               >
                 <SelectTrigger
                   id="product-category"
@@ -204,6 +221,14 @@ export function ProductForm({
                       {category.label}
                     </SelectItem>
                   ))}
+                  <SelectSeparator />
+                  <SelectItem
+                    value={addCategoryValue}
+                    className="py-2 pr-3 pl-3 text-sm font-medium text-primary"
+                  >
+                    <Plus aria-hidden="true" />
+                    Add new category
+                  </SelectItem>
                 </SelectContent>
               </Select>
               <FieldError errors={[fieldState.error]} />
@@ -333,6 +358,11 @@ export function ProductForm({
           </Button>
         </div>
       </FieldGroup>
+
+      <AddCategoryDialog
+        open={addCategoryOpen}
+        onOpenChange={setAddCategoryOpen}
+      />
     </form>
   );
 }
