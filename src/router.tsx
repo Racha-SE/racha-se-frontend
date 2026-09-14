@@ -5,6 +5,7 @@ import { HqPage } from "./pages/hq/hq-page";
 import { SignInPage } from "./pages/sign-in/sign-in-page";
 import { CategoryListPage } from "./pages/hq/products/categories/category-list-page";
 import { InventoryListPage } from "./pages/hq/inventory/inventory-list-page";
+import { HqNotificationsPage } from "./pages/hq/notifications/hq-notifications-page";
 import { AddOrderPage } from "./pages/hq/orders/add-order-page";
 import { AddProductPage } from "./pages/hq/products/add-product-page";
 import { EditProductPage } from "./pages/hq/products/edit-product-page";
@@ -30,6 +31,10 @@ export const router = createBrowserRouter([
   {
     path: "/hq/inventory",
     element: <InventoryListPage />,
+  },
+  {
+    path: "/hq/notifications",
+    element: <HqNotificationsPage />,
   },
   {
     path: "/hq/orders/new",
