@@ -4,6 +4,10 @@ export type HqInventoryItem = {
   pId: number;
   productName: string;
   productCategory: string[];
+  categories: Array<{
+    categoryId: number;
+    categoryName: string;
+  }>;
   description: string;
   barcode: string;
   quantity: number;
@@ -24,6 +28,7 @@ export type HqInventoryGroup = Omit<
 
 export type HqInventoryQuery = {
   search?: string;
+  categoryId?: number;
   categoryName?: string;
   limit?: number;
   offset?: number;
