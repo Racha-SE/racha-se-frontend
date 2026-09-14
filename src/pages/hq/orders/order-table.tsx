@@ -72,7 +72,7 @@ export function OrderTable({ order }: OrderTableProps) {
               Quantity
             </TableHead>
             <TableHead className="h-auto border-r border-border px-4 py-2 text-base font-semibold">
-              Base Cost
+              Cost Price
             </TableHead>
             <TableHead className="h-auto px-4 py-2 text-base font-semibold">
               Expiry Date
@@ -101,7 +101,7 @@ export function OrderTable({ order }: OrderTableProps) {
                 {item.quantity}
               </TableCell>
               <TableCell className="border-r border-border px-4 py-2 text-base">
-                ฿{item.baseCost.toFixed(2)}
+                ฿{item.costPrice.toFixed(2)}
               </TableCell>
               <TableCell className="px-4 py-2 text-base">
                 {item.expiryDate}

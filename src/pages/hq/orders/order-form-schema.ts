@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-function createPositiveNumberSchema(label: string) {
+function createPriceSchema(label: string) {
   return z
     .string()
     .trim()
@@ -24,7 +24,7 @@ const orderProductSchema = z.object({
     .regex(/^\d+$/, "Quantity must be a whole number")
     .transform(Number)
     .pipe(z.number().int().positive("Quantity must be greater than 0")),
-  costPrice: createPositiveNumberSchema("Cost price"),
+  costPrice: createPriceSchema("Cost price"),
   expiryDate: z.string().trim().min(1, "Expiry date is required"),
 });
 
