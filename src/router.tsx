@@ -1,4 +1,5 @@
 import { Navigate, createBrowserRouter } from "react-router-dom";
+import { RequireRoot } from "@/components/require-root";
 import { BranchPage } from "./pages/branch/branch-page";
 import { CashierPage } from "./pages/cashier/cashier-page";
 import { Layout } from "@/layouts/layout";
@@ -61,16 +62,21 @@ export const router = createBrowserRouter([
         element: <CashierPage />,
       },
       {
-        path: "/user-management",
-        element: <UserManagementPage />,
-      },
-      {
-        path: "/user-management/add",
-        element: <AddUserPage />,
-      },
-      {
-        path: "/user-management/:id",
-        element: <UserDetailPage />,
+        element: <RequireRoot />,
+        children: [
+          {
+            path: "/user-management",
+            element: <UserManagementPage />,
+          },
+          {
+            path: "/user-management/add",
+            element: <AddUserPage />,
+          },
+          {
+            path: "/user-management/:id",
+            element: <UserDetailPage />,
+          },
+        ],
       },
       {
         path: "/change-password",
