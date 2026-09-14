@@ -3,6 +3,7 @@ import { Plus } from "lucide-react";
 import { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 
+import type { Category } from "@/api/category";
 import { AddCategoryDialog } from "@/components/add-category-dialog";
 import { Button } from "@/components/ui/button";
 import {
@@ -30,6 +31,7 @@ import {
 interface ProductFormProps {
   categories: { label: string; value: string }[];
   initialValues?: Partial<ProductFormInput>;
+  onCategoryCreated?: (category: Category) => void;
   onSubmit: (values: ProductFormValues) => void | Promise<void>;
   onCancel: () => void;
 }
@@ -44,6 +46,7 @@ const addCategoryValue = "__add-category__";
 export function ProductForm({
   categories,
   initialValues = {},
+  onCategoryCreated,
   onSubmit,
   onCancel,
 }: ProductFormProps) {
@@ -54,13 +57,20 @@ export function ProductForm({
       productName: initialValues.productName ?? "",
       description: initialValues.description ?? "",
       sellingPrice: initialValues.sellingPrice ?? "",
-      costPrice: initialValues.costPrice ?? "",
       category: initialValues.category ?? "",
       minStockHq: initialValues.minStockHq ?? "",
       minStockBranch: initialValues.minStockBranch ?? "",
       status: initialValues.status ?? "active",
     },
   });
+
+  function handleCategoryCreated(category: Category) {
+    onCategoryCreated?.(category);
+    form.setValue("category", String(category.categoryId), {
+      shouldDirty: true,
+      shouldValidate: true,
+    });
+  }
 
   return (
     <form
@@ -113,65 +123,31 @@ export function ProductForm({
           )}
         />
 
-        <div className="flex w-full max-w-[420px] gap-4">
-          <Controller
-            name="sellingPrice"
-            control={form.control}
-            render={({ field, fieldState }) => (
-              <Field
-                className="min-w-0 flex-1 gap-1"
-                data-invalid={fieldState.invalid}
+        <Controller
+          name="sellingPrice"
+          control={form.control}
+          render={({ field, fieldState }) => (
+            <Field className="gap-1" data-invalid={fieldState.invalid}>
+              <FieldLabel
+                htmlFor="selling-price"
+                className="text-sm font-normal text-active"
               >
-                <FieldLabel
-                  htmlFor="selling-price"
-                  className="text-sm font-normal text-active"
-                >
-                  Selling Price *
-                </FieldLabel>
-                <Input
-                  {...field}
-                  id="selling-price"
-                  type="number"
-                  inputMode="decimal"
-                  min="0.01"
-                  step="0.01"
-                  className="h-9 max-w-[280px] rounded-md bg-textbox px-3 py-2 text-sm"
-                  aria-invalid={fieldState.invalid}
-                />
-                <FieldError errors={[fieldState.error]} />
-              </Field>
-            )}
-          />
-
-          <Controller
-            name="costPrice"
-            control={form.control}
-            render={({ field, fieldState }) => (
-              <Field
-                className="min-w-0 flex-1 gap-1"
-                data-invalid={fieldState.invalid}
-              >
-                <FieldLabel
-                  htmlFor="cost-price"
-                  className="text-sm font-normal text-active"
-                >
-                  Cost Price *
-                </FieldLabel>
-                <Input
-                  {...field}
-                  id="cost-price"
-                  type="number"
-                  inputMode="decimal"
-                  min="0.01"
-                  step="0.01"
-                  className="h-9 max-w-[280px] rounded-md bg-textbox px-3 py-2 text-sm"
-                  aria-invalid={fieldState.invalid}
-                />
-                <FieldError errors={[fieldState.error]} />
-              </Field>
-            )}
-          />
-        </div>
+                Selling Price *
+              </FieldLabel>
+              <Input
+                {...field}
+                id="selling-price"
+                type="number"
+                inputMode="numeric"
+                min="1"
+                step="1"
+                className="h-9 max-w-[280px] rounded-md bg-textbox px-3 py-2 text-sm"
+                aria-invalid={fieldState.invalid}
+              />
+              <FieldError errors={[fieldState.error]} />
+            </Field>
+          )}
+        />
 
         <Controller
           name="category"
@@ -362,6 +338,7 @@ export function ProductForm({
       <AddCategoryDialog
         open={addCategoryOpen}
         onOpenChange={setAddCategoryOpen}
+        onCreated={handleCategoryCreated}
       />
     </form>
   );

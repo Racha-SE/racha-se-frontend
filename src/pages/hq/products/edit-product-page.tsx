@@ -1,14 +1,57 @@
+import { useEffect, useState } from "react";
 import { FilePenLine } from "lucide-react";
 import { useNavigate, useParams } from "react-router-dom";
 
-import { mockProductCategories, mockProducts } from "./mock-products";
+import { getCategories, type Category } from "@/api/category";
+import { getProductById, updateProduct, type Product } from "@/api/product";
+
 import { ProductForm } from "./product-form";
 import type { ProductFormValues } from "./product-form-schema";
 
 export function EditProductPage() {
   const navigate = useNavigate();
   const { productId } = useParams();
-  const product = mockProducts.find((item) => item.pId === productId);
+  const [product, setProduct] = useState<Product | null>(null);
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function loadData() {
+      if (!productId) {
+        setLoading(false);
+        return;
+      }
+
+      const id = Number(productId);
+
+      if (!Number.isInteger(id) || id < 1) {
+        setLoading(false);
+        return;
+      }
+
+      try {
+        const [productResponse, categoriesResponse] = await Promise.all([
+          getProductById(id),
+          getCategories(),
+        ]);
+
+        setProduct(productResponse.data);
+        setCategories(categoriesResponse.data.result);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    void loadData();
+  }, [productId]);
+
+  if (loading) {
+    return (
+      <main className="min-h-screen bg-background p-4 text-foreground">
+        Loading...
+      </main>
+    );
+  }
 
   if (!product) {
     return (
@@ -18,13 +61,45 @@ export function EditProductPage() {
     );
   }
 
-  function handleSubmit(values: ProductFormValues) {
-    console.log("Updated product form values:", values);
+  async function handleSubmit(values: ProductFormValues) {
+    if (!product) return;
+
+    await updateProduct(product.pId, {
+      name: values.productName,
+      description: values.description || null,
+      costPrice: values.sellingPrice,
+      minStockHq: values.minStockHq,
+      minStockBranch: values.minStockBranch,
+      isActive: values.status === "active",
+      categoryIds: [Number(values.category)],
+    });
+
+    navigate("/hq/products");
+  }
+
+  function handleCategoryCreated(category: Category) {
+    setCategories((currentCategories) => {
+      if (
+        currentCategories.some(
+          (currentCategory) =>
+            currentCategory.categoryId === category.categoryId,
+        )
+      ) {
+        return currentCategories;
+      }
+
+      return [...currentCategories, category];
+    });
   }
 
   function handleCancel() {
     navigate("/hq/products");
   }
+
+  const categoryOptions = categories.map((category) => ({
+    label: category.categoryName,
+    value: String(category.categoryId),
+  }));
 
   return (
     <main className="min-h-screen bg-background p-4">
@@ -37,17 +112,20 @@ export function EditProductPage() {
 
       <section className="mt-6 px-3">
         <ProductForm
-          categories={[...mockProductCategories]}
+          categories={categoryOptions}
           initialValues={{
             productName: product.name,
-            description: product.description,
-            sellingPrice: String(product.sellingPrice),
-            costPrice: String(product.costPrice),
-            category: product.categoryValue,
+            description: product.description ?? "",
+            sellingPrice: String(product.costPrice),
+            category:
+              product.categories.length > 0
+                ? String(product.categories[0].categoryId)
+                : "",
             minStockHq: String(product.minStockHq),
             minStockBranch: String(product.minStockBranch),
-            status: product.status,
+            status: product.isActive ? "active" : "inactive",
           }}
+          onCategoryCreated={handleCategoryCreated}
           onSubmit={handleSubmit}
           onCancel={handleCancel}
         />
