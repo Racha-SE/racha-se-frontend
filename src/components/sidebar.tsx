@@ -26,7 +26,7 @@ export function Sidebar() {
       </div>
 
       <nav className="flex flex-col gap-3">
-        <NavLink to="/dashboard" className="flex justify-center">
+        <NavLink to="/hq/products" end className="flex justify-center">
           {({ isActive }) => (
             <Button
               className={
@@ -35,12 +35,26 @@ export function Sidebar() {
                   : "flex w-[90%] h-[40px] justify-center bg-sidebar-top text-sm"
               }
             >
-              Dashboard
+              Product Management
             </Button>
           )}
         </NavLink>
 
-        <NavLink to="/inventory" className="flex justify-center">
+        <NavLink to="/hq/products/categories" className="flex justify-center">
+          {({ isActive }) => (
+            <Button
+              className={
+                isActive
+                  ? "flex w-[90%] h-[40px] justify-center bg-focus text-white text-sm"
+                  : "flex w-[90%] h-[40px] justify-center bg-sidebar-top text-sm"
+              }
+            >
+              Categories
+            </Button>
+          )}
+        </NavLink>
+
+        <NavLink to="/hq/inventory" className="flex justify-center">
           {({ isActive }) => (
             <Button
               className={
@@ -54,7 +68,7 @@ export function Sidebar() {
           )}
         </NavLink>
 
-        <NavLink to="/product-management" className="flex justify-center">
+        <NavLink to="/hq/notifications" className="flex justify-center">
           {({ isActive }) => (
             <Button
               className={
@@ -63,7 +77,7 @@ export function Sidebar() {
                   : "flex w-[90%] h-[40px] justify-center bg-sidebar-top text-sm"
               }
             >
-              Product Management
+              Notifications
             </Button>
           )}
         </NavLink>
