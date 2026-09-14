@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { FileX, Tags } from "lucide-react";
 
 import { deleteCategory, getCategories, type Category } from "@/api/category";
