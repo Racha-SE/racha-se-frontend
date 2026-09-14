@@ -35,6 +35,8 @@ export const router = createBrowserRouter([
   {
     path: "/hq/notifications",
     element: <HqNotificationsPage />,
+  },
+  {
     path: "/hq/orders/new",
     element: <AddOrderPage />,
   },
