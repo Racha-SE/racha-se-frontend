@@ -5,7 +5,7 @@ export interface MockOrderItem {
   productName: string;
   supplier: string;
   quantity: number;
-  baseCost: number;
+  costPrice: number;
   expiryDate: string;
 }
 
@@ -13,6 +13,12 @@ export interface MockOrder {
   orderId: string;
   items: MockOrderItem[];
 }
+
+export const mockSupplierOptions = [
+  { label: "Goonsquad", value: "goonsquad" },
+  { label: "CP ALL", value: "cp-all" },
+  { label: "Racha Bakery", value: "racha-bakery" },
+] as const;
 
 export const mockOrders: MockOrder[] = [
   {
@@ -25,7 +31,7 @@ export const mockOrders: MockOrder[] = [
         productName: "Pure Water 100%",
         supplier: "Lethal Com",
         quantity: 1,
-        baseCost: 10,
+        costPrice: 10,
         expiryDate: "10/09/2025",
       },
       {
@@ -35,7 +41,7 @@ export const mockOrders: MockOrder[] = [
         productName: "Porchey car",
         supplier: "CP ALL",
         quantity: 1,
-        baseCost: 1,
+        costPrice: 1,
         expiryDate: "10/09/2025",
       },
     ],
@@ -50,7 +56,7 @@ export const mockOrders: MockOrder[] = [
         productName: "Coke 325ml",
         supplier: "CP ALL",
         quantity: 48,
-        baseCost: 12,
+        costPrice: 12,
         expiryDate: "17/06/2027",
       },
       {
@@ -60,7 +66,7 @@ export const mockOrders: MockOrder[] = [
         productName: "Milk Bread",
         supplier: "Racha Bakery",
         quantity: 24,
-        baseCost: 22,
+        costPrice: 22,
         expiryDate: "10/09/2026",
       },
     ],
