@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { Boxes } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
+import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
 import { ProductDetailDialog } from "@/pages/hq/products/product-detail-dialog";
@@ -19,6 +21,7 @@ import { InventoryTable } from "./inventory-table";
 import { mockGroupedInventory, mockInventory } from "./mock-inventory";
 
 export function InventoryListPage() {
+  const navigate = useNavigate();
   const [search, setSearch] = useState("");
   const [groupByProduct, setGroupByProduct] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState<MockProduct | null>(
@@ -59,6 +62,14 @@ export function InventoryListPage() {
               />
               Group by product
             </label>
+            <Button
+              type="button"
+              size="sm"
+              className="h-8 bg-primary text-sm text-primary-foreground hover:bg-active focus-visible:ring-focus/30"
+              onClick={() => navigate("/hq/orders/new")}
+            >
+              Add order
+            </Button>
             <InventoryFilterDialog
               categories={mockProductCategories}
               value={filters}

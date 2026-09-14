@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 
 import { mockProductCategories } from "@/pages/hq/products/mock-products";
 
-import { mockSupplierOptions } from "./mock-orders";
+import { mockSupplierOptions } from "./mock-suppliers";
 import { OrderForm } from "./order-form";
 import type { OrderFormValues } from "./order-form-schema";
 
@@ -15,7 +15,7 @@ export function AddOrderPage() {
   }
 
   function handleCancel() {
-    navigate("/hq/orders");
+    navigate("/hq/inventory");
   }
 
   return (
