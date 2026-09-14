@@ -1,3 +1,4 @@
+import type { Product } from "@/api/product";
 import {
   Dialog,
   DialogContent,
@@ -6,10 +7,8 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 
-import type { MockProduct } from "./mock-products";
-
 interface ProductDetailDialogProps {
-  product: MockProduct | null;
+  product: Product | null;
   onOpenChange: (open: boolean) => void;
 }
 
@@ -65,12 +64,18 @@ export function ProductDetailDialog({
               </div>
             </div>
 
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-              <DetailField label="Selling Price" value={product.sellingPrice} />
-              <DetailField label="Cost Price" value={product.costPrice} />
-            </div>
+            <DetailField label="Selling Price" value={product.costPrice} />
 
-            <DetailField label="Category" value={product.category} />
+            <DetailField
+              label="Category"
+              value={
+                product.categories.length > 0
+                  ? product.categories
+                      .map((category) => category.categoryName)
+                      .join(", ")
+                  : "—"
+              }
+            />
 
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               <DetailField
@@ -85,7 +90,7 @@ export function ProductDetailDialog({
 
             <DetailField
               label="Status"
-              value={product.status === "active" ? "Active" : "Inactive"}
+              value={product.isActive ? "Active" : "Inactive"}
             />
           </div>
         )}
