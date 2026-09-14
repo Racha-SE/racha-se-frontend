@@ -1,38 +1,156 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Boxes } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
+import {
+  getHqInventory,
+  type HqInventoryGroup,
+  type HqInventoryItem,
+} from "@/api/inventory";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
-import { ProductDetailDialog } from "@/pages/hq/products/product-detail-dialog";
-import {
-  mockProductCategories,
-  mockProducts,
-  type MockProduct,
-} from "@/pages/hq/products/mock-products";
 
 import { GroupedInventoryGrid } from "./grouped-inventory-grid";
 import {
   InventoryFilterDialog,
   type InventoryFilterValues,
 } from "./inventory-filter-dialog";
+import { InventoryProductDetailDialog } from "./inventory-product-detail-dialog";
 import { InventoryTable } from "./inventory-table";
-import { mockGroupedInventory, mockInventory } from "./mock-inventory";
+import type {
+  InventoryItem,
+  InventoryProduct,
+  InventoryProductGroup,
+} from "./inventory-types";
+
+function formatDate(value: string) {
+  return new Intl.DateTimeFormat("en-GB", { timeZone: "UTC" }).format(
+    new Date(value),
+  );
+}
+
+function toProduct(item: HqInventoryItem | HqInventoryGroup) {
+  return {
+    productId: String(item.pId),
+    category:
+      item.categories.map((category) => category.categoryName).join(", ") ||
+      "—",
+    productName: item.productName,
+    description: item.description,
+    barcode: item.barcode,
+  };
+}
+
+function toInventoryItem(item: HqInventoryItem, index: number): InventoryItem {
+  return {
+    ...toProduct(item),
+    lotId: `${item.pId}-${item.expiredDate}-${index}`,
+    quantity: item.quantity,
+    costPrice: item.price,
+    expiryDate: formatDate(item.expiredDate),
+  };
+}
+
+function toInventoryGroup(item: HqInventoryGroup): InventoryProductGroup {
+  return {
+    ...toProduct(item),
+    items: item.stocks.map((stock, index) => ({
+      lotId: `${item.pId}-${stock.expiredDate}-${index}`,
+      quantity: stock.quantity,
+      costPrice: stock.price,
+      expiryDate: formatDate(stock.expiredDate),
+    })),
+  };
+}
 
 export function InventoryListPage() {
   const navigate = useNavigate();
   const [search, setSearch] = useState("");
   const [groupByProduct, setGroupByProduct] = useState(false);
-  const [selectedProduct, setSelectedProduct] = useState<MockProduct | null>(
-    null,
-  );
+  const [selectedProduct, setSelectedProduct] =
+    useState<InventoryProduct | null>(null);
   const [filters, setFilters] = useState<InventoryFilterValues>({});
+  const [categories, setCategories] = useState<
+    Array<{ label: string; value: string }>
+  >([]);
+  const [items, setItems] = useState<InventoryItem[]>([]);
+  const [groups, setGroups] = useState<InventoryProductGroup[]>([]);
+  const [totalCount, setTotalCount] = useState(0);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  function handleViewProduct(productId: string) {
-    const product = mockProducts.find((item) => item.pId === productId);
-    setSelectedProduct(product ?? null);
-  }
+  useEffect(() => {
+    let cancelled = false;
+    const timeout = window.setTimeout(async () => {
+      setIsLoading(true);
+      setError(null);
+
+      try {
+        const response = await getHqInventory({
+          search: search.trim() || undefined,
+          categoryId: filters.category ? Number(filters.category) : undefined,
+          limit: 100,
+          offset: 0,
+          groupBy: groupByProduct,
+          sortOption:
+            filters.sortBy === "costPrice"
+              ? "price"
+              : filters.sortBy === "expiryDate"
+                ? "expiredDate"
+                : undefined,
+          sortOrder: filters.sortOrder,
+        });
+        if (cancelled) return;
+
+        setCategories((current) => {
+          const options = new Map(
+            current.map((category) => [category.value, category]),
+          );
+
+          for (const item of response.data.inventory) {
+            for (const category of item.categories) {
+              options.set(String(category.categoryId), {
+                label: category.categoryName,
+                value: String(category.categoryId),
+              });
+            }
+          }
+
+          return Array.from(options.values()).sort((a, b) =>
+            a.label.localeCompare(b.label),
+          );
+        });
+        setTotalCount(response.data.totalCount);
+        if (groupByProduct) {
+          setGroups(
+            (response.data.inventory as HqInventoryGroup[]).map(
+              toInventoryGroup,
+            ),
+          );
+          setItems([]);
+        } else {
+          setItems(
+            (response.data.inventory as HqInventoryItem[]).map(toInventoryItem),
+          );
+          setGroups([]);
+        }
+      } catch {
+        if (!cancelled) {
+          setError("Couldn't load inventory. Please try again.");
+          setItems([]);
+          setGroups([]);
+        }
+      } finally {
+        if (!cancelled) setIsLoading(false);
+      }
+    }, 300);
+
+    return () => {
+      cancelled = true;
+      window.clearTimeout(timeout);
+    };
+  }, [filters, groupByProduct, search]);
 
   return (
     <main className="min-h-screen bg-background p-6 text-left text-foreground">
@@ -71,27 +189,36 @@ export function InventoryListPage() {
               Add order
             </Button>
             <InventoryFilterDialog
-              categories={mockProductCategories}
+              categories={categories}
               value={filters}
               onApply={setFilters}
             />
           </div>
         </div>
 
-        {groupByProduct ? (
+        {isLoading ? (
+          <p className="py-8 text-center text-sm text-muted-foreground">
+            Loading inventory...
+          </p>
+        ) : error ? (
+          <p className="py-8 text-center text-sm text-destructive">{error}</p>
+        ) : groupByProduct ? (
           <GroupedInventoryGrid
-            groups={mockGroupedInventory}
-            onViewProduct={handleViewProduct}
+            groups={groups}
+            onViewProduct={setSelectedProduct}
           />
         ) : (
-          <InventoryTable
-            items={mockInventory}
-            onViewProduct={handleViewProduct}
-          />
+          <InventoryTable items={items} onViewProduct={setSelectedProduct} />
+        )}
+
+        {!isLoading && !error && totalCount === 0 && (
+          <p className="py-4 text-center text-sm text-muted-foreground">
+            No inventory found.
+          </p>
         )}
       </section>
 
-      <ProductDetailDialog
+      <InventoryProductDetailDialog
         product={selectedProduct}
         onOpenChange={(open) => {
           if (!open) setSelectedProduct(null);

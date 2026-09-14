@@ -10,11 +10,11 @@ import {
   TableRow,
 } from "@/components/ui/table";
 
-import type { MockInventoryItem } from "./mock-inventory";
+import type { InventoryItem, InventoryProduct } from "./inventory-types";
 
 interface InventoryTableProps {
-  items: readonly MockInventoryItem[];
-  onViewProduct: (productId: string) => void;
+  items: readonly InventoryItem[];
+  onViewProduct: (product: InventoryProduct) => void;
 }
 
 export function InventoryTable({ items, onViewProduct }: InventoryTableProps) {
@@ -78,7 +78,7 @@ export function InventoryTable({ items, onViewProduct }: InventoryTableProps) {
                     size="icon-xs"
                     className="text-foreground [&_svg]:size-3.5!"
                     aria-label={`View ${item.productName} details`}
-                    onClick={() => onViewProduct(item.productId)}
+                    onClick={() => onViewProduct(item)}
                   >
                     <Eye />
                   </Button>
