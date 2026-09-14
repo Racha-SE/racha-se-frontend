@@ -3,6 +3,7 @@ import { Plus } from "lucide-react";
 import { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 
+import { AddCategoryDialog } from "@/components/add-category-dialog";
 import { Button } from "@/components/ui/button";
 import {
   Field,
@@ -20,7 +21,6 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
-import { AddCategoryDialog } from "./add-category-dialog";
 import {
   productFormSchema,
   type ProductFormInput,
