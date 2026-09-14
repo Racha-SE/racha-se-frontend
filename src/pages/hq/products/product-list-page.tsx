@@ -1,7 +1,14 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Eye, FilePenLine, FileX, Package } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
+import { getCategories, type Category } from "@/api/category";
+import {
+  deactivateProduct,
+  getProductById,
+  getProducts,
+  type Product,
+} from "@/api/product";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -13,11 +20,6 @@ import {
   TableRow,
 } from "@/components/ui/table";
 
-import {
-  mockProductCategories,
-  mockProducts,
-  type MockProduct,
-} from "./mock-products";
 import { ProductDetailDialog } from "./product-detail-dialog";
 import {
   ProductFilterDialog,
@@ -30,10 +32,55 @@ const blueButtonClassName =
 export function ProductListPage() {
   const navigate = useNavigate();
   const [search, setSearch] = useState("");
-  const [selectedProduct, setSelectedProduct] = useState<MockProduct | null>(
-    null,
-  );
+  const [products, setProducts] = useState<Product[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [filters, setFilters] = useState<ProductFilterValues>({});
+
+  useEffect(() => {
+    async function loadCategories() {
+      const response = await getCategories();
+      setCategories(response.data.result);
+    }
+
+    void loadCategories();
+  }, []);
+
+  useEffect(() => {
+    async function loadProducts() {
+      const response = await getProducts({
+        search: search.trim() || undefined,
+        categoryId: filters.category ? Number(filters.category) : undefined,
+        isActive: filters.isActive,
+        limit: 1000,
+        offset: 0,
+      });
+
+      setProducts(response.data.products);
+    }
+
+    void loadProducts();
+  }, [search, filters]);
+
+  const categoryOptions = categories.map((category) => ({
+    label: category.categoryName,
+    value: String(category.categoryId),
+  }));
+
+  async function handleView(productId: number) {
+    const response = await getProductById(productId);
+    setSelectedProduct(response.data);
+  }
+
+  async function handleDelete(product: Product) {
+    const response = await deactivateProduct(product.pId);
+
+    setProducts((currentProducts) =>
+      currentProducts.map((currentProduct) =>
+        currentProduct.pId === product.pId ? response.data : currentProduct,
+      ),
+    );
+  }
 
   return (
     <main className="min-h-screen bg-background p-6 text-left text-foreground">
@@ -64,7 +111,7 @@ export function ProductListPage() {
               Add Product
             </Button>
             <ProductFilterDialog
-              categories={mockProductCategories}
+              categories={categoryOptions}
               value={filters}
               onApply={setFilters}
             />
@@ -93,7 +140,7 @@ export function ProductListPage() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {mockProducts.map((product) => (
+              {products.map((product) => (
                 <TableRow
                   key={product.pId}
                   className="border-border even:bg-textbox hover:bg-primary-subtle"
@@ -105,10 +152,14 @@ export function ProductListPage() {
                     {product.name}
                   </TableCell>
                   <TableCell className="h-auto border-r border-border px-4 py-2 text-base">
-                    {product.category}
+                    {product.categories.length > 0
+                      ? product.categories
+                          .map((category) => category.categoryName)
+                          .join(", ")
+                      : "—"}
                   </TableCell>
                   <TableCell className="h-auto border-r border-border px-4 py-2 text-base">
-                    {product.status === "active" ? "Active" : "Inactive"}
+                    {product.isActive ? "Active" : "Inactive"}
                   </TableCell>
                   <TableCell className="h-auto px-4 py-2">
                     <div className="flex items-center gap-0.5">
@@ -118,7 +169,7 @@ export function ProductListPage() {
                         size="icon-xs"
                         className="text-foreground [&_svg]:size-3.5!"
                         aria-label={`View ${product.name}`}
-                        onClick={() => setSelectedProduct(product)}
+                        onClick={() => void handleView(product.pId)}
                       >
                         <Eye />
                       </Button>
@@ -130,7 +181,7 @@ export function ProductListPage() {
                         aria-label={`Edit ${product.name}`}
                         onClick={() =>
                           navigate(
-                            `/hq/products/${encodeURIComponent(product.pId)}/edit`,
+                            `/hq/products/${encodeURIComponent(String(product.pId))}/edit`,
                           )
                         }
                       >
@@ -142,6 +193,8 @@ export function ProductListPage() {
                         size="icon-xs"
                         className="text-foreground [&_svg]:size-3.5!"
                         aria-label={`Delete ${product.name}`}
+                        disabled={!product.isActive}
+                        onClick={() => void handleDelete(product)}
                       >
                         <FileX />
                       </Button>
@@ -154,7 +207,7 @@ export function ProductListPage() {
         </div>
 
         <div className="flex items-center justify-between text-base text-foreground">
-          <span>Showing {mockProducts.length} items</span>
+          <span>Showing {products.length} items</span>
           <nav className="flex items-center gap-1" aria-label="Pagination">
             <Button
               type="button"

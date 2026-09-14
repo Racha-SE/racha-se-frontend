@@ -1,6 +1,7 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { FileX, Tags } from "lucide-react";
 
+import { deleteCategory, getCategories, type Category } from "@/api/category";
 import { AddCategoryDialog } from "@/components/add-category-dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -13,20 +14,48 @@ import {
   TableRow,
 } from "@/components/ui/table";
 
-const categories = [
-  { id: "CAT001", name: "Beverages" },
-  { id: "CAT002", name: "Fresh Food" },
-  { id: "CAT003", name: "Snacks & Bakery" },
-  { id: "CAT004", name: "Personal Care" },
-  { id: "CAT005", name: "Household" },
-];
-
 export function CategoryListPage() {
   const [search, setSearch] = useState("");
+  const [categories, setCategories] = useState<Category[]>([]);
   const [addCategoryOpen, setAddCategoryOpen] = useState(false);
+
+  useEffect(() => {
+    async function loadCategories() {
+      const response = await getCategories();
+      setCategories(response.data.result);
+    }
+
+    void loadCategories();
+  }, []);
+
   const filteredCategories = categories.filter((category) =>
-    category.name.toLowerCase().includes(search.trim().toLowerCase()),
+    category.categoryName.toLowerCase().includes(search.trim().toLowerCase()),
   );
+
+  function handleCategoryCreated(category: Category) {
+    setCategories((currentCategories) => {
+      if (
+        currentCategories.some(
+          (currentCategory) =>
+            currentCategory.categoryId === category.categoryId,
+        )
+      ) {
+        return currentCategories;
+      }
+
+      return [...currentCategories, category];
+    });
+  }
+
+  async function handleDelete(categoryId: number) {
+    await deleteCategory(categoryId);
+
+    setCategories((currentCategories) =>
+      currentCategories.filter(
+        (category) => category.categoryId !== categoryId,
+      ),
+    );
+  }
 
   return (
     <main className="min-h-screen bg-background p-6 text-left text-foreground">
@@ -74,14 +103,14 @@ export function CategoryListPage() {
             <TableBody>
               {filteredCategories.map((category) => (
                 <TableRow
-                  key={category.id}
+                  key={category.categoryId}
                   className="border-border even:bg-textbox hover:bg-primary-subtle"
                 >
                   <TableCell className="h-auto border-r border-border px-4 py-2 text-base">
-                    {category.id}
+                    {category.categoryId}
                   </TableCell>
                   <TableCell className="h-auto border-r border-border px-4 py-2 text-base">
-                    {category.name}
+                    {category.categoryName}
                   </TableCell>
                   <TableCell className="h-auto px-4 py-2">
                     <Button
@@ -89,7 +118,8 @@ export function CategoryListPage() {
                       variant="ghost"
                       size="icon-xs"
                       className="text-foreground [&_svg]:size-3.5!"
-                      aria-label={`Delete ${category.name}`}
+                      aria-label={`Delete ${category.categoryName}`}
+                      onClick={() => void handleDelete(category.categoryId)}
                     >
                       <FileX />
                     </Button>
@@ -119,6 +149,7 @@ export function CategoryListPage() {
       <AddCategoryDialog
         open={addCategoryOpen}
         onOpenChange={setAddCategoryOpen}
+        onCreated={handleCategoryCreated}
       />
     </main>
   );
