@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { FileX, UsersRound } from "lucide-react";
+import { FileX, Tags } from "lucide-react";
 
 import { AddCategoryDialog } from "@/components/add-category-dialog";
 import { Button } from "@/components/ui/button";
@@ -31,7 +31,7 @@ export function CategoryListPage() {
   return (
     <main className="min-h-screen bg-background p-6 text-left text-foreground">
       <header className="flex h-12 items-center gap-3 rounded-md bg-textbox px-3">
-        <UsersRound className="size-4.5 text-sidebar-top" aria-hidden="true" />
+        <Tags className="size-4.5 text-sidebar-top" aria-hidden="true" />
         <h1 className="m-0 text-base font-semibold text-active">
           Category Management
         </h1>
