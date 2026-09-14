@@ -1,7 +1,8 @@
+import { useEffect, useState } from "react";
 import { PackagePlus } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
-import { mockProductCategories } from "@/pages/hq/products/mock-products";
+import { getCategories } from "@/api/category";
 
 import { mockSupplierOptions } from "./mock-suppliers";
 import { OrderForm } from "./order-form";
@@ -9,6 +10,23 @@ import type { OrderFormValues } from "./order-form-schema";
 
 export function AddOrderPage() {
   const navigate = useNavigate();
+  const [categories, setCategories] = useState<
+    Array<{ label: string; value: string }>
+  >([]);
+
+  useEffect(() => {
+    async function loadCategories() {
+      const response = await getCategories();
+      setCategories(
+        response.data.result.map((category) => ({
+          label: category.categoryName,
+          value: String(category.categoryId),
+        })),
+      );
+    }
+
+    void loadCategories();
+  }, []);
 
   function handleSubmit(values: OrderFormValues) {
     console.log("Order form values:", values);
@@ -29,7 +47,7 @@ export function AddOrderPage() {
 
       <section className="mt-4 px-3">
         <OrderForm
-          categories={mockProductCategories}
+          categories={categories}
           suppliers={mockSupplierOptions}
           onSubmit={handleSubmit}
           onCancel={handleCancel}

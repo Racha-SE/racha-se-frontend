@@ -1,16 +1,15 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Boxes } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
+import { getCategories } from "@/api/category";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
-import { ProductDetailDialog } from "@/pages/hq/products/product-detail-dialog";
 import {
-  mockProductCategories,
-  mockProducts,
-  type MockProduct,
-} from "@/pages/hq/products/mock-products";
+  ProductDetailDialog,
+  type ProductDetails,
+} from "@/pages/hq/products/product-detail-dialog";
 
 import { GroupedInventoryGrid } from "./grouped-inventory-grid";
 import {
@@ -24,14 +23,40 @@ export function InventoryListPage() {
   const navigate = useNavigate();
   const [search, setSearch] = useState("");
   const [groupByProduct, setGroupByProduct] = useState(false);
-  const [selectedProduct, setSelectedProduct] = useState<MockProduct | null>(
+  const [selectedProduct, setSelectedProduct] = useState<ProductDetails | null>(
     null,
   );
   const [filters, setFilters] = useState<InventoryFilterValues>({});
+  const [categories, setCategories] = useState<
+    Array<{ label: string; value: string }>
+  >([]);
+
+  useEffect(() => {
+    async function loadCategories() {
+      const response = await getCategories();
+      setCategories(
+        response.data.result.map((category) => ({
+          label: category.categoryName,
+          value: String(category.categoryId),
+        })),
+      );
+    }
+
+    void loadCategories();
+  }, []);
 
   function handleViewProduct(productId: string) {
-    const product = mockProducts.find((item) => item.pId === productId);
-    setSelectedProduct(product ?? null);
+    const product = mockInventory.find((item) => item.productId === productId);
+    setSelectedProduct(
+      product
+        ? {
+            pId: product.productId,
+            name: product.productName,
+            category: product.category,
+            costPrice: product.costPrice,
+          }
+        : null,
+    );
   }
 
   return (
@@ -71,7 +96,7 @@ export function InventoryListPage() {
               Add order
             </Button>
             <InventoryFilterDialog
-              categories={mockProductCategories}
+              categories={categories}
               value={filters}
               onApply={setFilters}
             />
