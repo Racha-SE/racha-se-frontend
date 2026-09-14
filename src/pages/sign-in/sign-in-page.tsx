@@ -78,7 +78,13 @@ export function SignInPage() {
       }
       return;
     }
-    navigate("/user-management");
+    const user = result.data.user;
+
+    if (user.role === "admin") {
+      navigate("/user-management");
+    } else {
+      navigate("/hq/products");
+    }
   };
 
   const { control, register, handleSubmit } = useForm<SignInForm>({

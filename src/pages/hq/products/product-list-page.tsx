@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Eye, FilePenLine, FileX, UsersRound } from "lucide-react";
+import { Eye, FilePenLine, FileX, Package } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 import { Button } from "@/components/ui/button";
@@ -38,7 +38,7 @@ export function ProductListPage() {
   return (
     <main className="min-h-screen bg-background p-6 text-left text-foreground">
       <header className="flex h-12 items-center gap-3 rounded-md bg-textbox px-3">
-        <UsersRound className="size-4.5 text-sidebar-top" aria-hidden="true" />
+        <Package className="size-4.5 text-sidebar-top" aria-hidden="true" />
         <h1 className="m-0 text-base font-semibold tracking-normal text-active">
           Product Management
         </h1>
