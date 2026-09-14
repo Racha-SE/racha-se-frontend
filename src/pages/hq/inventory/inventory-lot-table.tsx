@@ -8,10 +8,10 @@ import {
 } from "@/components/ui/table";
 import { cn } from "@/lib/utils";
 
-import type { MockInventoryLot } from "./mock-inventory";
+import type { InventoryLot } from "./inventory-types";
 
 interface InventoryLotTableProps {
-  items: readonly MockInventoryLot[];
+  items: readonly InventoryLot[];
   emptyRows?: number;
   stickyHeader?: boolean;
 }
@@ -58,7 +58,7 @@ export function InventoryLotTable({
   );
 }
 
-function InventoryLotRow({ item }: { item: MockInventoryLot }) {
+function InventoryLotRow({ item }: { item: InventoryLot }) {
   return (
     <TableRow className="h-11 border-border even:bg-textbox hover:bg-primary-subtle">
       <TableCell className="border-r border-border px-3 py-2 text-sm">
