@@ -1,4 +1,5 @@
 import { Navigate, createBrowserRouter } from "react-router-dom";
+import { RequireAuth } from "@/components/require-auth";
 import { RequireRoot } from "@/components/require-root";
 import { BranchPage } from "./pages/branch/branch-page";
 import { CashierPage } from "./pages/cashier/cashier-page";
@@ -23,64 +24,69 @@ export const router = createBrowserRouter([
     element: <Navigate to="/hq/products" replace />,
   },
   {
-    element: <Layout />,
+    element: <RequireAuth />,
     children: [
       {
-        path: "/hq/products",
-        element: <ProductListPage />,
-      },
-      {
-        path: "/hq/products/categories",
-        element: <CategoryListPage />,
-      },
-      {
-        path: "/hq/products/new",
-        element: <AddProductPage />,
-      },
-      {
-        path: "/hq/products/:productId/edit",
-        element: <EditProductPage />,
-      },
-      {
-        path: "/hq/inventory",
-        element: <InventoryListPage />,
-      },
-      {
-        path: "/hq/notifications",
-        element: <HqNotificationsPage />,
-      },
-      {
-        path: "/hq/orders/new",
-        element: <AddOrderPage />,
-      },
-      {
-        path: "/branch",
-        element: <BranchPage />,
-      },
-      {
-        path: "/cashier",
-        element: <CashierPage />,
-      },
-      {
-        element: <RequireRoot />,
+        element: <Layout />,
         children: [
           {
-            path: "/user-management",
-            element: <UserManagementPage />,
+            path: "/hq/products",
+            element: <ProductListPage />,
           },
           {
-            path: "/user-management/add",
-            element: <AddUserPage />,
+            path: "/hq/products/categories",
+            element: <CategoryListPage />,
           },
           {
-            path: "/user-management/:id",
-            element: <UserDetailPage />,
+            path: "/hq/products/new",
+            element: <AddProductPage />,
+          },
+          {
+            path: "/hq/products/:productId/edit",
+            element: <EditProductPage />,
+          },
+          {
+            path: "/hq/inventory",
+            element: <InventoryListPage />,
+          },
+          {
+            path: "/hq/notifications",
+            element: <HqNotificationsPage />,
+          },
+          {
+            path: "/hq/orders/new",
+            element: <AddOrderPage />,
+          },
+          {
+            path: "/branch",
+            element: <BranchPage />,
+          },
+          {
+            path: "/cashier",
+            element: <CashierPage />,
+          },
+          {
+            element: <RequireRoot />,
+            children: [
+              {
+                path: "/user-management",
+                element: <UserManagementPage />,
+              },
+              {
+                path: "/user-management/add",
+                element: <AddUserPage />,
+              },
+              {
+                path: "/user-management/:id",
+                element: <UserDetailPage />,
+              },
+            ],
+          },
+          {
+            path: "/change-password",
+            element: <ChangePasswordPage />,
           },
         ],
-      },
-      {
-        path: "/change-password",
-        element: <ChangePasswordPage />,
       },
     ],
   },

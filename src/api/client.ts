@@ -1,4 +1,5 @@
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+let isRedirectingToSignIn = false;
 
 type ApiClientOptions = Omit<RequestInit, "body" | "method">;
 
@@ -73,6 +74,15 @@ async function request<TResponse>(
   const body = await parseResponseBody(response);
 
   if (!response.ok) {
+    if (
+      response.status === 401 &&
+      window.location.pathname !== "/sign-in" &&
+      !isRedirectingToSignIn
+    ) {
+      isRedirectingToSignIn = true;
+      window.location.replace("/sign-in");
+    }
+
     throw new ApiError(response.status, body);
   }
 
