@@ -18,7 +18,7 @@ import {
 } from "@/components/ui/field";
 
 const SignInSchema = z.object({
-  username: z.string().min(1),
+  email: z.email(),
   password: z.string().min(1),
   terms: z.boolean().refine((value) => value === true),
 });
@@ -55,7 +55,7 @@ export function SignInPage() {
   const onSubmit = async (data: SignInForm) => {
     setAlert(null);
 
-    const result = await signInWithEmail(data.username, data.password);
+    const result = await signInWithEmail(data.email, data.password);
 
     if (result.error) {
       const status = result.error.status;
@@ -71,8 +71,8 @@ export function SignInPage() {
 
       if (status === 401) {
         setAlert({
-          title: "Invalid Username or Password",
-          description: "Username or Password is incorrect.",
+          title: "Invalid Email or Password",
+          description: "Email or Password is incorrect.",
         });
         return;
       }
@@ -90,7 +90,7 @@ export function SignInPage() {
   const { control, register, handleSubmit } = useForm<SignInForm>({
     resolver: zodResolver(SignInSchema),
     defaultValues: {
-      username: "",
+      email: "",
       password: "",
       terms: false,
     },
@@ -110,15 +110,15 @@ export function SignInPage() {
 
         <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-6">
           <div className="flex flex-col gap-2 w-[416px]">
-            <Label htmlFor="username" className="text-base">
-              Username
+            <Label htmlFor="email" className="text-base">
+              Email
             </Label>
             <Input
-              id="username"
+              id="email"
               className="h-[40px] placeholder:text-base bg-background"
-              type="text"
-              placeholder="Username"
-              {...register("username")}
+              type="email"
+              placeholder="Email"
+              {...register("email")}
             />
 
             <Label htmlFor="password" className="text-base">
