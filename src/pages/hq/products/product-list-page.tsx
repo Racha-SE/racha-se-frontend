@@ -11,6 +11,7 @@ import {
 } from "@/api/product";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { PaginationControls } from "@/components/pagination-controls";
 import {
   Table,
   TableBody,
@@ -28,6 +29,7 @@ import {
 
 const blueButtonClassName =
   "h-8 bg-primary text-sm text-primary-foreground hover:bg-active focus-visible:ring-focus/30";
+const itemsPerPage = 10;
 
 export function ProductListPage() {
   const navigate = useNavigate();
@@ -36,6 +38,9 @@ export function ProductListPage() {
   const [categories, setCategories] = useState<Category[]>([]);
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [filters, setFilters] = useState<ProductFilterValues>({});
+  const [page, setPage] = useState(1);
+  const [total, setTotal] = useState(0);
+  const [totalPages, setTotalPages] = useState(1);
 
   useEffect(() => {
     async function loadCategories() {
@@ -52,15 +57,17 @@ export function ProductListPage() {
         search: search.trim() || undefined,
         categoryId: filters.category ? Number(filters.category) : undefined,
         isActive: filters.isActive,
-        limit: 1000,
-        offset: 0,
+        limit: itemsPerPage,
+        offset: (page - 1) * itemsPerPage,
       });
 
       setProducts(response.data.products);
+      setTotal(response.data.total);
+      setTotalPages(Math.max(response.data.totalPages, 1));
     }
 
     void loadProducts();
-  }, [search, filters]);
+  }, [search, filters, page]);
 
   const categoryOptions = categories.map((category) => ({
     label: category.categoryName,
@@ -98,7 +105,10 @@ export function ProductListPage() {
             value={search}
             placeholder="Search product name / ID"
             aria-label="Search products"
-            onChange={(event) => setSearch(event.target.value)}
+            onChange={(event) => {
+              setSearch(event.target.value);
+              setPage(1);
+            }}
           />
 
           <div className="flex gap-3">
@@ -113,7 +123,10 @@ export function ProductListPage() {
             <ProductFilterDialog
               categories={categoryOptions}
               value={filters}
-              onApply={setFilters}
+              onApply={(nextFilters) => {
+                setFilters(nextFilters);
+                setPage(1);
+              }}
             />
           </div>
         </div>
@@ -207,35 +220,14 @@ export function ProductListPage() {
         </div>
 
         <div className="flex items-center justify-between text-base text-foreground">
-          <span>Showing {products.length} items</span>
-          <nav className="flex items-center gap-1" aria-label="Pagination">
-            <Button
-              type="button"
-              variant="ghost"
-              size="xs"
-              aria-label="Previous page"
-              disabled
-            >
-              ‹
-            </Button>
-            <Button
-              type="button"
-              variant="default"
-              size="xs"
-              aria-current="page"
-            >
-              1
-            </Button>
-            <Button
-              type="button"
-              variant="ghost"
-              size="xs"
-              aria-label="Next page"
-              disabled
-            >
-              ›
-            </Button>
-          </nav>
+          <span>
+            Showing {products.length} of {total} items
+          </span>
+          <PaginationControls
+            page={page}
+            totalPages={totalPages}
+            onPageChange={setPage}
+          />
         </div>
       </section>
 

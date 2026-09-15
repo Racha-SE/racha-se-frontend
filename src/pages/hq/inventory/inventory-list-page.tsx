@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Boxes } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
+import { getCategories } from "@/api/category";
 import {
   getHqInventory,
   type HqInventoryGroup,
@@ -9,6 +10,7 @@ import {
 } from "@/api/inventory";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { PaginationControls } from "@/components/pagination-controls";
 import { Switch } from "@/components/ui/switch";
 
 import { GroupedInventoryGrid } from "./grouped-inventory-grid";
@@ -23,6 +25,8 @@ import type {
   InventoryProduct,
   InventoryProductGroup,
 } from "./inventory-types";
+
+const itemsPerPage = 10;
 
 function formatDate(value: string) {
   return new Intl.DateTimeFormat("en-GB", { timeZone: "UTC" }).format(
@@ -79,6 +83,33 @@ export function InventoryListPage() {
   const [totalCount, setTotalCount] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [page, setPage] = useState(1);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    async function loadCategories() {
+      try {
+        const response = await getCategories();
+        if (cancelled) return;
+
+        setCategories(
+          response.data.result.map((category) => ({
+            label: category.categoryName,
+            value: String(category.categoryId),
+          })),
+        );
+      } catch {
+        if (!cancelled) setCategories([]);
+      }
+    }
+
+    void loadCategories();
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   useEffect(() => {
     let cancelled = false;
@@ -90,8 +121,8 @@ export function InventoryListPage() {
         const response = await getHqInventory({
           search: search.trim() || undefined,
           categoryId: filters.category ? Number(filters.category) : undefined,
-          limit: 100,
-          offset: 0,
+          limit: itemsPerPage,
+          offset: (page - 1) * itemsPerPage,
           groupBy: groupByProduct,
           sortOption:
             filters.sortBy === "costPrice"
@@ -103,24 +134,6 @@ export function InventoryListPage() {
         });
         if (cancelled) return;
 
-        setCategories((current) => {
-          const options = new Map(
-            current.map((category) => [category.value, category]),
-          );
-
-          for (const item of response.data.inventory) {
-            for (const category of item.categories) {
-              options.set(String(category.categoryId), {
-                label: category.categoryName,
-                value: String(category.categoryId),
-              });
-            }
-          }
-
-          return Array.from(options.values()).sort((a, b) =>
-            a.label.localeCompare(b.label),
-          );
-        });
         setTotalCount(response.data.totalCount);
         if (groupByProduct) {
           setGroups(
@@ -150,7 +163,10 @@ export function InventoryListPage() {
       cancelled = true;
       window.clearTimeout(timeout);
     };
-  }, [filters, groupByProduct, search]);
+  }, [filters, groupByProduct, page, search]);
+
+  const totalPages = Math.max(Math.ceil(totalCount / itemsPerPage), 1);
+  const visibleCount = groupByProduct ? groups.length : items.length;
 
   return (
     <main className="min-h-screen bg-background p-6 text-left text-foreground">
@@ -168,7 +184,10 @@ export function InventoryListPage() {
             value={search}
             placeholder="Search stock"
             aria-label="Search inventory"
-            onChange={(event) => setSearch(event.target.value)}
+            onChange={(event) => {
+              setSearch(event.target.value);
+              setPage(1);
+            }}
           />
 
           <div className="flex items-center gap-3">
@@ -176,7 +195,10 @@ export function InventoryListPage() {
               <Switch
                 checked={groupByProduct}
                 aria-label="Group inventory by product"
-                onCheckedChange={setGroupByProduct}
+                onCheckedChange={(checked) => {
+                  setGroupByProduct(checked);
+                  setPage(1);
+                }}
               />
               Group by product
             </label>
@@ -191,7 +213,10 @@ export function InventoryListPage() {
             <InventoryFilterDialog
               categories={categories}
               value={filters}
-              onApply={setFilters}
+              onApply={(nextFilters) => {
+                setFilters(nextFilters);
+                setPage(1);
+              }}
             />
           </div>
         </div>
@@ -215,6 +240,19 @@ export function InventoryListPage() {
           <p className="py-4 text-center text-sm text-muted-foreground">
             No inventory found.
           </p>
+        )}
+
+        {!isLoading && !error && totalCount > 0 && (
+          <div className="flex items-center justify-between text-base text-foreground">
+            <span>
+              Showing {visibleCount} of {totalCount} items
+            </span>
+            <PaginationControls
+              page={page}
+              totalPages={totalPages}
+              onPageChange={setPage}
+            />
+          </div>
         )}
       </section>
 
