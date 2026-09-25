@@ -71,8 +71,10 @@ export function SignInPage() {
     setAlert(null);
   };
 
+  const [signInError, setSignInError] = useState<string | null>(null);
+
   const onSubmit = async (data: SignInForm) => {
-    setAlert(null);
+    setSignInError(null);
 
     const result = await signInWithEmail(data.email, data.password);
 
@@ -80,19 +82,14 @@ export function SignInPage() {
       const status = result.error.status;
 
       if (status === 403) {
-        setAlert({
-          title: "Account is deactivated",
-          description:
-            "Please activate your account in user management. Then try again.",
-        });
+        setSignInError(
+          "Your account is deactivated. Please activate it in user management.",
+        );
         return;
       }
 
       if (status === 401) {
-        setAlert({
-          title: "Invalid Email or Password",
-          description: "Email or Password is incorrect.",
-        });
+        setSignInError("Email or password is incorrect.");
         return;
       }
       return;
@@ -119,6 +116,13 @@ export function SignInPage() {
       terms: false,
     },
   });
+
+  const formErrorMessage =
+    errors.email || errors.password
+      ? "Please enter your email and password."
+      : errors.terms
+        ? "Please accept the terms and conditions to continue."
+        : signInError;
 
   const [forgotPasswordOpen, setForgotPasswordOpen] = useState(false);
 
@@ -170,7 +174,7 @@ export function SignInPage() {
         <h3 className="text-5xl font-bold">Welcome to RachaCPALL</h3>
 
         <form
-          onSubmit={handleSubmit(onSubmit)}
+          onSubmit={handleSubmit(onSubmit, () => setSignInError(null))}
           noValidate
           className="flex flex-col gap-4"
         >
@@ -234,14 +238,10 @@ export function SignInPage() {
 
             <p
               className={`w-[416px] text-sm text-destructive ${
-                errors.email || errors.password || errors.terms
-                  ? ""
-                  : "invisible"
+                formErrorMessage ? "" : "invisible"
               }`}
             >
-              {errors.email || errors.password
-                ? "Please enter your email and password."
-                : "Please accept the terms and conditions to continue."}
+              {formErrorMessage}
             </p>
           </div>
 
