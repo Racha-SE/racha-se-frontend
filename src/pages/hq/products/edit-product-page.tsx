@@ -105,7 +105,7 @@ export function EditProductPage() {
     <main className="min-h-screen bg-background p-4">
       <header className="flex h-12 items-center gap-2.5 rounded-md bg-textbox px-4">
         <FilePenLine className="size-5 text-foreground" aria-hidden="true" />
-        <h1 className="m-0 text-lg font-semibold tracking-normal text-active">
+        <h1 className="m-0 text-xl font-semibold tracking-normal text-active">
           Edit Product
         </h1>
       </header>

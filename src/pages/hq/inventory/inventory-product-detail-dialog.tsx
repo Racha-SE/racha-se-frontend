@@ -35,9 +35,7 @@ export function InventoryProductDetailDialog({
         overlayClassName="bg-black/30"
       >
         <DialogHeader>
-          <DialogTitle className="text-lg text-active">
-            Product Details
-          </DialogTitle>
+          <DialogTitle className="text-active">Product Details</DialogTitle>
           <DialogDescription className="sr-only">
             View the selected inventory product information.
           </DialogDescription>

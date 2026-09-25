@@ -61,7 +61,7 @@ export function CategoryListPage() {
     <main className="min-h-screen bg-background p-6 text-left text-foreground">
       <header className="flex h-12 items-center gap-3 rounded-md bg-textbox px-3">
         <Tags className="size-4.5 text-sidebar-top" aria-hidden="true" />
-        <h1 className="m-0 text-base font-semibold text-active">
+        <h1 className="m-0 text-xl font-semibold text-active">
           Category Management
         </h1>
       </header>
@@ -69,7 +69,7 @@ export function CategoryListPage() {
       <section className="mt-4 space-y-4 px-2">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <Input
-            className="h-8 max-w-[400px] rounded-sm border-border bg-searchbar px-3 text-base text-primary-foreground placeholder:text-primary-foreground/70 focus-visible:border-focus focus-visible:ring-focus/20"
+            className="h-8 max-w-[400px] rounded-sm border-border bg-searchbar px-3 text-primary-foreground placeholder:text-primary-foreground/70 focus-visible:border-focus focus-visible:ring-focus/20"
             value={search}
             placeholder="Search category name"
             aria-label="Search categories"
@@ -89,13 +89,13 @@ export function CategoryListPage() {
           <Table>
             <TableHeader>
               <TableRow className="border-border hover:bg-transparent">
-                <TableHead className="h-auto w-1/4 border-r border-border px-4 py-2 text-base font-semibold">
+                <TableHead className="h-auto w-1/4 border-r border-border px-4 py-2 font-semibold">
                   Category ID
                 </TableHead>
-                <TableHead className="h-auto border-r border-border px-4 py-2 text-base font-semibold">
+                <TableHead className="h-auto border-r border-border px-4 py-2 font-semibold">
                   Category Name
                 </TableHead>
-                <TableHead className="h-auto w-28 px-4 py-2 text-base font-semibold">
+                <TableHead className="h-auto w-28 px-4 py-2 font-semibold">
                   Actions
                 </TableHead>
               </TableRow>
@@ -106,10 +106,10 @@ export function CategoryListPage() {
                   key={category.categoryId}
                   className="border-border even:bg-textbox hover:bg-primary-subtle"
                 >
-                  <TableCell className="h-auto border-r border-border px-4 py-2 text-base">
+                  <TableCell className="h-auto border-r border-border px-4 py-2">
                     {category.categoryId}
                   </TableCell>
-                  <TableCell className="h-auto border-r border-border px-4 py-2 text-base">
+                  <TableCell className="h-auto border-r border-border px-4 py-2">
                     {category.categoryName}
                   </TableCell>
                   <TableCell className="h-auto px-4 py-2">
@@ -130,7 +130,7 @@ export function CategoryListPage() {
           </Table>
         </div>
 
-        <div className="flex items-center justify-between text-base">
+        <div className="flex items-center justify-between text-sm">
           <span>Showing {filteredCategories.length} items</span>
           <nav className="flex items-center gap-1" aria-label="Pagination">
             <Button type="button" variant="ghost" size="xs" disabled>

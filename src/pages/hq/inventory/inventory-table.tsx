@@ -23,25 +23,25 @@ export function InventoryTable({ items, onViewProduct }: InventoryTableProps) {
       <Table>
         <TableHeader>
           <TableRow className="border-border hover:bg-transparent">
-            <TableHead className="h-auto border-r border-border px-4 py-2 text-base font-semibold">
+            <TableHead className="h-auto border-r border-border px-4 py-2 font-semibold">
               Product ID
             </TableHead>
-            <TableHead className="h-auto border-r border-border px-4 py-2 text-base font-semibold">
+            <TableHead className="h-auto border-r border-border px-4 py-2 font-semibold">
               Product Category
             </TableHead>
-            <TableHead className="h-auto border-r border-border px-4 py-2 text-base font-semibold">
+            <TableHead className="h-auto border-r border-border px-4 py-2 font-semibold">
               Product Name
             </TableHead>
-            <TableHead className="h-auto border-r border-border px-4 py-2 text-base font-semibold">
+            <TableHead className="h-auto border-r border-border px-4 py-2 font-semibold">
               Quantity
             </TableHead>
-            <TableHead className="h-auto border-r border-border px-4 py-2 text-base font-semibold">
+            <TableHead className="h-auto border-r border-border px-4 py-2 font-semibold">
               Cost Price
             </TableHead>
-            <TableHead className="h-auto border-r border-border px-4 py-2 text-base font-semibold">
+            <TableHead className="h-auto border-r border-border px-4 py-2 font-semibold">
               Expiry Date
             </TableHead>
-            <TableHead className="h-auto px-4 py-2 text-base font-semibold">
+            <TableHead className="h-auto px-4 py-2 font-semibold">
               Actions
             </TableHead>
           </TableRow>
@@ -52,22 +52,22 @@ export function InventoryTable({ items, onViewProduct }: InventoryTableProps) {
               key={item.lotId}
               className="border-border even:bg-textbox hover:bg-primary-subtle"
             >
-              <TableCell className="h-auto border-r border-border px-4 py-2 text-base">
+              <TableCell className="h-auto border-r border-border px-4 py-2">
                 {item.productId}
               </TableCell>
-              <TableCell className="h-auto border-r border-border px-4 py-2 text-base">
+              <TableCell className="h-auto border-r border-border px-4 py-2">
                 {item.category}
               </TableCell>
-              <TableCell className="h-auto border-r border-border px-4 py-2 text-base">
+              <TableCell className="h-auto border-r border-border px-4 py-2">
                 {item.productName}
               </TableCell>
-              <TableCell className="h-auto border-r border-border px-4 py-2 text-base">
+              <TableCell className="h-auto border-r border-border px-4 py-2">
                 {item.quantity}
               </TableCell>
-              <TableCell className="h-auto border-r border-border px-4 py-2 text-base">
+              <TableCell className="h-auto border-r border-border px-4 py-2">
                 ฿{item.costPrice.toFixed(2)}
               </TableCell>
-              <TableCell className="h-auto border-r border-border px-4 py-2 text-base">
+              <TableCell className="h-auto border-r border-border px-4 py-2">
                 {item.expiryDate}
               </TableCell>
               <TableCell className="h-auto px-4 py-2">

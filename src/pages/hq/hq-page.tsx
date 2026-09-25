@@ -5,7 +5,7 @@ import { buttonVariants } from "@/components/ui/button";
 export function HqPage() {
   return (
     <div className="p-6">
-      <h1>HQ page</h1>
+      <h1 className="text-xl font-semibold text-active">HQ page</h1>
       <Link
         to="/hq/notifications"
         className={buttonVariants({ variant: "outline" })}

@@ -146,7 +146,7 @@ export function UserManagementPage() {
       <header className="flex h-12 items-center gap-3 rounded-md bg-textbox px-3">
         <UsersRound className="size-4.5 text-sidebar-top" aria-hidden="true" />
 
-        <h1 className="m-0 text-base font-semibold tracking-normal text-active">
+        <h1 className="m-0 text-xl font-semibold tracking-normal text-active">
           User Management
         </h1>
       </header>
@@ -154,7 +154,7 @@ export function UserManagementPage() {
       <section className="mt-4 space-y-4 px-2">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <Input
-            className="h-8 max-w-[280px] rounded-sm border-border bg-searchbar px-3 text-base text-primary-foreground placeholder:text-primary-foreground/70 focus-visible:border-focus focus-visible:ring-focus/20"
+            className="h-8 max-w-[280px] rounded-sm border-border bg-searchbar px-3 text-primary-foreground placeholder:text-primary-foreground/70 focus-visible:border-focus focus-visible:ring-focus/20"
             value={search}
             placeholder="Search Username"
             aria-label="Search username"

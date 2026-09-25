@@ -119,7 +119,7 @@ export function UserFilterPopover({ value, onChange }: UserFilterPopoverProps) {
         className="w-[570px] rounded-xl bg-currency-card p-3"
       >
         <div className="mb-5 rounded-xl bg-surface px-4 py-5">
-          <h2 className="text-xl font-semibold text-active">Filter</h2>
+          <h2 className="text-lg font-semibold text-active">Filter</h2>
         </div>
 
         <div className="grid grid-cols-3 gap-x-4 gap-y-6">
