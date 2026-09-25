@@ -2,12 +2,12 @@ import { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
-import { Alert, SuccessAlert } from "@/components/alert";
+import { SuccessAlert } from "@/components/alert";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { UserRoundCog, CircleAlert } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { changePassword, getSession, requestPasswordReset } from "@/api/auth";
+import { changePassword } from "@/api/auth";
 import { z } from "zod";
 
 const ChangePasswordSchema = z
@@ -27,7 +27,6 @@ export function ChangePasswordPage() {
   const navigate = useNavigate();
   const [wrongPassword, setWrongPassword] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
-  const [showForgotPasswordAlert, setShowForgotPasswordAlert] = useState(false);
 
   const {
     register,
@@ -59,26 +58,15 @@ export function ChangePasswordPage() {
     setShowSuccess(true);
   };
 
-  const handleForgotPassword = async () => {
-    const session = await getSession();
-
-    if (!session.data?.user?.email) {
-      return;
-    }
-
-    const result = await requestPasswordReset({
-      email: session.data.user.email,
-      redirectTo: "http://localhost:5173/reset-password",
-    });
-
-    if (result.error) {
-      return;
-    }
-    setShowForgotPasswordAlert(true);
-  };
-
   return (
-    <div className="flex min-h-screen flex-col items-center gap-15">
+    <main className="min-h-screen bg-background p-4">
+      <header className="flex h-12 items-center gap-2.5 rounded-md bg-textbox px-4">
+        <UserRoundCog className="size-5 text-foreground" aria-hidden="true" />
+        <h1 className="m-0 text-xl font-semibold tracking-normal text-active">
+          Edit Password
+        </h1>
+      </header>
+
       {showSuccess && (
         <SuccessAlert
           message="Edit password successfully."
@@ -86,29 +74,10 @@ export function ChangePasswordPage() {
         />
       )}
 
-      {showForgotPasswordAlert && (
-        <Alert
-          title="We have sent you password reset link"
-          description="You can reset the password of your account via email."
-          variant="info"
-          onClose={() => setShowForgotPasswordAlert(false)}
-        />
-      )}
-
-      <div className="flex flex-row w-[1150px] h-[70px] gap-2 mt-4 p-[15px] rounded-sm items-center bg-textbox">
-        <UserRoundCog />
-        <h4 className="font-medium text-xl text-active">Edit Password</h4>
-      </div>
-
-      <div className="w-[500px] min-h-[400px] bg-textbox rounded-sm">
-        <div className="flex flex-row w-[220px] h-[60px] gap-2 mt-4 ml-3 p-[15px] rounded-sm items-center bg-background">
-          <UserRoundCog />
-          <h4 className="font-medium text-xl text-active">Edit Password</h4>
-        </div>
-
+      <section className="mt-6 px-3">
         <form
           onSubmit={handleSubmit(onSubmit)}
-          className="flex flex-col p-[15px] gap-3"
+          className="flex w-full max-w-md flex-col gap-3"
         >
           <div className="flex flex-col w-[380px] gap-2 text-2xl">
             <Label
@@ -205,17 +174,9 @@ export function ChangePasswordPage() {
             >
               Cancel
             </Button>
-
-            <button
-              type="button"
-              onClick={handleForgotPassword}
-              className="text-sm text-searchbar underline"
-            >
-              Forgot Password?
-            </button>
           </div>
         </form>
-      </div>
-    </div>
+      </section>
+    </main>
   );
 }

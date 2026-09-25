@@ -66,7 +66,14 @@ export function ResetPasswordPage() {
   };
 
   return (
-    <div className="flex min-h-screen flex-col items-center gap-15">
+    <main className="min-h-screen bg-background p-4">
+      <header className="flex h-12 items-center gap-2.5 rounded-md bg-textbox px-4">
+        <UserRoundCog className="size-5 text-foreground" aria-hidden="true" />
+        <h1 className="m-0 text-xl font-semibold tracking-normal text-active">
+          Reset Password
+        </h1>
+      </header>
+
       {showSuccess && (
         <SuccessAlert
           message="Reset password successfully."
@@ -74,22 +81,10 @@ export function ResetPasswordPage() {
         />
       )}
 
-      <div className="flex flex-row w-[1150px] h-[70px] gap-2 mt-4 p-[15px] rounded-sm items-center bg-textbox">
-        <UserRoundCog />
-        <h4 className="font-medium text-xl text-active-state">Edit Password</h4>
-      </div>
-
-      <div className="w-[500px] min-h-[230px] bg-textbox rounded-sm">
-        <div className="flex flex-row w-[230px] h-[60px] gap-2 mt-4 ml-3 p-[15px] rounded-sm items-center bg-background">
-          <UserRoundCog />
-          <h4 className="font-medium text-xl text-active-state">
-            Reset Password
-          </h4>
-        </div>
-
+      <section className="mt-6 px-3">
         <form
           onSubmit={handleSubmit(onSubmit)}
-          className="flex flex-col p-[15px] gap-3"
+          className="flex w-full max-w-md flex-col gap-3"
         >
           <div className="flex flex-col w-[380px] gap-2 text-2xl">
             <Label
@@ -129,7 +124,7 @@ export function ResetPasswordPage() {
             </Button>
           </div>
         </form>
-      </div>
-    </div>
+      </section>
+    </main>
   );
 }
