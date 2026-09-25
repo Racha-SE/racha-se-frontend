@@ -27,7 +27,7 @@ export function Sidebar() {
 
   return (
     <div className="flex w-[270px] shrink-0 flex-col bg-sidebar-middle gap-4 text-textbox">
-      <div className="flex flex-row bg-sidebar-top gap-1 p-[10px] items-center">
+      <div className="flex flex-row bg-sidebar-top gap-1 p-[10px] items-center justify-center">
         <Gem className="text-focus" />
         <p className="font-medium text-xl">RachaCPALL</p>
       </div>
@@ -38,8 +38,8 @@ export function Sidebar() {
             <Button
               className={
                 isActive
-                  ? "flex w-[90%] h-[40px] justify-center bg-focus text-white text-sm"
-                  : "flex w-[90%] h-[40px] justify-center bg-sidebar-top text-sm"
+                  ? "flex w-[90%] h-[40px] justify-center rounded-xl bg-focus text-white text-sm shadow-xs transition-all hover:-translate-y-0.5 hover:shadow-md active:translate-y-0 active:shadow-xs"
+                  : "flex w-[90%] h-[40px] justify-center rounded-xl bg-sidebar-top text-sm shadow-xs transition-all hover:-translate-y-0.5 hover:shadow-md active:translate-y-0 active:shadow-xs"
               }
             >
               Product Management
@@ -52,8 +52,8 @@ export function Sidebar() {
             <Button
               className={
                 isActive
-                  ? "flex w-[90%] h-[40px] justify-center bg-focus text-white text-sm"
-                  : "flex w-[90%] h-[40px] justify-center bg-sidebar-top text-sm"
+                  ? "flex w-[90%] h-[40px] justify-center rounded-xl bg-focus text-white text-sm shadow-xs transition-all hover:-translate-y-0.5 hover:shadow-md active:translate-y-0 active:shadow-xs"
+                  : "flex w-[90%] h-[40px] justify-center rounded-xl bg-sidebar-top text-sm shadow-xs transition-all hover:-translate-y-0.5 hover:shadow-md active:translate-y-0 active:shadow-xs"
               }
             >
               Categories
@@ -66,8 +66,8 @@ export function Sidebar() {
             <Button
               className={
                 isActive
-                  ? "flex w-[90%] h-[40px] justify-center bg-focus text-white text-sm"
-                  : "flex w-[90%] h-[40px] justify-center bg-sidebar-top text-sm"
+                  ? "flex w-[90%] h-[40px] justify-center rounded-xl bg-focus text-white text-sm shadow-xs transition-all hover:-translate-y-0.5 hover:shadow-md active:translate-y-0 active:shadow-xs"
+                  : "flex w-[90%] h-[40px] justify-center rounded-xl bg-sidebar-top text-sm shadow-xs transition-all hover:-translate-y-0.5 hover:shadow-md active:translate-y-0 active:shadow-xs"
               }
             >
               Inventory
@@ -80,8 +80,8 @@ export function Sidebar() {
             <Button
               className={
                 isActive
-                  ? "flex w-[90%] h-[40px] justify-center bg-focus text-white text-sm"
-                  : "flex w-[90%] h-[40px] justify-center bg-sidebar-top text-sm"
+                  ? "flex w-[90%] h-[40px] justify-center rounded-xl bg-focus text-white text-sm shadow-xs transition-all hover:-translate-y-0.5 hover:shadow-md active:translate-y-0 active:shadow-xs"
+                  : "flex w-[90%] h-[40px] justify-center rounded-xl bg-sidebar-top text-sm shadow-xs transition-all hover:-translate-y-0.5 hover:shadow-md active:translate-y-0 active:shadow-xs"
               }
             >
               Notifications
@@ -95,8 +95,8 @@ export function Sidebar() {
               <Button
                 className={
                   isActive
-                    ? "flex w-[90%] h-[40px] justify-center bg-focus text-white text-sm"
-                    : "flex w-[90%] h-[40px] justify-center bg-sidebar-top text-sm"
+                    ? "flex w-[90%] h-[40px] justify-center rounded-xl bg-focus text-white text-sm shadow-xs transition-all hover:-translate-y-0.5 hover:shadow-md active:translate-y-0 active:shadow-xs"
+                    : "flex w-[90%] h-[40px] justify-center rounded-xl bg-sidebar-top text-sm shadow-xs transition-all hover:-translate-y-0.5 hover:shadow-md active:translate-y-0 active:shadow-xs"
                 }
               >
                 User Management
