@@ -7,12 +7,14 @@ import {
   getHqMinStockNotifications,
   type HqNotification,
 } from "@/api/notifications";
+import { getProductById } from "@/api/product";
 
 import { NotificationTable } from "./notification-table";
 
 export function HqNotificationsPage() {
   const [expireItems, setExpireItems] = useState<HqNotification[]>([]);
   const [minStockItems, setMinStockItems] = useState<HqNotification[]>([]);
+  const [productNames, setProductNames] = useState<Record<number, string>>({});
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -30,6 +32,24 @@ export function HqNotificationsPage() {
         if (cancelled) return;
         setExpireItems(expire);
         setMinStockItems(minStock);
+
+        const uniquePIds = [
+          ...new Set([...expire, ...minStock].map((item) => item.pId)),
+        ];
+        const nameEntries = await Promise.all(
+          uniquePIds.map(async (pId) => {
+            try {
+              const response = await getProductById(pId);
+              return [pId, response.data.name] as const;
+            } catch {
+              return null;
+            }
+          }),
+        );
+        if (cancelled) return;
+        setProductNames(
+          Object.fromEntries(nameEntries.filter((entry) => entry !== null)),
+        );
       } catch (err) {
         if (cancelled) return;
         setError(
@@ -53,7 +73,7 @@ export function HqNotificationsPage() {
     <main className="min-h-screen bg-background p-6 text-left text-foreground">
       <header className="flex h-12 items-center gap-3 rounded-md bg-textbox px-3">
         <Bell className="size-4.5 text-sidebar-top" aria-hidden="true" />
-        <h1 className="m-0 text-base font-semibold tracking-normal text-active">
+        <h1 className="m-0 text-xl font-semibold tracking-normal text-active">
           Notifications
         </h1>
       </header>
@@ -70,23 +90,25 @@ export function HqNotificationsPage() {
         ) : (
           <>
             <div className="space-y-2">
-              <h2 className="text-sm font-semibold text-foreground">
+              <h2 className="text-base font-semibold text-foreground">
                 Low stock
               </h2>
               <NotificationTable
                 type="min_stock"
                 items={minStockItems}
+                productNames={productNames}
                 emptyMessage="No low stock alerts."
               />
             </div>
 
             <div className="space-y-2">
-              <h2 className="text-sm font-semibold text-foreground">
+              <h2 className="text-base font-semibold text-foreground">
                 Expiring soon
               </h2>
               <NotificationTable
                 type="expire"
                 items={expireItems}
+                productNames={productNames}
                 emptyMessage="No expiring stock."
               />
             </div>

@@ -1,4 +1,3 @@
-import { Badge } from "@/components/ui/badge";
 import {
   Table,
   TableBody,
@@ -13,6 +12,7 @@ import type { HqNotification, NotificationType } from "@/api/notifications";
 interface NotificationTableProps {
   type: NotificationType;
   items: HqNotification[];
+  productNames: Record<number, string>;
   emptyMessage: string;
 }
 
@@ -24,6 +24,7 @@ function formatDate(value: string | null) {
 export function NotificationTable({
   type,
   items,
+  productNames,
   emptyMessage,
 }: NotificationTableProps) {
   if (items.length === 0) {
@@ -39,20 +40,23 @@ export function NotificationTable({
       <Table>
         <TableHeader>
           <TableRow className="border-border hover:bg-transparent">
-            <TableHead className="h-auto border-r border-border px-4 py-2 text-base font-semibold">
+            <TableHead className="h-auto border-r border-border px-4 py-2 font-semibold">
               Product
             </TableHead>
-            <TableHead className="h-auto border-r border-border px-4 py-2 text-base font-semibold">
+            <TableHead
+              className={
+                type === "expire"
+                  ? "h-auto border-r border-border px-4 py-2 font-semibold"
+                  : "h-auto px-4 py-2 font-semibold"
+              }
+            >
               {type === "expire" ? "Quantity in lot" : "Remaining quantity"}
             </TableHead>
             {type === "expire" && (
-              <TableHead className="h-auto border-r border-border px-4 py-2 text-base font-semibold">
+              <TableHead className="h-auto px-4 py-2 font-semibold">
                 Expires on
               </TableHead>
             )}
-            <TableHead className="h-auto px-4 py-2 text-base font-semibold">
-              Status
-            </TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -61,24 +65,23 @@ export function NotificationTable({
               key={item.notificationId}
               className="border-border even:bg-textbox hover:bg-primary-subtle"
             >
-              <TableCell className="h-auto border-r border-border px-4 py-2 text-base">
-                {/* No product name available from this endpoint — see the
-                    note in src/api/notifications.ts */}
-                Product #{item.pId}
+              <TableCell className="h-auto border-r border-border px-4 py-2">
+                {productNames[item.pId] ?? `Product #${item.pId}`}
               </TableCell>
-              <TableCell className="h-auto border-r border-border px-4 py-2 text-base">
+              <TableCell
+                className={
+                  type === "expire"
+                    ? "h-auto border-r border-border px-4 py-2"
+                    : "h-auto px-4 py-2"
+                }
+              >
                 {item.quantity}
               </TableCell>
               {type === "expire" && (
-                <TableCell className="h-auto border-r border-border px-4 py-2 text-base">
+                <TableCell className="h-auto px-4 py-2">
                   {formatDate(item.expiredDate)}
                 </TableCell>
               )}
-              <TableCell className="h-auto px-4 py-2">
-                <Badge variant={item.isResolved ? "outline" : "destructive"}>
-                  {item.isResolved ? "Resolved" : "Open"}
-                </Badge>
-              </TableCell>
             </TableRow>
           ))}
         </TableBody>
