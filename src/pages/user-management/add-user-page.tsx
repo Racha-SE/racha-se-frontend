@@ -45,7 +45,7 @@ export function AddUserPage() {
       <header className="flex h-12 items-center gap-2.5 rounded-md bg-textbox px-4">
         <UserRoundPlus className="size-5 text-foreground" aria-hidden="true" />
 
-        <h1 className="m-0 text-lg font-semibold text-active">Add User</h1>
+        <h1 className="m-0 text-xl font-semibold text-active">Add User</h1>
       </header>
 
       <section className="mt-6 px-3">

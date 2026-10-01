@@ -1,7 +1,9 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
-@import "@fontsource-variable/geist";
+@import "@fontsource/bai-jamjuree/400.css";
+@import "@fontsource/bai-jamjuree/500.css";
+@import "@fontsource/bai-jamjuree/600.css";
 
 @custom-variant dark (&:is(.dark *));
 
@@ -72,7 +74,7 @@
   --chart-3: var(--base-neutral-400);
   --chart-4: var(--base-green-light);
   --chart-5: var(--base-red-500);
-  --radius: 0.625rem;
+  --radius: 0.75rem;
   --sidebar: var(--sidebar-middle);
   --sidebar-foreground: var(--surface);
   --sidebar-primary: var(--focus);
@@ -85,7 +87,7 @@
 
 @theme inline {
   --font-heading: var(--font-sans);
-  --font-sans: "Geist Variable", sans-serif;
+  --font-sans: "Bai Jamjuree", sans-serif;
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);

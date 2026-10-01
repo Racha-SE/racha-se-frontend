@@ -9,6 +9,7 @@ import {
   getProducts,
   type Product,
 } from "@/api/product";
+import { ActiveFilterChips } from "@/components/active-filter-chips";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { PaginationControls } from "@/components/pagination-controls";
@@ -74,6 +75,37 @@ export function ProductListPage() {
     value: String(category.categoryId),
   }));
 
+  const activeFilterChips = [
+    ...(filters.category
+      ? [
+          {
+            key: "category",
+            label: `Category: ${
+              categoryOptions.find(
+                (option) => option.value === filters.category,
+              )?.label ?? filters.category
+            }`,
+            onRemove: () => {
+              setFilters((current) => ({ ...current, category: undefined }));
+              setPage(1);
+            },
+          },
+        ]
+      : []),
+    ...(filters.isActive !== undefined
+      ? [
+          {
+            key: "status",
+            label: `Status: ${filters.isActive ? "Active" : "Inactive"}`,
+            onRemove: () => {
+              setFilters((current) => ({ ...current, isActive: undefined }));
+              setPage(1);
+            },
+          },
+        ]
+      : []),
+  ];
+
   async function handleView(productId: number) {
     const response = await getProductById(productId);
     setSelectedProduct(response.data);
@@ -93,7 +125,7 @@ export function ProductListPage() {
     <main className="min-h-screen bg-background p-6 text-left text-foreground">
       <header className="flex h-12 items-center gap-3 rounded-md bg-textbox px-3">
         <Package className="size-4.5 text-sidebar-top" aria-hidden="true" />
-        <h1 className="m-0 text-base font-semibold tracking-normal text-active">
+        <h1 className="m-0 text-xl font-semibold tracking-normal text-active">
           Product Management
         </h1>
       </header>
@@ -101,7 +133,7 @@ export function ProductListPage() {
       <section className="mt-4 space-y-4 px-2">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <Input
-            className="h-8 max-w-[400px] rounded-sm border-border bg-searchbar px-3 text-base text-primary-foreground placeholder:text-primary-foreground/70 focus-visible:border-focus focus-visible:ring-focus/20"
+            className="h-8 max-w-[400px] rounded-sm border-border bg-searchbar px-3 text-primary-foreground placeholder:text-primary-foreground/70 focus-visible:border-focus focus-visible:ring-focus/20"
             value={search}
             placeholder="Search product name / ID"
             aria-label="Search products"
@@ -131,23 +163,25 @@ export function ProductListPage() {
           </div>
         </div>
 
+        <ActiveFilterChips chips={activeFilterChips} />
+
         <div className="border border-border">
           <Table>
             <TableHeader>
               <TableRow className="border-border hover:bg-transparent">
-                <TableHead className="h-auto border-r border-border px-4 py-2 text-base font-semibold">
+                <TableHead className="h-auto border-r border-border px-4 py-2 font-semibold">
                   Product ID
                 </TableHead>
-                <TableHead className="h-auto border-r border-border px-4 py-2 text-base font-semibold">
+                <TableHead className="h-auto border-r border-border px-4 py-2 font-semibold">
                   Product Name
                 </TableHead>
-                <TableHead className="h-auto border-r border-border px-4 py-2 text-base font-semibold">
+                <TableHead className="h-auto border-r border-border px-4 py-2 font-semibold">
                   Category
                 </TableHead>
-                <TableHead className="h-auto border-r border-border px-4 py-2 text-base font-semibold">
+                <TableHead className="h-auto border-r border-border px-4 py-2 font-semibold">
                   Status
                 </TableHead>
-                <TableHead className="h-auto px-4 py-2 text-base font-semibold">
+                <TableHead className="h-auto px-4 py-2 font-semibold">
                   Actions
                 </TableHead>
               </TableRow>
@@ -158,20 +192,20 @@ export function ProductListPage() {
                   key={product.pId}
                   className="border-border even:bg-textbox hover:bg-primary-subtle"
                 >
-                  <TableCell className="h-auto border-r border-border px-4 py-2 text-base">
+                  <TableCell className="h-auto border-r border-border px-4 py-2">
                     {product.pId}
                   </TableCell>
-                  <TableCell className="h-auto border-r border-border px-4 py-2 text-base">
+                  <TableCell className="h-auto border-r border-border px-4 py-2">
                     {product.name}
                   </TableCell>
-                  <TableCell className="h-auto border-r border-border px-4 py-2 text-base">
+                  <TableCell className="h-auto border-r border-border px-4 py-2">
                     {product.categories.length > 0
                       ? product.categories
                           .map((category) => category.categoryName)
                           .join(", ")
                       : "—"}
                   </TableCell>
-                  <TableCell className="h-auto border-r border-border px-4 py-2 text-base">
+                  <TableCell className="h-auto border-r border-border px-4 py-2">
                     {product.isActive ? "Active" : "Inactive"}
                   </TableCell>
                   <TableCell className="h-auto px-4 py-2">
@@ -219,7 +253,7 @@ export function ProductListPage() {
           </Table>
         </div>
 
-        <div className="flex items-center justify-between text-base text-foreground">
+        <div className="flex items-center justify-between text-sm text-foreground">
           <span>
             Showing {products.length} of {total} items
           </span>

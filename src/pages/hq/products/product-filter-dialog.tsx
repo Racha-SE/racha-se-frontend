@@ -1,9 +1,10 @@
 import { useState } from "react";
-import { SlidersHorizontal } from "lucide-react";
+import { SlidersHorizontal, XIcon } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
+  DialogClose,
   DialogContent,
   DialogDescription,
   DialogHeader,
@@ -94,14 +95,25 @@ export function ProductFilterDialog({
         <DialogContent
           className="gap-5 rounded-xl bg-currency-card p-3 sm:max-w-2xl"
           overlayClassName="bg-black/30"
+          showCloseButton={false}
         >
-          <DialogHeader className="rounded-xl bg-surface px-5 py-6">
-            <DialogTitle className="text-2xl font-semibold text-active">
-              Filter
-            </DialogTitle>
+          <DialogHeader className="relative rounded-xl bg-surface px-5 py-3">
+            <DialogTitle className="text-active">Filter</DialogTitle>
             <DialogDescription className="sr-only">
               Filter products by category and active status.
             </DialogDescription>
+            <DialogClose
+              render={
+                <Button
+                  variant="ghost"
+                  className="absolute top-1/2 right-2 -translate-y-1/2"
+                  size="icon-sm"
+                />
+              }
+            >
+              <XIcon />
+              <span className="sr-only">Close</span>
+            </DialogClose>
           </DialogHeader>
 
           <div className="grid grid-cols-1 gap-6 px-2 pb-2 sm:grid-cols-2">
@@ -109,13 +121,12 @@ export function ProductFilterDialog({
               <div className="flex items-center gap-3">
                 <Switch
                   id="category-filter-toggle"
-                  className="h-8! w-14! [&_[data-slot=switch-thumb]]:size-7!"
                   checked={categoryEnabled}
                   onCheckedChange={setCategoryEnabled}
                 />
                 <label
                   htmlFor="category-filter-toggle"
-                  className="text-base font-medium"
+                  className="text-sm font-medium"
                 >
                   Category
                 </label>
@@ -127,7 +138,7 @@ export function ProductFilterDialog({
                   value={category || null}
                   onValueChange={(nextValue) => setCategory(nextValue ?? "")}
                 >
-                  <SelectTrigger className="h-10! w-full rounded-md bg-surface px-3 text-base">
+                  <SelectTrigger className="h-9! w-full rounded-md bg-surface px-3 text-sm">
                     <SelectValue placeholder="Select a category" />
                   </SelectTrigger>
                   <SelectContent align="start" alignItemWithTrigger={false}>
@@ -145,13 +156,12 @@ export function ProductFilterDialog({
               <div className="flex items-center gap-3">
                 <Switch
                   id="status-filter-toggle"
-                  className="h-8! w-14! [&_[data-slot=switch-thumb]]:size-7!"
                   checked={statusEnabled}
                   onCheckedChange={setStatusEnabled}
                 />
                 <label
                   htmlFor="status-filter-toggle"
-                  className="text-base font-medium"
+                  className="text-sm font-medium"
                 >
                   Status
                 </label>
@@ -167,7 +177,7 @@ export function ProductFilterDialog({
                     }
                   }}
                 >
-                  <SelectTrigger className="h-10! w-full rounded-md bg-surface px-3 text-base">
+                  <SelectTrigger className="h-9! w-full rounded-md bg-surface px-3 text-sm">
                     <SelectValue placeholder="Select a status" />
                   </SelectTrigger>
                   <SelectContent align="start" alignItemWithTrigger={false}>

@@ -8,6 +8,7 @@ import {
   type HqInventoryGroup,
   type HqInventoryItem,
 } from "@/api/inventory";
+import { ActiveFilterChips } from "@/components/active-filter-chips";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { PaginationControls } from "@/components/pagination-controls";
@@ -27,6 +28,22 @@ import type {
 } from "./inventory-types";
 
 const itemsPerPage = 10;
+
+const sortByLabels: Record<
+  NonNullable<InventoryFilterValues["sortBy"]>,
+  string
+> = {
+  expiryDate: "Expiry Date",
+  costPrice: "Cost Price",
+};
+
+const sortOrderLabels: Record<
+  NonNullable<InventoryFilterValues["sortOrder"]>,
+  string
+> = {
+  asc: "Ascending",
+  desc: "Descending",
+};
 
 function formatDate(value: string) {
   return new Intl.DateTimeFormat("en-GB", { timeZone: "UTC" }).format(
@@ -168,11 +185,47 @@ export function InventoryListPage() {
   const totalPages = Math.max(Math.ceil(totalCount / itemsPerPage), 1);
   const visibleCount = groupByProduct ? groups.length : items.length;
 
+  const activeFilterChips = [
+    ...(filters.category
+      ? [
+          {
+            key: "category",
+            label: `Category: ${
+              categories.find((option) => option.value === filters.category)
+                ?.label ?? filters.category
+            }`,
+            onRemove: () => {
+              setFilters((current) => ({ ...current, category: undefined }));
+              setPage(1);
+            },
+          },
+        ]
+      : []),
+    ...(filters.sortBy
+      ? [
+          {
+            key: "sort",
+            label: `Sort: ${sortByLabels[filters.sortBy]} (${
+              sortOrderLabels[filters.sortOrder ?? "asc"]
+            })`,
+            onRemove: () => {
+              setFilters((current) => ({
+                ...current,
+                sortBy: undefined,
+                sortOrder: undefined,
+              }));
+              setPage(1);
+            },
+          },
+        ]
+      : []),
+  ];
+
   return (
     <main className="min-h-screen bg-background p-6 text-left text-foreground">
       <header className="flex h-12 items-center gap-3 rounded-md bg-textbox px-3">
         <Boxes className="size-4.5 text-sidebar-top" aria-hidden="true" />
-        <h1 className="m-0 text-base font-semibold tracking-normal text-active">
+        <h1 className="m-0 text-xl font-semibold tracking-normal text-active">
           Inventory
         </h1>
       </header>
@@ -180,7 +233,7 @@ export function InventoryListPage() {
       <section className="mt-4 space-y-4 px-2">
         <div className="flex items-center justify-between gap-3">
           <Input
-            className="h-8 max-w-[400px] rounded-sm border-border bg-searchbar px-3 text-base text-primary-foreground placeholder:text-primary-foreground/70 focus-visible:border-focus focus-visible:ring-focus/20"
+            className="h-8 max-w-[400px] rounded-sm border-border bg-searchbar px-3 text-primary-foreground placeholder:text-primary-foreground/70 focus-visible:border-focus focus-visible:ring-focus/20"
             value={search}
             placeholder="Search stock"
             aria-label="Search inventory"
@@ -221,6 +274,8 @@ export function InventoryListPage() {
           </div>
         </div>
 
+        <ActiveFilterChips chips={activeFilterChips} />
+
         {isLoading ? (
           <p className="py-8 text-center text-sm text-muted-foreground">
             Loading inventory...
@@ -243,7 +298,7 @@ export function InventoryListPage() {
         )}
 
         {!isLoading && !error && totalCount > 0 && (
-          <div className="flex items-center justify-between text-base text-foreground">
+          <div className="flex items-center justify-between text-sm text-foreground">
             <span>
               Showing {visibleCount} of {totalCount} items
             </span>

@@ -97,7 +97,7 @@ export function UserDetailPage() {
       <header className="flex h-12 items-center gap-3 rounded-md bg-textbox px-4">
         <Eye className="size-5" aria-hidden="true" />
 
-        <h1 className="text-lg font-semibold text-active">User Details</h1>
+        <h1 className="text-xl font-semibold text-active">User Details</h1>
       </header>
 
       <section className="mt-6 space-y-4 px-3">
