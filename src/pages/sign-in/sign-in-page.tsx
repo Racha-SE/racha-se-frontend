@@ -98,6 +98,8 @@ export function SignInPage() {
 
     if (user.role === "admin") {
       navigate("/user-management");
+    } else if (user.userType === "cashier") {
+      navigate("/cashier");
     } else {
       navigate("/hq/products");
     }
