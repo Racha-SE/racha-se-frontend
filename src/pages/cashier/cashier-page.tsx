@@ -4,11 +4,18 @@ import { ShoppingCart } from "lucide-react";
 import { getProducts, type Product } from "@/api/product";
 import { Input } from "@/components/ui/input";
 
+import { AddToCartDialog } from "./add-to-cart-dialog";
 import { ProductCard } from "./product-card";
+
+function formatCategories(product: Product) {
+  return product.categories.map((category) => category.categoryName).join(", ");
+}
 
 export function CashierPage() {
   const [search, setSearch] = useState("");
   const [products, setProducts] = useState<Product[]>([]);
+  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
+  const [isAddToCartOpen, setIsAddToCartOpen] = useState(false);
 
   useEffect(() => {
     async function loadProducts() {
@@ -19,7 +26,14 @@ export function CashierPage() {
     void loadProducts();
   }, []);
 
-  const addToCart = () => {};
+  const openAddToCart = (product: Product) => {
+    setSelectedProduct(product);
+    setIsAddToCartOpen(true);
+  };
+
+  const addToCart = () => {
+    setIsAddToCartOpen(false);
+  };
 
   const searchText = search.trim().toLowerCase();
   const visibleProducts = searchText
@@ -64,16 +78,28 @@ export function CashierPage() {
                 productId={product.pId}
                 productName={product.name}
                 description={product.description ?? ""}
-                category={product.categories
-                  .map((category) => category.categoryName)
-                  .join(", ")}
+                category={formatCategories(product)}
                 price={product.costPrice}
-                onAddToCart={addToCart}
+                onAddToCart={() => openAddToCart(product)}
               />
             ))}
           </div>
         )}
       </section>
+
+      {selectedProduct && (
+        <AddToCartDialog
+          key={selectedProduct.pId}
+          open={isAddToCartOpen}
+          onOpenChange={setIsAddToCartOpen}
+          productId={selectedProduct.pId}
+          productName={selectedProduct.name}
+          description={selectedProduct.description ?? ""}
+          category={formatCategories(selectedProduct)}
+          price={selectedProduct.costPrice}
+          onAddToCart={addToCart}
+        />
+      )}
     </main>
   );
 }

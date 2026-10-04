@@ -1,7 +1,10 @@
+import type { ReactNode } from "react";
+
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 
-interface ProductCardProps {
+export interface ProductCardProps {
   productId: number;
   productName: string;
   description: string;
@@ -10,37 +13,69 @@ interface ProductCardProps {
   onAddToCart: () => void;
 }
 
-export function ProductCard({
+interface ProductInfoProps extends Omit<ProductCardProps, "onAddToCart"> {
+  className?: string;
+  nameClassName?: string;
+  badgeClassName?: string;
+  children: ReactNode;
+}
+
+export function ProductInfo({
   productId,
   productName,
   description,
   category,
   price,
-  onAddToCart,
-}: ProductCardProps) {
+  className,
+  nameClassName,
+  badgeClassName,
+  children,
+}: ProductInfoProps) {
   return (
-    <article className="flex h-[188px] w-[333px] flex-col gap-2 rounded-lg bg-textbox p-4 text-sidebar-top">
+    <article
+      className={cn(
+        "flex flex-col gap-2 rounded-lg p-4 text-sidebar-top",
+        className,
+      )}
+    >
       <div className="min-w-0">
-        <p className="m-0 text-xs text-muted-foreground">{productId}</p>
-        <h2 className="m-0 truncate text-lg font-bold">{productName}</h2>
+        <p className="m-0 text-xs text-muted-foreground">ID: {productId}</p>
+        <h2 className={cn("m-0 truncate text-lg font-bold", nameClassName)}>
+          {productName}
+        </h2>
       </div>
       <p className="m-0 line-clamp-1 text-sm">{description}</p>
       {category && (
-        <Badge className="h-auto border-currency-card bg-currency-card px-2 py-0.5 text-xs font-normal text-sidebar-top">
+        <Badge
+          className={cn(
+            "h-auto border-currency-card bg-currency-card px-2 py-0.5 text-xs font-normal text-sidebar-top",
+            badgeClassName,
+          )}
+        >
           {category}
         </Badge>
       )}
-      <div className="mt-auto flex items-center justify-between gap-3">
-        <p className="m-0 text-lg font-semibold">{price.toFixed(2)} ฿</p>
-        <Button
-          type="button"
-          size="lg"
-          className="h-9 px-4 text-sm"
-          onClick={onAddToCart}
-        >
-          Add to Cart
-        </Button>
+      <div className="mt-auto flex items-end justify-between gap-3">
+        <p className="m-0 text-lg leading-9 font-semibold">
+          {price.toFixed(2)} ฿
+        </p>
+        {children}
       </div>
     </article>
+  );
+}
+
+export function ProductCard({ onAddToCart, ...product }: ProductCardProps) {
+  return (
+    <ProductInfo {...product} className="h-[188px] w-[333px] bg-textbox">
+      <Button
+        type="button"
+        size="lg"
+        className="h-9 px-4 text-sm"
+        onClick={onAddToCart}
+      >
+        Add to Cart
+      </Button>
+    </ProductInfo>
   );
 }
