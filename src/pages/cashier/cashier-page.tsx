@@ -25,6 +25,7 @@ export function CashierPage() {
   const visibleProducts = searchText
     ? products.filter(
         (product) =>
+          String(product.pId).includes(searchText) ||
           product.name.toLowerCase().includes(searchText) ||
           (product.description ?? "").toLowerCase().includes(searchText),
       )
@@ -46,7 +47,7 @@ export function CashierPage() {
         <Input
           className="h-8 max-w-[400px] rounded-sm border-border bg-searchbar px-3 text-primary-foreground placeholder:text-primary-foreground/70 focus-visible:border-focus focus-visible:ring-focus/20"
           value={search}
-          placeholder="Search product name / description"
+          placeholder="Search product ID / name / description"
           aria-label="Search products"
           onChange={(event) => setSearch(event.target.value)}
         />
@@ -60,6 +61,7 @@ export function CashierPage() {
             {visibleProducts.map((product) => (
               <ProductCard
                 key={product.pId}
+                productId={product.pId}
                 productName={product.name}
                 description={product.description ?? ""}
                 category={product.categories

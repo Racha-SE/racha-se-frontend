@@ -2,6 +2,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 
 interface ProductCardProps {
+  productId: number;
   productName: string;
   description: string;
   category: string;
@@ -10,6 +11,7 @@ interface ProductCardProps {
 }
 
 export function ProductCard({
+  productId,
   productName,
   description,
   category,
@@ -17,8 +19,11 @@ export function ProductCard({
   onAddToCart,
 }: ProductCardProps) {
   return (
-    <article className="flex h-[172px] w-[333px] flex-col gap-2 rounded-lg bg-textbox p-4 text-sidebar-top">
-      <h2 className="m-0 truncate text-lg font-bold">{productName}</h2>
+    <article className="flex h-[188px] w-[333px] flex-col gap-2 rounded-lg bg-textbox p-4 text-sidebar-top">
+      <div className="min-w-0">
+        <p className="m-0 text-xs text-muted-foreground">{productId}</p>
+        <h2 className="m-0 truncate text-lg font-bold">{productName}</h2>
+      </div>
       <p className="m-0 line-clamp-1 text-sm">{description}</p>
       {category && (
         <Badge className="h-auto border-currency-card bg-currency-card px-2 py-0.5 text-xs font-normal text-sidebar-top">
