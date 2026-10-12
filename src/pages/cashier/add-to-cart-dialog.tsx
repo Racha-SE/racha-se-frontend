@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { Minus, Plus } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -8,9 +7,9 @@ import {
   DialogContent,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
 
 import { ProductInfo, type ProductCardProps } from "./product-card";
+import { QuantityStepper } from "./quantity-stepper";
 
 interface AddToCartDialogProps extends Omit<ProductCardProps, "onAddToCart"> {
   open: boolean;
@@ -55,37 +54,7 @@ function AddToCartDialogBody({
       badgeClassName="border-border bg-textbox"
     >
       <div className="flex flex-col items-end gap-3">
-        <div className="flex items-center gap-1.5">
-          <Button
-            type="button"
-            size="icon-lg"
-            className="rounded-full bg-focus hover:bg-focus/80"
-            aria-label="Decrease quantity"
-            disabled={quantity <= 1}
-            onClick={() => setQuantity((current) => Math.max(1, current - 1))}
-          >
-            <Minus className="size-5" />
-          </Button>
-          <Input
-            className="h-8 w-14 bg-textbox text-center"
-            inputMode="numeric"
-            aria-label="Quantity"
-            value={quantity}
-            onChange={(event) => {
-              const value = Number.parseInt(event.target.value, 10);
-              setQuantity(Number.isNaN(value) ? 1 : Math.max(1, value));
-            }}
-          />
-          <Button
-            type="button"
-            size="icon-lg"
-            className="rounded-full bg-focus hover:bg-focus/80"
-            aria-label="Increase quantity"
-            onClick={() => setQuantity((current) => current + 1)}
-          >
-            <Plus className="size-5" />
-          </Button>
-        </div>
+        <QuantityStepper value={quantity} onChange={setQuantity} />
         <div className="flex gap-3">
           <DialogClose
             render={
