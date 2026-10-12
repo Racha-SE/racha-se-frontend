@@ -5,7 +5,17 @@ import { getProducts, type Product } from "@/api/product";
 import { Input } from "@/components/ui/input";
 
 import { AddToCartDialog } from "./add-to-cart-dialog";
+import {
+  CashierFilterDialog,
+  type CashierFilterValues,
+} from "./cashier-filter-dialog";
 import { ProductCard } from "./product-card";
+
+// Placeholder options until the filter is wired to the categories API.
+const categoryOptions = [
+  { label: "Beverages", value: "1" },
+  { label: "Household", value: "2" },
+];
 
 function formatCategories(product: Product) {
   return product.categories.map((category) => category.categoryName).join(", ");
@@ -16,6 +26,7 @@ export function CashierPage() {
   const [products, setProducts] = useState<Product[]>([]);
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [isAddToCartOpen, setIsAddToCartOpen] = useState(false);
+  const [filters, setFilters] = useState<CashierFilterValues>({});
 
   useEffect(() => {
     async function loadProducts() {
@@ -58,13 +69,20 @@ export function CashierPage() {
       </header>
 
       <section className="mt-4 space-y-4">
-        <Input
-          className="h-8 max-w-[400px] rounded-sm border-border bg-searchbar px-3 text-primary-foreground placeholder:text-primary-foreground/70 focus-visible:border-focus focus-visible:ring-focus/20"
-          value={search}
-          placeholder="Search product ID / name / description"
-          aria-label="Search products"
-          onChange={(event) => setSearch(event.target.value)}
-        />
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <Input
+            className="h-8 max-w-[400px] rounded-sm border-border bg-searchbar px-3 text-primary-foreground placeholder:text-primary-foreground/70 focus-visible:border-focus focus-visible:ring-focus/20"
+            value={search}
+            placeholder="Search product ID / name / description"
+            aria-label="Search products"
+            onChange={(event) => setSearch(event.target.value)}
+          />
+          <CashierFilterDialog
+            categories={categoryOptions}
+            value={filters}
+            onApply={setFilters}
+          />
+        </div>
 
         {visibleProducts.length === 0 ? (
           <p className="mt-6 text-center text-sm text-muted-foreground">
