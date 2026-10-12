@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { ShoppingCart } from "lucide-react";
 
+import { getCategories, type Category } from "@/api/category";
 import { getProducts, type Product } from "@/api/product";
 import { Input } from "@/components/ui/input";
 
@@ -11,12 +12,6 @@ import {
 } from "./cashier-filter-dialog";
 import { ProductCard } from "./product-card";
 
-// Placeholder options until the filter is wired to the categories API.
-const categoryOptions = [
-  { label: "Beverages", value: "1" },
-  { label: "Household", value: "2" },
-];
-
 function formatCategories(product: Product) {
   return product.categories.map((category) => category.categoryName).join(", ");
 }
@@ -24,18 +19,36 @@ function formatCategories(product: Product) {
 export function CashierPage() {
   const [search, setSearch] = useState("");
   const [products, setProducts] = useState<Product[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [isAddToCartOpen, setIsAddToCartOpen] = useState(false);
   const [filters, setFilters] = useState<CashierFilterValues>({});
 
   useEffect(() => {
+    async function loadCategories() {
+      const response = await getCategories();
+      setCategories(response.data.result);
+    }
+
+    void loadCategories();
+  }, []);
+
+  useEffect(() => {
     async function loadProducts() {
-      const response = await getProducts({ isActive: true });
+      const response = await getProducts({
+        isActive: true,
+        categoryId: filters.category ? Number(filters.category) : undefined,
+      });
       setProducts(response.data.products);
     }
 
     void loadProducts();
-  }, []);
+  }, [filters]);
+
+  const categoryOptions = categories.map((category) => ({
+    label: category.categoryName,
+    value: String(category.categoryId),
+  }));
 
   const openAddToCart = (product: Product) => {
     setSelectedProduct(product);
