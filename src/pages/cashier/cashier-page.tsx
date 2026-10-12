@@ -3,9 +3,12 @@ import { ShoppingCart } from "lucide-react";
 
 import { getCategories, type Category } from "@/api/category";
 import { getProducts, type Product } from "@/api/product";
+import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { cn } from "@/lib/utils";
 
 import { AddToCartDialog } from "./add-to-cart-dialog";
+import { CartIcon, CartPanel, type CartItem } from "./cart-panel";
 import {
   CashierFilterDialog,
   type CashierFilterValues,
@@ -23,6 +26,8 @@ export function CashierPage() {
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [isAddToCartOpen, setIsAddToCartOpen] = useState(false);
   const [filters, setFilters] = useState<CashierFilterValues>({});
+  const [cartItems, setCartItems] = useState<CartItem[]>([]);
+  const [isCartOpen, setIsCartOpen] = useState(false);
 
   useEffect(() => {
     async function loadCategories() {
@@ -55,9 +60,35 @@ export function CashierPage() {
     setIsAddToCartOpen(true);
   };
 
-  const addToCart = () => {
+  const addToCart = (quantity: number) => {
+    if (selectedProduct) {
+      const { pId, name, costPrice } = selectedProduct;
+
+      setCartItems((current) =>
+        current.some((item) => item.pId === pId)
+          ? current.map((item) =>
+              item.pId === pId
+                ? { ...item, quantity: item.quantity + quantity }
+                : item,
+            )
+          : [...current, { pId, name, price: costPrice, quantity }],
+      );
+    }
+
     setIsAddToCartOpen(false);
   };
+
+  const updateCartQuantity = (pId: number, quantity: number) => {
+    setCartItems((current) =>
+      current.map((item) => (item.pId === pId ? { ...item, quantity } : item)),
+    );
+  };
+
+  const removeFromCart = (pId: number) => {
+    setCartItems((current) => current.filter((item) => item.pId !== pId));
+  };
+
+  const cartCount = cartItems.reduce((sum, item) => sum + item.quantity, 0);
 
   const searchText = search.trim().toLowerCase();
   const visibleProducts = searchText
@@ -90,32 +121,61 @@ export function CashierPage() {
             aria-label="Search products"
             onChange={(event) => setSearch(event.target.value)}
           />
-          <CashierFilterDialog
-            categories={categoryOptions}
-            value={filters}
-            onApply={setFilters}
-          />
+          <div className="flex items-center gap-4">
+            <CashierFilterDialog
+              categories={categoryOptions}
+              value={filters}
+              onApply={setFilters}
+            />
+            <Button
+              type="button"
+              variant="ghost"
+              className="h-10 px-1.5"
+              aria-label={isCartOpen ? "Hide cart" : "Show cart"}
+              aria-pressed={isCartOpen}
+              onClick={() => setIsCartOpen((current) => !current)}
+            >
+              <CartIcon count={cartCount} />
+            </Button>
+          </div>
         </div>
 
-        {visibleProducts.length === 0 ? (
-          <p className="mt-6 text-center text-sm text-muted-foreground">
-            No products found.
-          </p>
-        ) : (
-          <div className="grid grid-cols-[repeat(3,333px)] justify-between gap-6">
-            {visibleProducts.map((product) => (
-              <ProductCard
-                key={product.pId}
-                productId={product.pId}
-                productName={product.name}
-                description={product.description ?? ""}
-                category={formatCategories(product)}
-                price={product.costPrice}
-                onAddToCart={() => openAddToCart(product)}
-              />
-            ))}
+        <div className="grid grid-cols-[repeat(3,333px)] justify-between gap-6">
+          <div
+            className={cn(
+              "grid content-start justify-between gap-6",
+              isCartOpen
+                ? "col-span-2 grid-cols-[repeat(2,333px)]"
+                : "col-span-3 grid-cols-[repeat(3,333px)]",
+            )}
+          >
+            {visibleProducts.length === 0 ? (
+              <p className="col-span-full mt-6 text-center text-sm text-muted-foreground">
+                No products found.
+              </p>
+            ) : (
+              visibleProducts.map((product) => (
+                <ProductCard
+                  key={product.pId}
+                  productId={product.pId}
+                  productName={product.name}
+                  description={product.description ?? ""}
+                  category={formatCategories(product)}
+                  price={product.costPrice}
+                  onAddToCart={() => openAddToCart(product)}
+                />
+              ))
+            )}
           </div>
-        )}
+
+          {isCartOpen && (
+            <CartPanel
+              items={cartItems}
+              onQuantityChange={updateCartQuantity}
+              onRemove={removeFromCart}
+            />
+          )}
+        </div>
       </section>
 
       {selectedProduct && (
