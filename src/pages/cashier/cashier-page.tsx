@@ -140,36 +140,35 @@ export function CashierPage() {
           </div>
         </div>
 
-        <div className="grid grid-cols-[repeat(3,333px)] justify-between gap-6">
-          <div
-            className={cn(
-              "grid content-start justify-between gap-6",
-              isCartOpen
-                ? "col-span-2 grid-cols-[repeat(2,333px)]"
-                : "col-span-3 grid-cols-[repeat(3,333px)]",
-            )}
-          >
-            {visibleProducts.length === 0 ? (
-              <p className="col-span-full mt-6 text-center text-sm text-muted-foreground">
-                No products found.
-              </p>
-            ) : (
-              visibleProducts.map((product) => (
-                <ProductCard
-                  key={product.pId}
-                  productId={product.pId}
-                  productName={product.name}
-                  description={product.description ?? ""}
-                  category={formatCategories(product)}
-                  price={product.costPrice}
-                  onAddToCart={() => openAddToCart(product)}
-                />
-              ))
-            )}
-          </div>
+        <div className="grid auto-rows-[188px] grid-cols-[repeat(3,333px)] justify-between gap-6">
+          {visibleProducts.length === 0 ? (
+            <p
+              className={cn(
+                "mt-6 text-center text-sm text-muted-foreground",
+                isCartOpen ? "col-span-2" : "col-span-3",
+              )}
+            >
+              No products found.
+            </p>
+          ) : (
+            visibleProducts.map((product) => (
+              <ProductCard
+                key={product.pId}
+                productId={product.pId}
+                productName={product.name}
+                description={product.description ?? ""}
+                category={formatCategories(product)}
+                price={product.costPrice}
+                onAddToCart={() => openAddToCart(product)}
+              />
+            ))
+          )}
 
           {isCartOpen && (
+            // Spans 3 product rows (612px), which leaves room for 3 cart items
+            // before the list scrolls; products flow around it.
             <CartPanel
+              className="col-start-3 row-span-3 row-start-1"
               items={cartItems}
               onQuantityChange={updateCartQuantity}
               onRemove={removeFromCart}
