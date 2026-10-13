@@ -56,6 +56,30 @@ function toQueryString(query: HqInventoryQuery) {
   return result ? `?${result}` : "";
 }
 
+export type BranchStockItem = {
+  branchId: number;
+  quantity: number;
+  product: {
+    pId: number;
+    name: string;
+    barcode: string;
+  };
+};
+
+type BranchStockResponse = {
+  success: true;
+  data: {
+    result: BranchStockItem[];
+  };
+};
+
+export function getBranchStock(branchId: number, options?: RequestInit) {
+  return apiClient.get<BranchStockResponse>(
+    `/inventory/branches/${branchId}`,
+    options,
+  );
+}
+
 export function getHqInventory(query: HqInventoryQuery = {}) {
   return apiClient.get<HqInventoryResponse>(
     `/inventory/hq${toQueryString(query)}`,
