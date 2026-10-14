@@ -6,6 +6,7 @@ import {
   getBranchInventoryByProduct,
   type BranchInventoryProduct,
 } from "@/api/inventory";
+import { PaginationControls } from "@/components/pagination-controls";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useSession } from "@/lib/auth-client";
@@ -18,6 +19,8 @@ import {
   type CashierFilterValues,
 } from "./cashier-filter-dialog";
 import { ProductCard } from "./product-card";
+
+const itemsPerPage = 12;
 
 function formatCategories(product: BranchInventoryProduct) {
   return product.categories.map((category) => category.categoryName).join(", ");
@@ -35,6 +38,8 @@ export function CashierPage() {
   const [filters, setFilters] = useState<CashierFilterValues>({});
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const [isCartOpen, setIsCartOpen] = useState(false);
+  const [page, setPage] = useState(1);
+  const [totalCount, setTotalCount] = useState(0);
 
   useEffect(() => {
     async function loadCategories() {
@@ -54,8 +59,13 @@ export function CashierPage() {
       const response = await getBranchInventoryByProduct(branchId, {
         search: search.trim() || undefined,
         categoryId: filters.category ? Number(filters.category) : undefined,
+        limit: itemsPerPage,
+        offset: (page - 1) * itemsPerPage,
       });
-      if (!ignore) setProducts(response.data.inventory);
+      if (ignore) return;
+
+      setProducts(response.data.inventory);
+      setTotalCount(response.data.totalCount);
     }
 
     void loadProducts(branchId);
@@ -63,7 +73,9 @@ export function CashierPage() {
     return () => {
       ignore = true;
     };
-  }, [branchId, search, filters]);
+  }, [branchId, search, filters, page]);
+
+  const totalPages = Math.max(Math.ceil(totalCount / itemsPerPage), 1);
 
   const categoryOptions = categories.map((category) => ({
     label: category.categoryName,
@@ -124,13 +136,19 @@ export function CashierPage() {
             value={search}
             placeholder="Search product name / barcode"
             aria-label="Search products"
-            onChange={(event) => setSearch(event.target.value)}
+            onChange={(event) => {
+              setSearch(event.target.value);
+              setPage(1);
+            }}
           />
           <div className="flex items-center gap-4">
             <CashierFilterDialog
               categories={categoryOptions}
               value={filters}
-              onApply={setFilters}
+              onApply={(nextFilters) => {
+                setFilters(nextFilters);
+                setPage(1);
+              }}
             />
             <Button
               type="button"
@@ -180,6 +198,19 @@ export function CashierPage() {
             />
           )}
         </div>
+
+        {totalCount > 0 && (
+          <div className="flex items-center justify-between text-sm text-foreground">
+            <span>
+              Showing {products.length} of {totalCount} items
+            </span>
+            <PaginationControls
+              page={page}
+              totalPages={totalPages}
+              onPageChange={setPage}
+            />
+          </div>
+        )}
       </section>
 
       {selectedProduct && (
