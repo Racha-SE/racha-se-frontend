@@ -159,6 +159,7 @@ export function BranchListPage() {
           <BranchTable
             branches={pageBranches}
             onView={(branchId) => navigate(`/hq/branches/${branchId}`)}
+            onEdit={(branchId) => navigate(`/hq/branches/${branchId}/edit`)}
           />
         )}
 

@@ -44,3 +44,12 @@ export function createBranch(body: CreateBranchBody) {
     body,
   );
 }
+
+export type UpdateBranchBody = Partial<CreateBranchBody>;
+
+export function updateBranch(id: number, body: UpdateBranchBody) {
+  return apiClient.patch<ApiResponse<BranchResult>, UpdateBranchBody>(
+    `/branches/${id}`,
+    body,
+  );
+}

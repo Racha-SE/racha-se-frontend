@@ -21,6 +21,8 @@ import {
 import { branchFormSchema, type BranchFormValues } from "./branch-form-schema";
 
 interface BranchFormProps {
+  /** Shown read-only at the top when editing an existing branch. */
+  branchId?: number;
   initialValues?: Partial<BranchFormValues>;
   submitLabel: string;
   onSubmit: (values: BranchFormValues) => Promise<void>;
@@ -43,6 +45,7 @@ function RequiredLabel({ htmlFor, label }: { htmlFor: string; label: string }) {
 }
 
 export function BranchForm({
+  branchId,
   initialValues = {},
   submitLabel,
   onSubmit,
@@ -65,7 +68,11 @@ export function BranchForm({
       // Branch names are unique, so a 409 is always about the name.
       if (error instanceof ApiError && error.status === 409) {
         form.setError("name", {
-          message: "A branch with this name already exists",
+          message: "A branch with this name already exists.",
+        });
+        form.setError("root", {
+          message:
+            "A branch with this name already exists. Use a different name.",
         });
         return;
       }
@@ -77,6 +84,16 @@ export function BranchForm({
     }
   }
 
+  const { errors } = form.formState;
+  const hasFieldErrors = Boolean(
+    errors.name || errors.address || errors.phoneNumber,
+  );
+  const errorBanner =
+    errors.root?.message ??
+    (hasFieldErrors
+      ? "Couldn't save the changes. Please fix the highlighted fields."
+      : undefined);
+
   return (
     <form
       className="w-full max-w-[640px] rounded-xl border border-border px-6 pt-[38px] pb-6"
@@ -84,6 +101,30 @@ export function BranchForm({
       onSubmit={form.handleSubmit(handleSubmit)}
     >
       <FieldGroup className="gap-4">
+        {errorBanner && (
+          <p
+            role="alert"
+            className="m-0 rounded-md border border-destructive-background bg-destructive-subtle px-3.5 py-2.5 text-xs text-destructive-active"
+          >
+            {errorBanner}
+          </p>
+        )}
+
+        {branchId !== undefined && (
+          <Field className="gap-1.5">
+            <FieldLabel htmlFor="branch-id" className="text-xs font-medium">
+              Branch ID
+            </FieldLabel>
+            <Input
+              id="branch-id"
+              value={branchId}
+              readOnly
+              disabled
+              className={`${inputClassName} bg-textbox text-searchbar`}
+            />
+          </Field>
+        )}
+
         <Controller
           name="name"
           control={form.control}
@@ -175,12 +216,6 @@ export function BranchForm({
             )}
           />
         </div>
-
-        {form.formState.errors.root && (
-          <p role="alert" className="m-0 text-sm text-destructive">
-            {form.formState.errors.root.message}
-          </p>
-        )}
 
         <div className="flex justify-end gap-2.5">
           <Button
