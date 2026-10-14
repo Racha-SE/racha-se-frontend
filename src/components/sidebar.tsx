@@ -10,9 +10,16 @@ export function Sidebar() {
   const { data: session } = useSession();
   const user = session?.user;
   const isRoot = user?.role === "admin";
+  const isCashier = user?.userType === "cashier";
   const firstName = user?.firstname ?? "";
   const initial = firstName.charAt(0).toUpperCase();
-  const roleLabel = user ? (isRoot ? "Root" : "HQ") : "";
+  const roleLabel = user
+    ? isRoot
+      ? "Root"
+      : isCashier
+        ? "Cashier"
+        : "HQ"
+    : "";
 
   const handleLogout = async () => {
     const result = await signOut();
@@ -33,78 +40,8 @@ export function Sidebar() {
       </div>
 
       <nav className="flex flex-col gap-3">
-        <NavLink to="/hq/products" end className="flex justify-center">
-          {({ isActive }) => (
-            <Button
-              className={
-                isActive
-                  ? "flex w-[90%] h-[40px] justify-center rounded-xl bg-focus text-white text-sm shadow-xs transition-all hover:-translate-y-0.5 hover:shadow-md active:translate-y-0 active:shadow-xs"
-                  : "flex w-[90%] h-[40px] justify-center rounded-xl bg-sidebar-top text-sm shadow-xs transition-all hover:-translate-y-0.5 hover:shadow-md active:translate-y-0 active:shadow-xs"
-              }
-            >
-              Product Management
-            </Button>
-          )}
-        </NavLink>
-
-        <NavLink to="/hq/products/categories" className="flex justify-center">
-          {({ isActive }) => (
-            <Button
-              className={
-                isActive
-                  ? "flex w-[90%] h-[40px] justify-center rounded-xl bg-focus text-white text-sm shadow-xs transition-all hover:-translate-y-0.5 hover:shadow-md active:translate-y-0 active:shadow-xs"
-                  : "flex w-[90%] h-[40px] justify-center rounded-xl bg-sidebar-top text-sm shadow-xs transition-all hover:-translate-y-0.5 hover:shadow-md active:translate-y-0 active:shadow-xs"
-              }
-            >
-              Categories
-            </Button>
-          )}
-        </NavLink>
-
-        <NavLink to="/hq/inventory" className="flex justify-center">
-          {({ isActive }) => (
-            <Button
-              className={
-                isActive
-                  ? "flex w-[90%] h-[40px] justify-center rounded-xl bg-focus text-white text-sm shadow-xs transition-all hover:-translate-y-0.5 hover:shadow-md active:translate-y-0 active:shadow-xs"
-                  : "flex w-[90%] h-[40px] justify-center rounded-xl bg-sidebar-top text-sm shadow-xs transition-all hover:-translate-y-0.5 hover:shadow-md active:translate-y-0 active:shadow-xs"
-              }
-            >
-              Inventory
-            </Button>
-          )}
-        </NavLink>
-
-        <NavLink to="/hq/notifications" className="flex justify-center">
-          {({ isActive }) => (
-            <Button
-              className={
-                isActive
-                  ? "flex w-[90%] h-[40px] justify-center rounded-xl bg-focus text-white text-sm shadow-xs transition-all hover:-translate-y-0.5 hover:shadow-md active:translate-y-0 active:shadow-xs"
-                  : "flex w-[90%] h-[40px] justify-center rounded-xl bg-sidebar-top text-sm shadow-xs transition-all hover:-translate-y-0.5 hover:shadow-md active:translate-y-0 active:shadow-xs"
-              }
-            >
-              Notifications
-            </Button>
-          )}
-        </NavLink>
-
-        <NavLink to="/hq/branches" className="flex justify-center">
-          {({ isActive }) => (
-            <Button
-              className={
-                isActive
-                  ? "flex w-[90%] h-[40px] justify-center rounded-xl bg-focus text-white text-sm shadow-xs transition-all hover:-translate-y-0.5 hover:shadow-md active:translate-y-0 active:shadow-xs"
-                  : "flex w-[90%] h-[40px] justify-center rounded-xl bg-sidebar-top text-sm shadow-xs transition-all hover:-translate-y-0.5 hover:shadow-md active:translate-y-0 active:shadow-xs"
-              }
-            >
-              Branch Management
-            </Button>
-          )}
-        </NavLink>
-
-        {isRoot && (
-          <NavLink to="/user-management" className="flex justify-center">
+        {isCashier ? (
+          <NavLink to="/cashier" className="flex justify-center">
             {({ isActive }) => (
               <Button
                 className={
@@ -113,10 +50,101 @@ export function Sidebar() {
                     : "flex w-[90%] h-[40px] justify-center rounded-xl bg-sidebar-top text-sm shadow-xs transition-all hover:-translate-y-0.5 hover:shadow-md active:translate-y-0 active:shadow-xs"
                 }
               >
-                User Management
+                POS
               </Button>
             )}
           </NavLink>
+        ) : (
+          <>
+            <NavLink to="/hq/products" end className="flex justify-center">
+              {({ isActive }) => (
+                <Button
+                  className={
+                    isActive
+                      ? "flex w-[90%] h-[40px] justify-center rounded-xl bg-focus text-white text-sm shadow-xs transition-all hover:-translate-y-0.5 hover:shadow-md active:translate-y-0 active:shadow-xs"
+                      : "flex w-[90%] h-[40px] justify-center rounded-xl bg-sidebar-top text-sm shadow-xs transition-all hover:-translate-y-0.5 hover:shadow-md active:translate-y-0 active:shadow-xs"
+                  }
+                >
+                  Product Management
+                </Button>
+              )}
+            </NavLink>
+
+            <NavLink
+              to="/hq/products/categories"
+              className="flex justify-center"
+            >
+              {({ isActive }) => (
+                <Button
+                  className={
+                    isActive
+                      ? "flex w-[90%] h-[40px] justify-center rounded-xl bg-focus text-white text-sm shadow-xs transition-all hover:-translate-y-0.5 hover:shadow-md active:translate-y-0 active:shadow-xs"
+                      : "flex w-[90%] h-[40px] justify-center rounded-xl bg-sidebar-top text-sm shadow-xs transition-all hover:-translate-y-0.5 hover:shadow-md active:translate-y-0 active:shadow-xs"
+                  }
+                >
+                  Categories
+                </Button>
+              )}
+            </NavLink>
+
+            <NavLink to="/hq/inventory" className="flex justify-center">
+              {({ isActive }) => (
+                <Button
+                  className={
+                    isActive
+                      ? "flex w-[90%] h-[40px] justify-center rounded-xl bg-focus text-white text-sm shadow-xs transition-all hover:-translate-y-0.5 hover:shadow-md active:translate-y-0 active:shadow-xs"
+                      : "flex w-[90%] h-[40px] justify-center rounded-xl bg-sidebar-top text-sm shadow-xs transition-all hover:-translate-y-0.5 hover:shadow-md active:translate-y-0 active:shadow-xs"
+                  }
+                >
+                  Inventory
+                </Button>
+              )}
+            </NavLink>
+
+            <NavLink to="/hq/notifications" className="flex justify-center">
+              {({ isActive }) => (
+                <Button
+                  className={
+                    isActive
+                      ? "flex w-[90%] h-[40px] justify-center rounded-xl bg-focus text-white text-sm shadow-xs transition-all hover:-translate-y-0.5 hover:shadow-md active:translate-y-0 active:shadow-xs"
+                      : "flex w-[90%] h-[40px] justify-center rounded-xl bg-sidebar-top text-sm shadow-xs transition-all hover:-translate-y-0.5 hover:shadow-md active:translate-y-0 active:shadow-xs"
+                  }
+                >
+                  Notifications
+                </Button>
+              )}
+            </NavLink>
+
+            <NavLink to="/hq/branches" className="flex justify-center">
+              {({ isActive }) => (
+                <Button
+                  className={
+                    isActive
+                      ? "flex w-[90%] h-[40px] justify-center rounded-xl bg-focus text-white text-sm shadow-xs transition-all hover:-translate-y-0.5 hover:shadow-md active:translate-y-0 active:shadow-xs"
+                      : "flex w-[90%] h-[40px] justify-center rounded-xl bg-sidebar-top text-sm shadow-xs transition-all hover:-translate-y-0.5 hover:shadow-md active:translate-y-0 active:shadow-xs"
+                  }
+                >
+                  Branch Management
+                </Button>
+              )}
+            </NavLink>
+
+            {isRoot && (
+              <NavLink to="/user-management" className="flex justify-center">
+                {({ isActive }) => (
+                  <Button
+                    className={
+                      isActive
+                        ? "flex w-[90%] h-[40px] justify-center rounded-xl bg-focus text-white text-sm shadow-xs transition-all hover:-translate-y-0.5 hover:shadow-md active:translate-y-0 active:shadow-xs"
+                        : "flex w-[90%] h-[40px] justify-center rounded-xl bg-sidebar-top text-sm shadow-xs transition-all hover:-translate-y-0.5 hover:shadow-md active:translate-y-0 active:shadow-xs"
+                    }
+                  >
+                    User Management
+                  </Button>
+                )}
+              </NavLink>
+            )}
+          </>
         )}
       </nav>
 
