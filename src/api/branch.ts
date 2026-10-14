@@ -53,7 +53,3 @@ export function updateBranch(id: number, body: UpdateBranchBody) {
     body,
   );
 }
-
-export function deactivateBranch(id: number) {
-  return apiClient.delete<ApiResponse<BranchResult>>(`/branches/${id}`);
-}
