@@ -1,38 +1,13 @@
 import { useEffect, useState, type ReactNode } from "react";
 import { Boxes } from "lucide-react";
-import { Link, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 
 import { getBranchById, type Branch } from "@/api/branch";
 import { ApiError } from "@/api/client";
 import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
 
-function formatDate(value: string) {
-  // en-CA formats as YYYY-MM-DD, matching the design.
-  return new Date(value).toLocaleDateString("en-CA");
-}
-
-function StatusBadge({
-  isActive,
-  className,
-}: {
-  isActive: boolean;
-  className?: string;
-}) {
-  return (
-    <span
-      className={cn(
-        "w-fit rounded-full px-2.5 py-0.5 text-xs font-medium",
-        isActive
-          ? "bg-[#e6f6ec] text-[#1f7a3f]"
-          : "bg-destructive-subtle text-destructive-active",
-        className,
-      )}
-    >
-      {isActive ? "Active" : "Inactive"}
-    </span>
-  );
-}
+import { DetailRow, StatusBadge } from "./branch-details";
+import { formatBranchDate } from "./branch-format";
 
 function DetailCard({
   title,
@@ -51,22 +26,8 @@ function DetailCard({
   );
 }
 
-function DetailRow({
-  label,
-  children,
-}: {
-  label: string;
-  children: ReactNode;
-}) {
-  return (
-    <>
-      <dt className="text-searchbar">{label}</dt>
-      <dd className="m-0 whitespace-pre-line text-foreground">{children}</dd>
-    </>
-  );
-}
-
 export function BranchDetailPage() {
+  const navigate = useNavigate();
   const { branchId } = useParams();
 
   const [branch, setBranch] = useState<Branch | null>(null);
@@ -134,8 +95,12 @@ export function BranchDetailPage() {
                 </h2>
                 <StatusBadge isActive={branch.isActive} />
               </div>
-              {/* Wired up by the Branch Update (#8) task. */}
-              <Button type="button" variant="outline" size="sm" disabled>
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => navigate(`/hq/branches/${branch.branchId}/edit`)}
+              >
                 Edit branch
               </Button>
             </div>
@@ -156,10 +121,10 @@ export function BranchDetailPage() {
 
               <DetailCard title="Record">
                 <DetailRow label="Created">
-                  {formatDate(branch.createdAt)}
+                  {formatBranchDate(branch.createdAt)}
                 </DetailRow>
                 <DetailRow label="Last updated">
-                  {formatDate(branch.updatedAt)}
+                  {formatBranchDate(branch.updatedAt)}
                 </DetailRow>
               </DetailCard>
             </div>

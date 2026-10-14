@@ -14,9 +14,10 @@ import {
 interface BranchTableProps {
   branches: Branch[];
   onView: (branchId: number) => void;
+  onEdit: (branchId: number) => void;
 }
 
-export function BranchTable({ branches, onView }: BranchTableProps) {
+export function BranchTable({ branches, onView, onEdit }: BranchTableProps) {
   return (
     <div className="max-w-[828px] border border-border">
       <Table>
@@ -61,13 +62,13 @@ export function BranchTable({ branches, onView }: BranchTableProps) {
                   >
                     <Eye />
                   </Button>
-                  {/* Wired up by the Branch Update (#8) and Deactivate (#10) tasks. */}
+                  {/* Deactivate is wired up by the Branch Deactivated (#10) task. */}
                   <Button
                     type="button"
                     variant="ghost"
                     size="icon-xs"
                     aria-label={`Edit ${branch.name}`}
-                    disabled
+                    onClick={() => onEdit(branch.branchId)}
                   >
                     <FileCog2 />
                   </Button>
