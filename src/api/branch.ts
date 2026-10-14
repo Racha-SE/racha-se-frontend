@@ -30,3 +30,17 @@ export function getBranches() {
 export function getBranchById(id: number) {
   return apiClient.get<ApiResponse<BranchResult>>(`/branches/${id}`);
 }
+
+export type CreateBranchBody = {
+  name: string;
+  address: string;
+  phoneNumber: string;
+  isActive: boolean;
+};
+
+export function createBranch(body: CreateBranchBody) {
+  return apiClient.post<ApiResponse<BranchResult>, CreateBranchBody>(
+    "/branches",
+    body,
+  );
+}
