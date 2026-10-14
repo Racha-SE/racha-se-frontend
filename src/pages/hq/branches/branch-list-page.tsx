@@ -15,6 +15,7 @@ import {
 } from "@/components/ui/select";
 
 import { BranchTable } from "./branch-table";
+import { DeactivateBranchDialog } from "./deactivate-branch-dialog";
 
 const PAGE_SIZE = 10;
 
@@ -37,6 +38,9 @@ export function BranchListPage() {
   const [pendingStatus, setPendingStatus] = useState<StatusFilter>("all");
   const [status, setStatus] = useState<StatusFilter>("all");
   const [page, setPage] = useState(1);
+  const [branchToDeactivate, setBranchToDeactivate] = useState<Branch | null>(
+    null,
+  );
 
   useEffect(() => {
     async function loadBranches() {
@@ -160,6 +164,7 @@ export function BranchListPage() {
             branches={pageBranches}
             onView={(branchId) => navigate(`/hq/branches/${branchId}`)}
             onEdit={(branchId) => navigate(`/hq/branches/${branchId}/edit`)}
+            onDeactivate={setBranchToDeactivate}
           />
         )}
 
@@ -172,6 +177,20 @@ export function BranchListPage() {
           />
         </div>
       </section>
+
+      <DeactivateBranchDialog
+        branch={branchToDeactivate}
+        onOpenChange={(open) => {
+          if (!open) setBranchToDeactivate(null);
+        }}
+        onDeactivated={(updated) =>
+          setBranches((current) =>
+            current.map((branch) =>
+              branch.branchId === updated.branchId ? updated : branch,
+            ),
+          )
+        }
+      />
     </main>
   );
 }
