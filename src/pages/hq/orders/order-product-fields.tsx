@@ -129,7 +129,7 @@ export function OrderProductFields({
           />
 
           <Controller
-            name={`items.${index}.basePrice`}
+            name={`items.${index}.costPrice`}
             control={control}
             render={({ field, fieldState }) => (
               <Field className="gap-1" data-invalid={fieldState.invalid}>

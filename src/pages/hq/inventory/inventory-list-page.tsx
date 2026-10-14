@@ -68,7 +68,7 @@ function toInventoryItem(item: HqInventoryItem, index: number): InventoryItem {
     ...toProduct(item),
     lotId: `${item.pId}-${item.expiredDate}-${index}`,
     quantity: item.quantity,
-    costPrice: item.price,
+    costPrice: item.costPrice,
     expiryDate: formatDate(item.expiredDate),
   };
 }
@@ -79,7 +79,7 @@ function toInventoryGroup(item: HqInventoryGroup): InventoryProductGroup {
     items: item.stocks.map((stock, index) => ({
       lotId: `${item.pId}-${stock.expiredDate}-${index}`,
       quantity: stock.quantity,
-      costPrice: stock.price,
+      costPrice: stock.costPrice,
       expiryDate: formatDate(stock.expiredDate),
     })),
   };
@@ -143,7 +143,7 @@ export function InventoryListPage() {
           groupBy: groupByProduct,
           sortOption:
             filters.sortBy === "costPrice"
-              ? "price"
+              ? "costPrice"
               : filters.sortBy === "expiryDate"
                 ? "expiredDate"
                 : undefined,

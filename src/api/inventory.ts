@@ -12,16 +12,17 @@ export type HqInventoryItem = {
   barcode: string;
   quantity: number;
   price: number;
+  costPrice: number;
   expiredDate: string;
 };
 
 export type HqInventoryGroup = Omit<
   HqInventoryItem,
-  "quantity" | "price" | "expiredDate"
+  "quantity" | "costPrice" | "expiredDate"
 > & {
   stocks: Array<{
     quantity: number;
-    price: number;
+    costPrice: number;
     expiredDate: string;
   }>;
 };
@@ -32,7 +33,7 @@ export type HqInventoryQuery = {
   categoryName?: string;
   limit?: number;
   offset?: number;
-  sortOption?: "quantity" | "price" | "expiredDate";
+  sortOption?: "quantity" | "costPrice" | "expiredDate";
   sortOrder?: "asc" | "desc";
   groupBy?: boolean;
 };
@@ -45,7 +46,29 @@ type HqInventoryResponse = {
   };
 };
 
-function toQueryString(query: HqInventoryQuery) {
+export type BranchInventoryProduct = Omit<
+  HqInventoryItem,
+  "costPrice" | "expiredDate"
+>;
+
+export type BranchInventoryQuery = {
+  search?: string;
+  categoryId?: number;
+  limit?: number;
+  offset?: number;
+};
+
+type BranchInventoryResponse = {
+  success: true;
+  data: {
+    inventory: BranchInventoryProduct[];
+    totalCount: number;
+  };
+};
+
+function toQueryString(
+  query: Record<string, string | number | boolean | undefined>,
+) {
   const params = new URLSearchParams();
 
   for (const [key, value] of Object.entries(query)) {
@@ -59,5 +82,14 @@ function toQueryString(query: HqInventoryQuery) {
 export function getHqInventory(query: HqInventoryQuery = {}) {
   return apiClient.get<HqInventoryResponse>(
     `/inventory/hq${toQueryString(query)}`,
+  );
+}
+
+export function getBranchInventoryByProduct(
+  branchId: number,
+  query: BranchInventoryQuery = {},
+) {
+  return apiClient.get<BranchInventoryResponse>(
+    `/inventory/branches/${branchId}${toQueryString({ ...query, groupBy: true })}`,
   );
 }

@@ -22,7 +22,7 @@ const emptyProduct: OrderFormInput["items"][number] = {
   pId: "",
   supplierId: "",
   amount: "",
-  basePrice: "",
+  costPrice: "",
   expiryDate: "",
 };
 

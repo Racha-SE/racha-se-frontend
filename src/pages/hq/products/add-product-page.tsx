@@ -35,7 +35,7 @@ export function AddProductPage() {
       name: values.productName,
       description: values.description || null,
       barcode: generateBarcode(),
-      costPrice: values.sellingPrice,
+      price: values.sellingPrice,
       minStockHq: values.minStockHq,
       minStockBranch: values.minStockBranch,
       isActive: values.status === "active",

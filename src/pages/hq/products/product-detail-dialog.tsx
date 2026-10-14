@@ -12,7 +12,7 @@ export interface ProductDetails {
   description?: string | null;
   barcode?: string;
   sellingPrice?: number;
-  costPrice: number;
+  price: number;
   category?: string;
   categories?: Array<{ categoryName: string }>;
   minStockHq?: number;
@@ -78,7 +78,7 @@ export function ProductDetailDialog({
 
             <DetailField
               label="Selling Price"
-              value={product.sellingPrice ?? product.costPrice}
+              value={product.sellingPrice ?? product.price}
             />
 
             <DetailField

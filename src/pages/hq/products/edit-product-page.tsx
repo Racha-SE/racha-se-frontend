@@ -67,7 +67,7 @@ export function EditProductPage() {
     await updateProduct(product.pId, {
       name: values.productName,
       description: values.description || null,
-      costPrice: values.sellingPrice,
+      price: values.sellingPrice,
       minStockHq: values.minStockHq,
       minStockBranch: values.minStockBranch,
       isActive: values.status === "active",
@@ -116,7 +116,7 @@ export function EditProductPage() {
           initialValues={{
             productName: product.name,
             description: product.description ?? "",
-            sellingPrice: String(product.costPrice),
+            sellingPrice: String(product.price),
             category:
               product.categories.length > 0
                 ? String(product.categories[0].categoryId)

@@ -31,7 +31,7 @@ export type CreateHqOrderBody = {
     supplierId: number;
     amount: number;
     expiredDate: string;
-    basePrice: number;
+    costPrice: number;
   }>;
 };
 

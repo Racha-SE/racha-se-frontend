@@ -13,7 +13,7 @@ export type Product = {
   minStockHq: number;
   minStockBranch: number;
   isActive: boolean;
-  costPrice: number;
+  price: number;
   createdAt: string;
   updatedAt: string;
   categories: ProductCategory[];
@@ -43,7 +43,7 @@ export type CreateProductBody = {
   minStockHq: number;
   minStockBranch: number;
   isActive?: boolean;
-  costPrice: number;
+  price: number;
   categoryIds?: number[];
 };
 
