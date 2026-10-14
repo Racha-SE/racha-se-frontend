@@ -2,9 +2,13 @@ import { useEffect, useState } from "react";
 import { ShoppingCart } from "lucide-react";
 
 import { getCategories, type Category } from "@/api/category";
-import { getProducts, type Product } from "@/api/product";
+import {
+  getBranchInventoryByProduct,
+  type BranchInventoryProduct,
+} from "@/api/inventory";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { useSession } from "@/lib/auth-client";
 import { cn } from "@/lib/utils";
 
 import { AddToCartDialog } from "./add-to-cart-dialog";
@@ -15,15 +19,18 @@ import {
 } from "./cashier-filter-dialog";
 import { ProductCard } from "./product-card";
 
-function formatCategories(product: Product) {
+function formatCategories(product: BranchInventoryProduct) {
   return product.categories.map((category) => category.categoryName).join(", ");
 }
 
 export function CashierPage() {
+  const { data: session } = useSession();
+  const branchId = session?.user.branchId;
   const [search, setSearch] = useState("");
-  const [products, setProducts] = useState<Product[]>([]);
+  const [products, setProducts] = useState<BranchInventoryProduct[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
-  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
+  const [selectedProduct, setSelectedProduct] =
+    useState<BranchInventoryProduct | null>(null);
   const [isAddToCartOpen, setIsAddToCartOpen] = useState(false);
   const [filters, setFilters] = useState<CashierFilterValues>({});
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
@@ -39,30 +46,38 @@ export function CashierPage() {
   }, []);
 
   useEffect(() => {
-    async function loadProducts() {
-      const response = await getProducts({
-        isActive: true,
+    if (branchId == null) return;
+
+    let ignore = false;
+
+    async function loadProducts(branchId: number) {
+      const response = await getBranchInventoryByProduct(branchId, {
+        search: search.trim() || undefined,
         categoryId: filters.category ? Number(filters.category) : undefined,
       });
-      setProducts(response.data.products);
+      if (!ignore) setProducts(response.data.inventory);
     }
 
-    void loadProducts();
-  }, [filters]);
+    void loadProducts(branchId);
+
+    return () => {
+      ignore = true;
+    };
+  }, [branchId, search, filters]);
 
   const categoryOptions = categories.map((category) => ({
     label: category.categoryName,
     value: String(category.categoryId),
   }));
 
-  const openAddToCart = (product: Product) => {
+  const openAddToCart = (product: BranchInventoryProduct) => {
     setSelectedProduct(product);
     setIsAddToCartOpen(true);
   };
 
   const addToCart = (quantity: number) => {
     if (selectedProduct) {
-      const { pId, name, costPrice } = selectedProduct;
+      const { pId, productName: name, price } = selectedProduct;
 
       setCartItems((current) =>
         current.some((item) => item.pId === pId)
@@ -71,7 +86,7 @@ export function CashierPage() {
                 ? { ...item, quantity: item.quantity + quantity }
                 : item,
             )
-          : [...current, { pId, name, price: costPrice, quantity }],
+          : [...current, { pId, name, price, quantity }],
       );
     }
 
@@ -90,16 +105,6 @@ export function CashierPage() {
 
   const cartCount = cartItems.reduce((sum, item) => sum + item.quantity, 0);
 
-  const searchText = search.trim().toLowerCase();
-  const visibleProducts = searchText
-    ? products.filter(
-        (product) =>
-          String(product.pId).includes(searchText) ||
-          product.name.toLowerCase().includes(searchText) ||
-          (product.description ?? "").toLowerCase().includes(searchText),
-      )
-    : products;
-
   return (
     <main className="min-h-screen bg-background p-6 text-left text-foreground">
       <header className="flex h-12 items-center gap-3 rounded-md bg-textbox px-3">
@@ -117,7 +122,7 @@ export function CashierPage() {
           <Input
             className="h-8 max-w-[400px] rounded-sm border-border bg-searchbar px-3 text-primary-foreground placeholder:text-primary-foreground/70 focus-visible:border-focus focus-visible:ring-focus/20"
             value={search}
-            placeholder="Search product ID / name / description"
+            placeholder="Search product name / barcode"
             aria-label="Search products"
             onChange={(event) => setSearch(event.target.value)}
           />
@@ -141,7 +146,7 @@ export function CashierPage() {
         </div>
 
         <div className="grid auto-rows-[188px] grid-cols-[repeat(3,333px)] justify-between gap-6">
-          {visibleProducts.length === 0 ? (
+          {products.length === 0 ? (
             <p
               className={cn(
                 "mt-6 text-center text-sm text-muted-foreground",
@@ -151,14 +156,14 @@ export function CashierPage() {
               No products found.
             </p>
           ) : (
-            visibleProducts.map((product) => (
+            products.map((product) => (
               <ProductCard
                 key={product.pId}
                 productId={product.pId}
-                productName={product.name}
-                description={product.description ?? ""}
+                productName={product.productName}
+                description={product.description}
                 category={formatCategories(product)}
-                price={product.costPrice}
+                price={product.price}
                 onAddToCart={() => openAddToCart(product)}
               />
             ))
@@ -183,10 +188,10 @@ export function CashierPage() {
           open={isAddToCartOpen}
           onOpenChange={setIsAddToCartOpen}
           productId={selectedProduct.pId}
-          productName={selectedProduct.name}
-          description={selectedProduct.description ?? ""}
+          productName={selectedProduct.productName}
+          description={selectedProduct.description}
           category={formatCategories(selectedProduct)}
-          price={selectedProduct.costPrice}
+          price={selectedProduct.price}
           onAddToCart={addToCart}
         />
       )}
