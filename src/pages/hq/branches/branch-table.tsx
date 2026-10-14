@@ -11,13 +11,21 @@ import {
   TableRow,
 } from "@/components/ui/table";
 
+import { StatusBadge } from "./branch-details";
+
 interface BranchTableProps {
   branches: Branch[];
   onView: (branchId: number) => void;
   onEdit: (branchId: number) => void;
+  onDeactivate: (branch: Branch) => void;
 }
 
-export function BranchTable({ branches, onView, onEdit }: BranchTableProps) {
+export function BranchTable({
+  branches,
+  onView,
+  onEdit,
+  onDeactivate,
+}: BranchTableProps) {
   return (
     <div className="max-w-[828px] border border-border">
       <Table>
@@ -49,7 +57,7 @@ export function BranchTable({ branches, onView, onEdit }: BranchTableProps) {
                 {branch.name}
               </TableCell>
               <TableCell className="border-r border-border">
-                {branch.isActive ? "Active" : "Inactive"}
+                <StatusBadge isActive={branch.isActive} />
               </TableCell>
               <TableCell>
                 <div className="flex items-center gap-2">
@@ -62,7 +70,6 @@ export function BranchTable({ branches, onView, onEdit }: BranchTableProps) {
                   >
                     <Eye />
                   </Button>
-                  {/* Deactivate is wired up by the Branch Deactivated (#10) task. */}
                   <Button
                     type="button"
                     variant="ghost"
@@ -76,8 +83,11 @@ export function BranchTable({ branches, onView, onEdit }: BranchTableProps) {
                     type="button"
                     variant="ghost"
                     size="icon-xs"
+                    className="hover:bg-destructive-subtle hover:text-destructive"
                     aria-label={`Deactivate ${branch.name}`}
-                    disabled
+                    // Already-inactive branches have nothing to deactivate.
+                    disabled={!branch.isActive}
+                    onClick={() => onDeactivate(branch)}
                   >
                     <FileX />
                   </Button>
