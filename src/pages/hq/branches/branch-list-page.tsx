@@ -94,12 +94,11 @@ export function BranchListPage() {
       <section className="mt-4 space-y-4 px-2">
         <div className="flex items-center justify-between gap-3">
           <h2 className="m-0 text-xl font-semibold text-active">Branches</h2>
-          {/* Wired up by the Branch Create (#4) task. */}
           <Button
             type="button"
             size="sm"
             className="h-8 bg-primary text-sm text-primary-foreground hover:bg-active"
-            disabled
+            onClick={() => navigate("/hq/branches/new")}
           >
             + Create new Branch
           </Button>
