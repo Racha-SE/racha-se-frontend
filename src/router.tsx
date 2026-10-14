@@ -12,6 +12,8 @@ import { CategoryListPage } from "./pages/hq/products/categories/category-list-p
 import { InventoryListPage } from "./pages/hq/inventory/inventory-list-page";
 import { HqNotificationsPage } from "./pages/hq/notifications/hq-notifications-page";
 import { AddOrderPage } from "./pages/hq/orders/add-order-page";
+import { BranchDetailPage } from "./pages/hq/branches/branch-detail-page";
+import { BranchListPage } from "./pages/hq/branches/branch-list-page";
 import { AddProductPage } from "./pages/hq/products/add-product-page";
 import { EditProductPage } from "./pages/hq/products/edit-product-page";
 import { ProductListPage } from "./pages/hq/products/product-list-page";
@@ -56,6 +58,14 @@ export const router = createBrowserRouter([
           {
             path: "/hq/orders/new",
             element: <AddOrderPage />,
+          },
+          {
+            path: "/hq/branches",
+            element: <BranchListPage />,
+          },
+          {
+            path: "/hq/branches/:branchId",
+            element: <BranchDetailPage />,
           },
           {
             path: "/branch",
