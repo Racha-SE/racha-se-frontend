@@ -100,6 +100,8 @@ export function SignInPage() {
       navigate("/user-management");
     } else if (user.userType === "cashier") {
       navigate("/cashier");
+    } else if (user.userType === "branch") {
+      navigate("/branch/inventory");
     } else {
       navigate("/hq/products");
     }

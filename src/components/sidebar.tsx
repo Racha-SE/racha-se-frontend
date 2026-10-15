@@ -11,6 +11,7 @@ export function Sidebar() {
   const user = session?.user;
   const isRoot = user?.role === "admin";
   const isCashier = user?.userType === "cashier";
+  const isBranch = user?.userType === "branch";
   const firstName = user?.firstname ?? "";
   const initial = firstName.charAt(0).toUpperCase();
   const roleLabel = user
@@ -18,7 +19,9 @@ export function Sidebar() {
       ? "Root"
       : isCashier
         ? "Cashier"
-        : "HQ"
+        : isBranch
+          ? "Branch"
+          : "HQ"
     : "";
 
   const handleLogout = async () => {
@@ -51,6 +54,20 @@ export function Sidebar() {
                 }
               >
                 POS
+              </Button>
+            )}
+          </NavLink>
+        ) : isBranch ? (
+          <NavLink to="/branch/inventory" className="flex justify-center">
+            {({ isActive }) => (
+              <Button
+                className={
+                  isActive
+                    ? "flex w-[90%] h-[40px] justify-center rounded-xl bg-focus text-white text-sm shadow-xs transition-all hover:-translate-y-0.5 hover:shadow-md active:translate-y-0 active:shadow-xs"
+                    : "flex w-[90%] h-[40px] justify-center rounded-xl bg-sidebar-top text-sm shadow-xs transition-all hover:-translate-y-0.5 hover:shadow-md active:translate-y-0 active:shadow-xs"
+                }
+              >
+                Inventory
               </Button>
             )}
           </NavLink>

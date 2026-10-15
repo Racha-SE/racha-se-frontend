@@ -109,6 +109,15 @@ export function getHqInventory(query: HqInventoryQuery = {}) {
   );
 }
 
+export function getBranchInventory(
+  branchId: number,
+  query: Omit<HqInventoryQuery, "groupBy"> = {},
+) {
+  return apiClient.get<HqInventoryResponse>(
+    `/inventory/branches/${branchId}${toQueryString({ ...query, groupBy: false })}`,
+  );
+}
+
 export function getBranchInventoryByProduct(
   branchId: number,
   query: BranchInventoryQuery = {},

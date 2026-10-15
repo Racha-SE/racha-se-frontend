@@ -83,7 +83,6 @@ export function InventoryListView({
   const totalPages = Math.max(Math.ceil(totalCount / itemsPerPage), 1);
   const visibleCount = groupByProduct ? groups.length : items.length;
 
-  // Any change to what's being listed starts back at the first page.
   function applyFilters(nextFilters: InventoryFilterValues) {
     setFilters(nextFilters);
     setPage(1);
