@@ -2,12 +2,11 @@ import { useEffect, useState, type ReactNode } from "react";
 import { Boxes } from "lucide-react";
 
 import { getCategories } from "@/api/category";
+import { getHqInventory } from "@/api/inventory";
 import {
-  getHqInventory,
-  type HqInventoryGroup,
-  type HqInventoryItem,
-} from "@/api/inventory";
-import { ActiveFilterChips } from "@/components/active-filter-chips";
+  ActiveFilterChips,
+  type ActiveFilterChip,
+} from "@/components/active-filter-chips";
 import { Input } from "@/components/ui/input";
 import { PaginationControls } from "@/components/pagination-controls";
 import { Switch } from "@/components/ui/switch";
@@ -18,70 +17,12 @@ import {
   type InventoryFilterValues,
 } from "./inventory-filter-dialog";
 import { InventoryProductDetailDialog } from "./inventory-product-detail-dialog";
+import { sortOptions, sortOrderOptions } from "./inventory-sort-options";
 import { InventoryTable } from "./inventory-table";
-import type {
-  InventoryItem,
-  InventoryProduct,
-  InventoryProductGroup,
-} from "./inventory-types";
+import type { InventoryProduct } from "./inventory-types";
+import { useInventoryList } from "./use-inventory-list";
 
 const itemsPerPage = 10;
-
-const sortByLabels: Record<
-  NonNullable<InventoryFilterValues["sortBy"]>,
-  string
-> = {
-  expiryDate: "Expiry Date",
-  costPrice: "Cost Price",
-};
-
-const sortOrderLabels: Record<
-  NonNullable<InventoryFilterValues["sortOrder"]>,
-  string
-> = {
-  asc: "Ascending",
-  desc: "Descending",
-};
-
-function formatDate(value: string) {
-  return new Intl.DateTimeFormat("en-GB", { timeZone: "UTC" }).format(
-    new Date(value),
-  );
-}
-
-function toProduct(item: HqInventoryItem | HqInventoryGroup) {
-  return {
-    productId: String(item.pId),
-    category:
-      item.categories.map((category) => category.categoryName).join(", ") ||
-      "—",
-    productName: item.productName,
-    description: item.description,
-    barcode: item.barcode,
-  };
-}
-
-function toInventoryItem(item: HqInventoryItem, index: number): InventoryItem {
-  return {
-    ...toProduct(item),
-    lotId: `${item.pId}-${item.expiredDate}-${index}`,
-    quantity: item.quantity,
-    costPrice: item.costPrice,
-    expiryDate: formatDate(item.expiredDate),
-  };
-}
-
-function toInventoryGroup(item: HqInventoryGroup): InventoryProductGroup {
-  return {
-    ...toProduct(item),
-    items: item.stocks.map((stock, index) => ({
-      lotId: `${item.pId}-${stock.expiredDate}-${index}`,
-      quantity: stock.quantity,
-      costPrice: stock.costPrice,
-      expiryDate: formatDate(stock.expiredDate),
-    })),
-  };
-}
 
 interface InventoryListViewProps {
   fetchInventory: typeof getHqInventory;
@@ -96,18 +37,14 @@ export function InventoryListView({
 }: InventoryListViewProps) {
   const [search, setSearch] = useState("");
   const [groupByProduct, setGroupByProduct] = useState(false);
+  const [filters, setFilters] = useState<InventoryFilterValues>({});
+  const [page, setPage] = useState(1);
   const [selectedProduct, setSelectedProduct] =
     useState<InventoryProduct | null>(null);
-  const [filters, setFilters] = useState<InventoryFilterValues>({});
+
   const [categories, setCategories] = useState<
     Array<{ label: string; value: string }>
   >([]);
-  const [items, setItems] = useState<InventoryItem[]>([]);
-  const [groups, setGroups] = useState<InventoryProductGroup[]>([]);
-  const [totalCount, setTotalCount] = useState(0);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [page, setPage] = useState(1);
 
   useEffect(() => {
     let cancelled = false;
@@ -134,99 +71,53 @@ export function InventoryListView({
       cancelled = true;
     };
   }, []);
-
-  useEffect(() => {
-    let cancelled = false;
-    const timeout = window.setTimeout(async () => {
-      setIsLoading(true);
-      setError(null);
-
-      try {
-        const response = await fetchInventory({
-          search: search.trim() || undefined,
-          categoryId: filters.category ? Number(filters.category) : undefined,
-          limit: itemsPerPage,
-          offset: (page - 1) * itemsPerPage,
-          groupBy: groupByProduct,
-          sortOption:
-            filters.sortBy === "costPrice"
-              ? "costPrice"
-              : filters.sortBy === "expiryDate"
-                ? "expiredDate"
-                : undefined,
-          sortOrder: filters.sortOrder,
-        });
-        if (cancelled) return;
-
-        setTotalCount(response.data.totalCount);
-        if (groupByProduct) {
-          setGroups(
-            (response.data.inventory as HqInventoryGroup[]).map(
-              toInventoryGroup,
-            ),
-          );
-          setItems([]);
-        } else {
-          setItems(
-            (response.data.inventory as HqInventoryItem[]).map(toInventoryItem),
-          );
-          setGroups([]);
-        }
-      } catch {
-        if (!cancelled) {
-          setError("Couldn't load inventory. Please try again.");
-          setItems([]);
-          setGroups([]);
-        }
-      } finally {
-        if (!cancelled) setIsLoading(false);
-      }
-    }, 300);
-
-    return () => {
-      cancelled = true;
-      window.clearTimeout(timeout);
-    };
-  }, [fetchInventory, filters, groupByProduct, page, search]);
+  const { items, groups, totalCount, isLoading, error } = useInventoryList({
+    fetchInventory,
+    search,
+    filters,
+    groupByProduct,
+    page,
+    itemsPerPage,
+  });
 
   const totalPages = Math.max(Math.ceil(totalCount / itemsPerPage), 1);
   const visibleCount = groupByProduct ? groups.length : items.length;
 
-  const activeFilterChips = [
-    ...(filters.category
-      ? [
-          {
-            key: "category",
-            label: `Category: ${
-              categories.find((option) => option.value === filters.category)
-                ?.label ?? filters.category
-            }`,
-            onRemove: () => {
-              setFilters((current) => ({ ...current, category: undefined }));
-              setPage(1);
-            },
-          },
-        ]
-      : []),
-    ...(filters.sortBy
-      ? [
-          {
-            key: "sort",
-            label: `Sort: ${sortByLabels[filters.sortBy]} (${
-              sortOrderLabels[filters.sortOrder ?? "asc"]
-            })`,
-            onRemove: () => {
-              setFilters((current) => ({
-                ...current,
-                sortBy: undefined,
-                sortOrder: undefined,
-              }));
-              setPage(1);
-            },
-          },
-        ]
-      : []),
-  ];
+  // Any change to what's being listed starts back at the first page.
+  function applyFilters(nextFilters: InventoryFilterValues) {
+    setFilters(nextFilters);
+    setPage(1);
+  }
+
+  const activeFilterChips: ActiveFilterChip[] = [];
+
+  if (filters.category) {
+    const categoryLabel =
+      categories.find((option) => option.value === filters.category)?.label ??
+      filters.category;
+
+    activeFilterChips.push({
+      key: "category",
+      label: `Category: ${categoryLabel}`,
+      onRemove: () => applyFilters({ ...filters, category: undefined }),
+    });
+  }
+
+  if (filters.sortBy) {
+    const sortByLabel = sortOptions.find(
+      (option) => option.value === filters.sortBy,
+    )?.label;
+    const sortOrderLabel = sortOrderOptions.find(
+      (option) => option.value === (filters.sortOrder ?? "asc"),
+    )?.label;
+
+    activeFilterChips.push({
+      key: "sort",
+      label: `Sort: ${sortByLabel} (${sortOrderLabel})`,
+      onRemove: () =>
+        applyFilters({ ...filters, sortBy: undefined, sortOrder: undefined }),
+    });
+  }
 
   return (
     <main className="min-h-screen bg-background p-6 text-left text-foreground">
@@ -268,10 +159,7 @@ export function InventoryListView({
             <InventoryFilterDialog
               categories={categories}
               value={filters}
-              onApply={(nextFilters) => {
-                setFilters(nextFilters);
-                setPage(1);
-              }}
+              onApply={applyFilters}
             />
           </div>
         </div>
