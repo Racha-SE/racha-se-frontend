@@ -22,10 +22,20 @@ export type User = {
   updatedAt: string;
 };
 
+export type SortDirection = "asc" | "desc";
+
 export type GetUsersParams = {
   branchId?: number;
   userType?: UserType;
   search?: string;
+  status?: "active" | "inactive";
+  // Separate from userType: "root" means better-auth's role column, not a
+  // userType value — see users.model.ts on the backend for why.
+  isRoot?: boolean;
+  sortId?: SortDirection;
+  sortUsername?: SortDirection;
+  sortEmail?: SortDirection;
+  sortBranch?: SortDirection;
   limit?: number;
   offset?: number;
 };
@@ -78,6 +88,30 @@ export function getUsers(params: GetUsersParams = {}) {
 
   if (params.search) {
     searchParams.set("search", params.search);
+  }
+
+  if (params.status !== undefined) {
+    searchParams.set("status", params.status);
+  }
+
+  if (params.isRoot !== undefined) {
+    searchParams.set("isRoot", String(params.isRoot));
+  }
+
+  if (params.sortId !== undefined) {
+    searchParams.set("sortId", params.sortId);
+  }
+
+  if (params.sortUsername !== undefined) {
+    searchParams.set("sortUsername", params.sortUsername);
+  }
+
+  if (params.sortEmail !== undefined) {
+    searchParams.set("sortEmail", params.sortEmail);
+  }
+
+  if (params.sortBranch !== undefined) {
+    searchParams.set("sortBranch", params.sortBranch);
   }
 
   if (params.limit !== undefined) {
