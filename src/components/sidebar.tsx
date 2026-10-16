@@ -14,14 +14,15 @@ export function Sidebar() {
   const isBranch = user?.userType === "branch";
   const firstName = user?.firstname ?? "";
   const initial = firstName.charAt(0).toUpperCase();
-  // userType label on its own, with "(Root)" layered on when role is admin
-  // — otherwise a branch-manager root and an HQ root both just say "Root",
-  // with no way to tell them apart.
-  const userTypeLabel = isCashier ? "Cashier" : isBranch ? "Branch" : "HQ";
+  // Just the userType here, no "(Root)" suffix — this badge sits in the
+  // cramped bottom bar, and the full user management table already shows
+  // root status where there's room for it.
   const roleLabel = user
-    ? isRoot
-      ? `${userTypeLabel} (Root)`
-      : userTypeLabel
+    ? isCashier
+      ? "Cashier"
+      : isBranch
+        ? "Branch"
+        : "HQ"
     : "";
 
   const handleLogout = async () => {
