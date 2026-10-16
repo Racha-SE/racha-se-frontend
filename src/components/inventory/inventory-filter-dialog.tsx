@@ -19,6 +19,8 @@ import {
 } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 
+import { sortOptions, sortOrderOptions } from "./inventory-sort-options";
+
 export type InventorySortBy = "expiryDate" | "costPrice";
 export type InventorySortOrder = "asc" | "desc";
 
@@ -33,16 +35,6 @@ interface InventoryFilterDialogProps {
   value: InventoryFilterValues;
   onApply: (filters: InventoryFilterValues) => void;
 }
-
-const sortOptions = [
-  { label: "Expiry Date", value: "expiryDate" },
-  { label: "Cost Price", value: "costPrice" },
-] as const;
-
-const sortOrderOptions = [
-  { label: "Ascending", value: "asc" },
-  { label: "Descending", value: "desc" },
-] as const;
 
 export function InventoryFilterDialog({
   categories,

@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 
-import { getBranchStock } from "@/api/inventory";
+import { getAllBranchStock } from "@/api/inventory";
 
 const DEFAULT_INTERVAL_MS = 15_000;
 
@@ -44,14 +44,8 @@ export function useBranchStock(
     setIsFetching(true);
 
     try {
-      const response = await getBranchStock(branchId, {
-        signal: controller.signal,
-      });
-      setStock(
-        new Map(
-          response.data.result.map((item) => [item.product.pId, item.quantity]),
-        ),
-      );
+      const products = await getAllBranchStock(branchId, controller.signal);
+      setStock(new Map(products.map((item) => [item.pId, item.quantity])));
       setError(null);
       setLastUpdatedAt(new Date());
     } catch (fetchError) {

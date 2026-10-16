@@ -2,6 +2,7 @@ import { Navigate, createBrowserRouter } from "react-router-dom";
 import { RequireAuth } from "@/components/require-auth";
 import { RequireRoot } from "@/components/require-root";
 import { BranchPage } from "./pages/branch/branch-page";
+import { BranchInventoryPage } from "./pages/branch/inventory/branch-inventory-page";
 import { CashierPage } from "./pages/cashier/cashier-page";
 import { Layout } from "@/layouts/layout";
 import { UserManagementPage } from "./pages/user-management/user-management-page";
@@ -80,6 +81,10 @@ export const router = createBrowserRouter([
           {
             path: "/branch",
             element: <BranchPage />,
+          },
+          {
+            path: "/branch/inventory",
+            element: <BranchInventoryPage />,
           },
           {
             path: "/cashier",
