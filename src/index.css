@@ -185,10 +185,18 @@
   * {
     @apply border-border outline-ring/50;
   }
+  html,
+  body {
+    /* Stops the rubber-band/bounce overscroll (trackpad momentum scroll on
+       macOS, some mobile browsers) past the top/bottom edge — without this,
+       overscrolling reveals a blank strip because nothing is painted beyond
+       the document. */
+    overscroll-behavior-y: none;
+  }
   body {
     @apply bg-background text-foreground;
   }
   html {
-    @apply font-sans;
+    @apply bg-background font-sans;
   }
 }
