@@ -79,30 +79,6 @@ function toQueryString(
   return result ? `?${result}` : "";
 }
 
-export type BranchStockItem = {
-  branchId: number;
-  quantity: number;
-  product: {
-    pId: number;
-    name: string;
-    barcode: string;
-  };
-};
-
-type BranchStockResponse = {
-  success: true;
-  data: {
-    result: BranchStockItem[];
-  };
-};
-
-export function getBranchStock(branchId: number, options?: RequestInit) {
-  return apiClient.get<BranchStockResponse>(
-    `/inventory/branches/${branchId}`,
-    options,
-  );
-}
-
 export function getHqInventory(query: HqInventoryQuery = {}) {
   return apiClient.get<HqInventoryResponse>(
     `/inventory/hq${toQueryString(query)}`,
@@ -121,8 +97,45 @@ export function getBranchInventory(
 export function getBranchInventoryByProduct(
   branchId: number,
   query: BranchInventoryQuery = {},
+  options?: RequestInit,
 ) {
   return apiClient.get<BranchInventoryResponse>(
     `/inventory/branches/${branchId}${toQueryString({ ...query, groupBy: true })}`,
+    options,
   );
+}
+
+const branchStockPageSize = 100;
+
+export async function getAllBranchStock(
+  branchId: number,
+  signal?: AbortSignal,
+) {
+  const firstPage = await getBranchInventoryByProduct(
+    branchId,
+    { limit: branchStockPageSize, offset: 0 },
+    { signal },
+  );
+  const { inventory, totalCount } = firstPage.data;
+
+  const offsets: number[] = [];
+  for (
+    let offset = branchStockPageSize;
+    offset < totalCount;
+    offset += branchStockPageSize
+  ) {
+    offsets.push(offset);
+  }
+
+  const otherPages = await Promise.all(
+    offsets.map((offset) =>
+      getBranchInventoryByProduct(
+        branchId,
+        { limit: branchStockPageSize, offset },
+        { signal },
+      ),
+    ),
+  );
+
+  return [...inventory, ...otherPages.flatMap((page) => page.data.inventory)];
 }
