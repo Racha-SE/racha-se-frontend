@@ -36,7 +36,7 @@ export function Sidebar() {
   };
 
   return (
-    <div className="flex w-[270px] shrink-0 flex-col bg-sidebar-middle gap-4 text-textbox">
+    <div className="sticky top-0 flex h-screen w-[270px] shrink-0 flex-col overflow-y-auto bg-sidebar-middle gap-4 text-textbox">
       <div className="flex flex-row bg-sidebar-top gap-1 p-[10px] items-center justify-center">
         <Gem className="text-focus" />
         <p className="font-medium text-xl">RachaCPALL</p>
