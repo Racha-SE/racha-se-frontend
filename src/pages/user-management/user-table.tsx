@@ -53,8 +53,6 @@ export function UserTable({
       <Table>
         <TableHeader>
           <TableRow className="hover:bg-transparent">
-            <TableHead className="border-r border-border">User ID</TableHead>
-
             <TableHead className="border-r border-border">Username</TableHead>
 
             <TableHead className="border-r border-border">Gmail</TableHead>
@@ -75,10 +73,6 @@ export function UserTable({
               key={user.id}
               className="even:bg-textbox hover:bg-primary-subtle"
             >
-              <TableCell className="border-r border-border">
-                {user.id}
-              </TableCell>
-
               <TableCell className="border-r border-border">
                 {user.username}
               </TableCell>
@@ -148,7 +142,7 @@ export function UserTable({
 
           {users.length === 0 && (
             <TableRow>
-              <TableCell colSpan={7} className="h-24 text-center">
+              <TableCell colSpan={6} className="h-24 text-center">
                 No users found.
               </TableCell>
             </TableRow>
