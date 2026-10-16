@@ -34,8 +34,6 @@ export function BranchListPage() {
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState(false);
   const [search, setSearch] = useState("");
-  // The select only stages a status; the Filter button applies it.
-  const [pendingStatus, setPendingStatus] = useState<StatusFilter>("all");
   const [status, setStatus] = useState<StatusFilter>("all");
   const [page, setPage] = useState(1);
   const [branchToDeactivate, setBranchToDeactivate] = useState<Branch | null>(
@@ -122,8 +120,11 @@ export function BranchListPage() {
 
           <Select
             items={statusOptions}
-            value={pendingStatus}
-            onValueChange={(nextValue) => setPendingStatus(nextValue ?? "all")}
+            value={status}
+            onValueChange={(nextValue) => {
+              setStatus(nextValue ?? "all");
+              setPage(1);
+            }}
           >
             <SelectTrigger
               className="h-8! w-[204px] rounded-sm bg-surface px-3 text-sm"
@@ -139,18 +140,6 @@ export function BranchListPage() {
               ))}
             </SelectContent>
           </Select>
-
-          <Button
-            type="button"
-            size="sm"
-            className="h-8 w-[100px] bg-primary text-sm text-primary-foreground hover:bg-active"
-            onClick={() => {
-              setStatus(pendingStatus);
-              setPage(1);
-            }}
-          >
-            Filter
-          </Button>
         </div>
 
         {loading ? (
