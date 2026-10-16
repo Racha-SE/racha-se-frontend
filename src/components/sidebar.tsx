@@ -14,14 +14,14 @@ export function Sidebar() {
   const isBranch = user?.userType === "branch";
   const firstName = user?.firstname ?? "";
   const initial = firstName.charAt(0).toUpperCase();
+  // userType label on its own, with "Root" layered on top when role is
+  // admin — otherwise a branch-manager root and an HQ root both just say
+  // "Root", with no way to tell them apart.
+  const userTypeLabel = isCashier ? "Cashier" : isBranch ? "Branch" : "HQ";
   const roleLabel = user
     ? isRoot
-      ? "Root"
-      : isCashier
-        ? "Cashier"
-        : isBranch
-          ? "Branch"
-          : "HQ"
+      ? `Root (${userTypeLabel})`
+      : userTypeLabel
     : "";
 
   const handleLogout = async () => {

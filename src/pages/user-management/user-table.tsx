@@ -22,11 +22,7 @@ interface UserTableProps {
   onToggleStatus: (user: User) => void;
 }
 
-function getRoleLabel(user: User) {
-  if (user.role === "admin") {
-    return "Root";
-  }
-
+function getUserTypeLabel(user: User) {
   switch (user.userType) {
     case "hq":
       return "Headquarter";
@@ -40,6 +36,19 @@ function getRoleLabel(user: User) {
     case "customer":
       return "Customer";
   }
+}
+
+function getRoleLabel(user: User) {
+  const userTypeLabel = getUserTypeLabel(user);
+
+  // "Root" alone doesn't say whether this is HQ or a branch manager with
+  // root access — both show up in this table now that branch managers can
+  // get role: admin too.
+  if (user.role === "admin") {
+    return `Root (${userTypeLabel})`;
+  }
+
+  return userTypeLabel;
 }
 
 export function UserTable({
