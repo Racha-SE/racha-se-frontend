@@ -189,7 +189,7 @@ export function Sidebar() {
           {initial}
         </div>
 
-        <p className="min-w-0 truncate text-sm">{firstName}</p>
+        <p className="min-w-0 flex-1 truncate text-sm">{firstName}</p>
 
         <div className="mt-1 w-fit shrink-0 rounded-md bg-sidebar-top px-2 py-0.5">
           <p className="text-xs">{roleLabel}</p>
@@ -197,17 +197,18 @@ export function Sidebar() {
 
         <div className="ml-auto flex shrink-0">
           <NavLink to="/change-password">
-            <Button>
-              <UserRoundCog className="h-6 w-6 text-foreground" />
+            <Button size="icon-xs">
+              <UserRoundCog className="text-foreground" />
             </Button>
           </NavLink>
 
           <Button
             type="button"
+            size="icon-xs"
             className="bg-sidebar-bottom"
             onClick={handleLogout}
           >
-            <LogOut className="h-4 w-4 text-foreground" />
+            <LogOut className="text-foreground" />
           </Button>
         </div>
       </div>

@@ -25,10 +25,10 @@ interface UserTableProps {
 function getUserTypeLabel(user: User) {
   switch (user.userType) {
     case "hq":
-      return "Headquarter";
+      return "HQ";
 
     case "branch":
-      return "Branch Manager";
+      return "Branch";
 
     case "cashier":
       return "Cashier";
