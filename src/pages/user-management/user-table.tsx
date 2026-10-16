@@ -45,7 +45,7 @@ function getRoleLabel(user: User) {
   // root access — both show up in this table now that branch managers can
   // get role: admin too.
   if (user.role === "admin") {
-    return `Root (${userTypeLabel})`;
+    return `${userTypeLabel} (Root)`;
   }
 
   return userTypeLabel;

@@ -14,13 +14,13 @@ export function Sidebar() {
   const isBranch = user?.userType === "branch";
   const firstName = user?.firstname ?? "";
   const initial = firstName.charAt(0).toUpperCase();
-  // userType label on its own, with "Root" layered on top when role is
-  // admin — otherwise a branch-manager root and an HQ root both just say
-  // "Root", with no way to tell them apart.
+  // userType label on its own, with "(Root)" layered on when role is admin
+  // — otherwise a branch-manager root and an HQ root both just say "Root",
+  // with no way to tell them apart.
   const userTypeLabel = isCashier ? "Cashier" : isBranch ? "Branch" : "HQ";
   const roleLabel = user
     ? isRoot
-      ? `Root (${userTypeLabel})`
+      ? `${userTypeLabel} (Root)`
       : userTypeLabel
     : "";
 
@@ -58,19 +58,37 @@ export function Sidebar() {
             )}
           </NavLink>
         ) : isBranch ? (
-          <NavLink to="/branch/inventory" className="flex justify-center">
-            {({ isActive }) => (
-              <Button
-                className={
-                  isActive
-                    ? "flex w-[90%] h-[40px] justify-center rounded-xl bg-focus text-white text-sm shadow-xs transition-all hover:-translate-y-0.5 hover:shadow-md active:translate-y-0 active:shadow-xs"
-                    : "flex w-[90%] h-[40px] justify-center rounded-xl bg-sidebar-top text-sm shadow-xs transition-all hover:-translate-y-0.5 hover:shadow-md active:translate-y-0 active:shadow-xs"
-                }
-              >
-                Inventory
-              </Button>
+          <>
+            <NavLink to="/branch/inventory" className="flex justify-center">
+              {({ isActive }) => (
+                <Button
+                  className={
+                    isActive
+                      ? "flex w-[90%] h-[40px] justify-center rounded-xl bg-focus text-white text-sm shadow-xs transition-all hover:-translate-y-0.5 hover:shadow-md active:translate-y-0 active:shadow-xs"
+                      : "flex w-[90%] h-[40px] justify-center rounded-xl bg-sidebar-top text-sm shadow-xs transition-all hover:-translate-y-0.5 hover:shadow-md active:translate-y-0 active:shadow-xs"
+                  }
+                >
+                  Inventory
+                </Button>
+              )}
+            </NavLink>
+
+            {isRoot && (
+              <NavLink to="/user-management" className="flex justify-center">
+                {({ isActive }) => (
+                  <Button
+                    className={
+                      isActive
+                        ? "flex w-[90%] h-[40px] justify-center rounded-xl bg-focus text-white text-sm shadow-xs transition-all hover:-translate-y-0.5 hover:shadow-md active:translate-y-0 active:shadow-xs"
+                        : "flex w-[90%] h-[40px] justify-center rounded-xl bg-sidebar-top text-sm shadow-xs transition-all hover:-translate-y-0.5 hover:shadow-md active:translate-y-0 active:shadow-xs"
+                    }
+                  >
+                    User Management
+                  </Button>
+                )}
+              </NavLink>
             )}
-          </NavLink>
+          </>
         ) : (
           <>
             <NavLink to="/hq/products" end className="flex justify-center">
