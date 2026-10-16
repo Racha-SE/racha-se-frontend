@@ -33,8 +33,8 @@ export function useBranchStock(
   // Ref rather than state so the poll loop doesn't restart on every fetch.
   const inFlight = useRef<AbortController | null>(null);
 
-  const refresh = useCallback(async () => {
-    if (!enabled || branchId == null) return;
+  const refresh = useCallback(async (): Promise<Map<number, number> | null> => {
+    if (!enabled || branchId == null) return null;
 
     // A newer fetch supersedes an older one still in flight, so a slow
     // response can never overwrite fresher counts.
@@ -45,14 +45,19 @@ export function useBranchStock(
 
     try {
       const products = await getAllBranchStock(branchId, controller.signal);
-      setStock(new Map(products.map((item) => [item.pId, item.quantity])));
+      const stockMap = new Map(
+        products.map((item) => [item.pId, item.quantity]),
+      );
+      setStock(stockMap);
       setError(null);
       setLastUpdatedAt(new Date());
+      return stockMap;
     } catch (fetchError) {
-      if (controller.signal.aborted) return;
+      if (controller.signal.aborted) return null;
       // Keep the last good counts: a blip in the network shouldn't wipe the
       // cart's stock limits.
       setError(fetchError);
+      return null;
     } finally {
       if (inFlight.current === controller) {
         inFlight.current = null;

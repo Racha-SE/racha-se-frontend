@@ -9,6 +9,7 @@ type ApiErrorCode =
   | "FORBIDDEN"
   | "NOT_FOUND"
   | "ALREADY_EXISTS"
+  | "INSUFFICIENT_STOCK"
   | "VALIDATION"
   | "INTERNAL_SERVER_ERROR";
 
@@ -38,6 +39,42 @@ export class ApiError extends Error {
     this.status = status;
     this.body = body;
   }
+}
+
+export type InsufficientStockContext = {
+  message?: string;
+  pId?: number;
+  requested?: number;
+  availableAmount?: number;
+};
+
+export type InsufficientStockApiError = ApiError & {
+  body: {
+    success: false;
+    error: {
+      code: "INSUFFICIENT_STOCK";
+      context?: InsufficientStockContext;
+    };
+  };
+};
+
+export function isInsufficientStockError(
+  error: unknown,
+): error is InsufficientStockApiError {
+  if (!(error instanceof ApiError) || error.status !== 409) {
+    return false;
+  }
+
+  if (typeof error.body !== "object" || error.body === null) {
+    return false;
+  }
+
+  const errObj = (error.body as Record<string, unknown>).error;
+  return (
+    typeof errObj === "object" &&
+    errObj !== null &&
+    (errObj as Record<string, unknown>).code === "INSUFFICIENT_STOCK"
+  );
 }
 
 async function parseResponseBody(response: Response): Promise<unknown> {

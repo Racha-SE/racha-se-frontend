@@ -1,9 +1,13 @@
-import { Navigate, createBrowserRouter } from "react-router-dom";
+import { Navigate, Outlet, createBrowserRouter } from "react-router-dom";
 import { RequireAuth } from "@/components/require-auth";
 import { RequireRoot } from "@/components/require-root";
 import { BranchPage } from "./pages/branch/branch-page";
 import { BranchInventoryPage } from "./pages/branch/inventory/branch-inventory-page";
+import { CartProvider } from "./pages/cashier/cart-provider";
 import { CashierPage } from "./pages/cashier/cashier-page";
+import { OrderDetailsPage } from "./pages/cashier/order-details-page";
+import { OrderListsPage } from "./pages/cashier/order-lists-page";
+import { PaymentPage } from "./pages/cashier/payment-page";
 import { Layout } from "@/layouts/layout";
 import { UserManagementPage } from "./pages/user-management/user-management-page";
 import { ChangePasswordPage } from "./pages/user-management/change-password-page";
@@ -87,8 +91,33 @@ export const router = createBrowserRouter([
             element: <BranchInventoryPage />,
           },
           {
-            path: "/cashier",
-            element: <CashierPage />,
+            element: (
+              <CartProvider>
+                <Outlet />
+              </CartProvider>
+            ),
+            children: [
+              {
+                path: "/cashier",
+                element: <CashierPage />,
+              },
+              {
+                path: "/cashier/payment",
+                element: <PaymentPage />,
+              },
+              {
+                path: "/cashier/orders",
+                element: <Navigate to="/cashier/order-lists" replace />,
+              },
+              {
+                path: "/cashier/order-lists",
+                element: <OrderListsPage />,
+              },
+              {
+                path: "/cashier/order-details/:lotId",
+                element: <OrderDetailsPage />,
+              },
+            ],
           },
           {
             element: <RequireRoot />,

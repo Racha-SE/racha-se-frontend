@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
-import { ShoppingCart } from "lucide-react";
+import { ClipboardList, ShoppingCart } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 import { getCategories, type Category } from "@/api/category";
 import {
@@ -13,7 +14,8 @@ import { useSession } from "@/lib/auth-client";
 import { cn } from "@/lib/utils";
 
 import { AddToCartDialog } from "./add-to-cart-dialog";
-import { CartIcon, CartPanel, type CartItem } from "./cart-panel";
+import { useCart } from "./cart-context";
+import { CartIcon, CartPanel } from "./cart-panel";
 import {
   CashierFilterDialog,
   type CashierFilterValues,
@@ -27,8 +29,16 @@ function formatCategories(product: BranchInventoryProduct) {
 }
 
 export function CashierPage() {
+  const navigate = useNavigate();
   const { data: session } = useSession();
   const branchId = session?.user.branchId;
+  const {
+    cartItems,
+    addToCart,
+    updateCartQuantity,
+    removeFromCart,
+    cartCount,
+  } = useCart();
   const [search, setSearch] = useState("");
   const [products, setProducts] = useState<BranchInventoryProduct[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
@@ -36,7 +46,6 @@ export function CashierPage() {
     useState<BranchInventoryProduct | null>(null);
   const [isAddToCartOpen, setIsAddToCartOpen] = useState(false);
   const [filters, setFilters] = useState<CashierFilterValues>({});
-  const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [page, setPage] = useState(1);
   const [totalCount, setTotalCount] = useState(0);
@@ -87,35 +96,14 @@ export function CashierPage() {
     setIsAddToCartOpen(true);
   };
 
-  const addToCart = (quantity: number) => {
+  const handleAddToCart = (quantity: number) => {
     if (selectedProduct) {
       const { pId, productName: name, price } = selectedProduct;
-
-      setCartItems((current) =>
-        current.some((item) => item.pId === pId)
-          ? current.map((item) =>
-              item.pId === pId
-                ? { ...item, quantity: item.quantity + quantity }
-                : item,
-            )
-          : [...current, { pId, name, price, quantity }],
-      );
+      addToCart({ pId, name, price }, quantity);
     }
 
     setIsAddToCartOpen(false);
   };
-
-  const updateCartQuantity = (pId: number, quantity: number) => {
-    setCartItems((current) =>
-      current.map((item) => (item.pId === pId ? { ...item, quantity } : item)),
-    );
-  };
-
-  const removeFromCart = (pId: number) => {
-    setCartItems((current) => current.filter((item) => item.pId !== pId));
-  };
-
-  const cartCount = cartItems.reduce((sum, item) => sum + item.quantity, 0);
 
   return (
     <main className="min-h-screen bg-background p-6 text-left text-foreground">
@@ -125,7 +113,7 @@ export function CashierPage() {
           aria-hidden="true"
         />
         <h1 className="m-0 text-xl font-semibold tracking-normal text-active">
-          Selling
+          POS
         </h1>
       </header>
 
@@ -150,6 +138,18 @@ export function CashierPage() {
                 setPage(1);
               }}
             />
+            <Button
+              type="button"
+              variant="ghost"
+              className="h-10 px-1.5"
+              aria-label="Order lists"
+              onClick={() => navigate("/cashier/order-lists")}
+            >
+              <ClipboardList
+                className="size-8 text-sidebar-top"
+                aria-hidden="true"
+              />
+            </Button>
             <Button
               type="button"
               variant="ghost"
@@ -195,6 +195,7 @@ export function CashierPage() {
               items={cartItems}
               onQuantityChange={updateCartQuantity}
               onRemove={removeFromCart}
+              onPayment={() => navigate("/cashier/payment")}
             />
           )}
         </div>
@@ -223,7 +224,7 @@ export function CashierPage() {
           description={selectedProduct.description}
           category={formatCategories(selectedProduct)}
           price={selectedProduct.price}
-          onAddToCart={addToCart}
+          onAddToCart={handleAddToCart}
         />
       )}
     </main>

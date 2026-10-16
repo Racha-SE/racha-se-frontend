@@ -31,6 +31,7 @@ interface CartPanelProps {
   items: CartItem[];
   onQuantityChange: (pId: number, quantity: number) => void;
   onRemove: (pId: number) => void;
+  onPayment?: () => void;
   className?: string;
 }
 
@@ -38,6 +39,7 @@ export function CartPanel({
   items,
   onQuantityChange,
   onRemove,
+  onPayment,
   className,
 }: CartPanelProps) {
   const itemCount = items.reduce((sum, item) => sum + item.quantity, 0);
@@ -96,8 +98,9 @@ export function CartPanel({
         <Button
           type="button"
           size="lg"
-          className="h-11 self-end px-5 text-base"
+          className="h-11 w-full text-base"
           disabled={items.length === 0}
+          onClick={onPayment}
         >
           Payment
         </Button>
