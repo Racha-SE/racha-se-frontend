@@ -5,15 +5,15 @@ import { ApiError } from "@/api/client";
 import {
   getHqExpireNotifications,
   getHqMinStockNotifications,
-  type HqNotification,
+  type StockAlert,
 } from "@/api/notifications";
 import { getProductById } from "@/api/product";
 
 import { NotificationTable } from "./notification-table";
 
 export function HqNotificationsPage() {
-  const [expireItems, setExpireItems] = useState<HqNotification[]>([]);
-  const [minStockItems, setMinStockItems] = useState<HqNotification[]>([]);
+  const [expireItems, setExpireItems] = useState<StockAlert[]>([]);
+  const [minStockItems, setMinStockItems] = useState<StockAlert[]>([]);
   const [productNames, setProductNames] = useState<Record<number, string>>({});
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);

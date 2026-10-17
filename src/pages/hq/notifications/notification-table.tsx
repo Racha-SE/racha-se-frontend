@@ -7,11 +7,11 @@ import {
   TableRow,
 } from "@/components/ui/table";
 
-import type { HqNotification, NotificationType } from "@/api/notifications";
+import type { StockAlert, NotificationType } from "@/api/notifications";
 
 interface NotificationTableProps {
   type: NotificationType;
-  items: HqNotification[];
+  items: StockAlert[];
   productNames: Record<number, string>;
   emptyMessage: string;
 }
