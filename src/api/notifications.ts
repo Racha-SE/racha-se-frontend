@@ -1,23 +1,8 @@
 import { apiClient } from "@/api/client";
 
-/**
- * Matches racha-se-backend's notification table
- * (racha-se-backend/src/db/schema/notification.ts), joined with the
- * product's name/barcode (the notification row itself only stores pId).
- *
- * These are the HQ-scoped endpoints (branchId IS NULL) — no branchId param
- * needed, unlike the /branches/:branchId/* variants.
- *
- * Field meaning depends on `type` (a snapshot at creation time, not a live
- * join) — see the backend schema comment:
- * - "expire": lotId + pId identify the lot, quantity is units in that lot,
- *   expiredDate is when it expires.
- * - "min_stock": quantity is remaining stock for that product/scope at
- *   creation time; lotId and expiredDate are unused.
- */
 export type NotificationType = "expire" | "min_stock";
 
-export interface HqNotification {
+export interface StockAlert {
   notificationId: number;
   type: NotificationType;
   branchId: number | null;
@@ -38,7 +23,7 @@ export interface GetNotificationsParams {
 }
 
 export interface NotificationListResult {
-  result: HqNotification[];
+  result: StockAlert[];
   total: number;
   page: number;
   totalPages: number;

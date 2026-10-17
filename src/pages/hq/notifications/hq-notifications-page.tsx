@@ -5,7 +5,7 @@ import { ApiError } from "@/api/client";
 import {
   getHqExpireNotifications,
   getHqMinStockNotifications,
-  type HqNotification,
+  type StockAlert,
 } from "@/api/notifications";
 import { PaginationControls } from "@/components/pagination-controls";
 
@@ -14,12 +14,12 @@ import { NotificationTable } from "./notification-table";
 const itemsPerPage = 10;
 
 export function HqNotificationsPage() {
-  const [expireItems, setExpireItems] = useState<HqNotification[]>([]);
+  const [expireItems, setExpireItems] = useState<StockAlert[]>([]);
   const [expirePage, setExpirePage] = useState(1);
   const [expireTotal, setExpireTotal] = useState(0);
   const [expireTotalPages, setExpireTotalPages] = useState(1);
 
-  const [minStockItems, setMinStockItems] = useState<HqNotification[]>([]);
+  const [minStockItems, setMinStockItems] = useState<StockAlert[]>([]);
   const [minStockPage, setMinStockPage] = useState(1);
   const [minStockTotal, setMinStockTotal] = useState(0);
   const [minStockTotalPages, setMinStockTotalPages] = useState(1);

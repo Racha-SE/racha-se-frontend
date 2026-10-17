@@ -74,6 +74,19 @@ export function Sidebar() {
               )}
             </NavLink>
 
+            <NavLink to="/branch/notifications" className="flex justify-center">
+              {({ isActive }) => (
+                <Button
+                  className={
+                    isActive
+                      ? "flex w-[90%] h-[40px] justify-center rounded-xl bg-focus text-white text-sm shadow-xs transition-all hover:-translate-y-0.5 hover:shadow-md active:translate-y-0 active:shadow-xs"
+                      : "flex w-[90%] h-[40px] justify-center rounded-xl bg-sidebar-top text-sm shadow-xs transition-all hover:-translate-y-0.5 hover:shadow-md active:translate-y-0 active:shadow-xs"
+                  }
+                >
+                  Notifications
+                </Button>
+              )}
+            </NavLink>
             {isRoot && (
               <NavLink to="/user-management" className="flex justify-center">
                 {({ isActive }) => (
