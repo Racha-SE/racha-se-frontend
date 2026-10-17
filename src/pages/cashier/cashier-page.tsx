@@ -200,7 +200,7 @@ export function CashierPage() {
       // 1. Re-fetch fresh branch stock on payment click
       const freshStock = await refreshStock();
 
-      // ถ้ารีเฟรชสต็อกสำเร็จ (เน็ตไม่หลุด) ค่อยเช็คตรงนี้ 
+      // ถ้ารีเฟรชสต็อกสำเร็จ (เน็ตไม่หลุด) ค่อยเช็คตรงนี้
       // ถ้าเน็ตหลุด (freshStock = null) ให้ข้ามไปยิง Backend เลย
       if (freshStock) {
         // 2. Validate current cart items against fresh stock
