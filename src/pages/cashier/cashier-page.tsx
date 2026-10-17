@@ -48,14 +48,14 @@ export function CashierPage() {
     useState<BranchInventoryProduct | null>(null);
   const [isAddToCartOpen, setIsAddToCartOpen] = useState(false);
   const [filters, setFilters] = useState<CashierFilterValues>({});
-  
+
   const [outOfStockProductIds, setOutOfStockProductIds] = useState<Set<number>>(
     () => new Set(),
   );
   const [knownStockMap, setKnownStockMap] = useState<Map<number, number>>(
     () => new Map(),
   );
-  
+
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [page, setPage] = useState(1);
   const [totalCount, setTotalCount] = useState(0);
