@@ -7,10 +7,27 @@ import {
   getBranchMinStockNotifications,
   type StockAlert,
 } from "@/api/notifications";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useSession } from "@/lib/auth-client";
 
 import { AlertSummaryCard } from "./alert-summary-card";
 import { StockAlertTable } from "./stock-alert-table";
+
+const alertTabs = [
+  { value: "all", label: "All alerts", emptyMessage: "No open alerts." },
+  {
+    value: "min_stock",
+    label: "Low stock",
+    emptyMessage: "No low stock alerts.",
+  },
+  {
+    value: "expire",
+    label: "Expiring soon",
+    emptyMessage: "No expiring stock.",
+  },
+] as const;
+
+type AlertTab = (typeof alertTabs)[number]["value"];
 
 export function BranchNotificationsPage() {
   const { data: session } = useSession();
@@ -19,6 +36,7 @@ export function BranchNotificationsPage() {
   const [minStockItems, setMinStockItems] = useState<StockAlert[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [activeTab, setActiveTab] = useState<AlertTab>("all");
 
   useEffect(() => {
     if (branchId == null) return;
@@ -57,6 +75,12 @@ export function BranchNotificationsPage() {
   const allItems = [...minStockItems, ...expireItems].sort(
     (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
   );
+  const visibleItems =
+    activeTab === "all"
+      ? allItems
+      : allItems.filter((item) => item.type === activeTab);
+  const emptyMessage =
+    alertTabs.find((tab) => tab.value === activeTab)?.emptyMessage ?? "";
 
   if (branchId == null) {
     return (
@@ -112,7 +136,36 @@ export function BranchNotificationsPage() {
               />
             </div>
 
-            <StockAlertTable items={allItems} emptyMessage="No open alerts." />
+            <div className="space-y-2">
+              <Tabs
+                value={activeTab}
+                onValueChange={(value) => setActiveTab(value as AlertTab)}
+              >
+                <TabsList className="h-auto gap-0 rounded-md border border-border bg-background p-0">
+                  {alertTabs.map((tab) => (
+                    <TabsTrigger
+                      key={tab.value}
+                      value={tab.value}
+                      className="h-auto rounded-none px-4 py-1.5 text-xs first:rounded-l-md last:rounded-r-md data-active:bg-primary data-active:text-primary-foreground data-active:shadow-none"
+                    >
+                      {tab.label}
+                    </TabsTrigger>
+                  ))}
+                </TabsList>
+              </Tabs>
+
+              <StockAlertTable
+                items={visibleItems}
+                emptyMessage={emptyMessage}
+              />
+
+              {visibleItems.length > 0 && (
+                <p className="m-0 text-xs text-muted-foreground">
+                  Showing {visibleItems.length}{" "}
+                  {visibleItems.length === 1 ? "alert" : "alerts"}
+                </p>
+              )}
+            </div>
           </>
         )}
       </section>
