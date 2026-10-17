@@ -15,7 +15,7 @@ import {
 } from "@/components/ui/dialog";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useNavigate, useSearchParams } from "react-router-dom";
+import { useSearchParams } from "react-router-dom";
 import { requestPasswordReset, signInWithEmail } from "@/api/auth";
 import { z } from "zod";
 import {
@@ -51,7 +51,6 @@ type AlertState = {
 
 export function SignInPage() {
   const [searchParams, setSearchParams] = useSearchParams();
-  const navigate = useNavigate();
   const [alert, setAlert] = useState<AlertState | null>(null);
 
   const invalidToken = searchParams.get("error") === "invalid-token";
@@ -92,18 +91,36 @@ export function SignInPage() {
         setSignInError("Email or password is incorrect.");
         return;
       }
+
+      // Any other failure (network error, CORS, 500, a shape with no
+      // .status at all) used to fail completely silently here — the form
+      // just sat there with no feedback, indistinguishable from "nothing
+      // happened". Surface it instead, and log the real error so the next
+      // occurrence is diagnosable from the console.
+      console.error("Sign-in failed:", result.error);
+      setSignInError(
+        result.error.message ??
+          "Something went wrong signing in. Please try again.",
+      );
       return;
     }
     const user = result.data.user;
 
+    // A full navigation here, not react-router's navigate() — RequireAuth
+    // on the destination route reads the session via useSession(), and a
+    // plain client-side route change can land there before that hook's
+    // client-side store has caught up with the cookie this sign-in just
+    // set (timing that's easy to win on a fast local backend but isn't
+    // guaranteed). Reloading forces a clean fetch of the session using the
+    // cookie that's already set by this point, no client cache involved.
     if (user.role === "admin") {
-      navigate("/user-management");
+      window.location.replace("/user-management");
     } else if (user.userType === "cashier") {
-      navigate("/cashier");
+      window.location.replace("/cashier");
     } else if (user.userType === "branch") {
-      navigate("/branch/inventory");
+      window.location.replace("/branch/inventory");
     } else {
-      navigate("/hq/products");
+      window.location.replace("/hq/products");
     }
   };
 

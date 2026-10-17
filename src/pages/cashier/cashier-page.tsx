@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { ShoppingCart } from "lucide-react";
 
 import { getCategories, type Category } from "@/api/category";
@@ -36,7 +36,7 @@ function formatCategories(product: BranchInventoryProduct) {
 export function CashierPage() {
   const { data: session } = useSession();
   const branchId = session?.user.branchId;
-  const { refresh: refreshStock } = useBranchStock(branchId);
+  const { getAvailable, refresh: refreshStock } = useBranchStock(branchId);
   const [search, setSearch] = useState("");
   const [products, setProducts] = useState<BranchInventoryProduct[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
@@ -45,12 +45,40 @@ export function CashierPage() {
   const [isAddToCartOpen, setIsAddToCartOpen] = useState(false);
   const [filters, setFilters] = useState<CashierFilterValues>({});
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
+  const [outOfStockProductIds, setOutOfStockProductIds] = useState<Set<number>>(
+    () => new Set(),
+  );
+  const [knownStockMap, setKnownStockMap] = useState<Map<number, number>>(
+    () => new Map(),
+  );
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [conflictItems, setConflictItems] = useState<StockConflictItem[]>([]);
   const [isConflictDialogOpen, setIsConflictDialogOpen] = useState(false);
   const [isProcessingPayment, setIsProcessingPayment] = useState(false);
   const [page, setPage] = useState(1);
   const [totalCount, setTotalCount] = useState(0);
+
+  const getAvailableStock = useCallback(
+    (pId: number): number => {
+      const live = getAvailable(pId);
+      if (live !== undefined) return live;
+      const known = knownStockMap.get(pId);
+      if (known !== undefined) return known;
+      const current = products.find((p) => p.pId === pId);
+      return current?.quantity ?? 0;
+    },
+    [getAvailable, knownStockMap, products],
+  );
+
+  const getRemainingStock = useCallback(
+    (pId: number, fallbackQuantity?: number): number => {
+      const currentCartQty =
+        cartItems.find((item) => item.pId === pId)?.quantity ?? 0;
+      const available = getAvailableStock(pId) ?? fallbackQuantity ?? 0;
+      return Math.max(0, available - currentCartQty);
+    },
+    [cartItems, getAvailableStock],
+  );
 
   useEffect(() => {
     async function loadCategories() {
@@ -77,6 +105,15 @@ export function CashierPage() {
 
       setProducts(response.data.inventory);
       setTotalCount(response.data.totalCount);
+      setKnownStockMap((prev) => {
+        const next = new Map(prev);
+        for (const item of response.data.inventory) {
+          if (typeof item.quantity === "number") {
+            next.set(item.pId, item.quantity);
+          }
+        }
+        return next;
+      });
     }
 
     void loadProducts(branchId);
@@ -94,13 +131,39 @@ export function CashierPage() {
   }));
 
   const openAddToCart = (product: BranchInventoryProduct) => {
+    if (typeof product.quantity === "number") {
+      setKnownStockMap((prev) =>
+        new Map(prev).set(product.pId, product.quantity),
+      );
+    }
     setSelectedProduct(product);
     setIsAddToCartOpen(true);
+  };
+
+  const handleProductAddToCart = (product: BranchInventoryProduct) => {
+    const remaining = getRemainingStock(product.pId, product.quantity);
+    if (remaining <= 0) {
+      setOutOfStockProductIds((current) => new Set(current).add(product.pId));
+      return;
+    }
+
+    setOutOfStockProductIds((current) => {
+      if (!current.has(product.pId)) return current;
+      const next = new Set(current);
+      next.delete(product.pId);
+      return next;
+    });
+    openAddToCart(product);
   };
 
   const addToCart = (quantity: number) => {
     if (selectedProduct) {
       const { pId, productName: name, price } = selectedProduct;
+      const remaining = getRemainingStock(pId, selectedProduct.quantity);
+
+      if (quantity <= 0 || quantity > remaining || remaining <= 0) {
+        return;
+      }
 
       setCartItems((current) =>
         current.some((item) => item.pId === pId)
@@ -136,26 +199,29 @@ export function CashierPage() {
     try {
       // 1. Re-fetch fresh branch stock on payment click
       const freshStock = await refreshStock();
-      const stockMap = freshStock ?? new Map<number, number>();
 
-      // 2. Validate current cart items against fresh stock
-      const conflicts: StockConflictItem[] = [];
-      for (const item of cartItems) {
-        const available = stockMap.get(item.pId) ?? 0;
-        if (item.quantity > available) {
-          conflicts.push({
-            pId: item.pId,
-            productName: item.name,
-            requested: item.quantity,
-            available: Math.max(0, available),
-          });
+      // ถ้ารีเฟรชสต็อกสำเร็จ (เน็ตไม่หลุด) ค่อยเช็คตรงนี้ 
+      // ถ้าเน็ตหลุด (freshStock = null) ให้ข้ามไปยิง Backend เลย
+      if (freshStock) {
+        // 2. Validate current cart items against fresh stock
+        const conflicts: StockConflictItem[] = [];
+        for (const item of cartItems) {
+          const available = freshStock.get(item.pId) ?? 0;
+          if (item.quantity > available) {
+            conflicts.push({
+              pId: item.pId,
+              productName: item.name,
+              requested: item.quantity,
+              available: Math.max(0, available),
+            });
+          }
         }
-      }
 
-      if (conflicts.length > 0) {
-        setConflictItems(conflicts);
-        setIsConflictDialogOpen(true);
-        return;
+        if (conflicts.length > 0) {
+          setConflictItems(conflicts);
+          setIsConflictDialogOpen(true);
+          return;
+        }
       }
 
       // 3. Attempt customer order creation
@@ -289,7 +355,7 @@ export function CashierPage() {
           </div>
         </div>
 
-        <div className="grid auto-rows-[188px] grid-cols-[repeat(3,333px)] justify-between gap-6">
+        <div className="grid auto-rows-[minmax(188px,auto)] grid-cols-[repeat(3,333px)] items-start justify-between gap-6">
           {products.length === 0 ? (
             <p
               className={cn(
@@ -300,17 +366,24 @@ export function CashierPage() {
               No products found.
             </p>
           ) : (
-            products.map((product) => (
-              <ProductCard
-                key={product.pId}
-                productId={product.pId}
-                productName={product.productName}
-                description={product.description}
-                category={formatCategories(product)}
-                price={product.price}
-                onAddToCart={() => openAddToCart(product)}
-              />
-            ))
+            products.map((product) => {
+              const isOutOfStock =
+                outOfStockProductIds.has(product.pId) &&
+                getRemainingStock(product.pId, product.quantity) <= 0;
+
+              return (
+                <ProductCard
+                  key={product.pId}
+                  productId={product.pId}
+                  productName={product.productName}
+                  description={product.description}
+                  category={formatCategories(product)}
+                  price={product.price}
+                  isOutOfStock={isOutOfStock}
+                  onAddToCart={() => handleProductAddToCart(product)}
+                />
+              );
+            })
           )}
 
           {isCartOpen && (
@@ -319,6 +392,7 @@ export function CashierPage() {
             <CartPanel
               className="col-start-3 row-span-3 row-start-1"
               items={cartItems}
+              getAvailable={getAvailableStock}
               onQuantityChange={updateCartQuantity}
               onRemove={removeFromCart}
               onPayment={handlePayment}
@@ -351,6 +425,10 @@ export function CashierPage() {
           description={selectedProduct.description}
           category={formatCategories(selectedProduct)}
           price={selectedProduct.price}
+          remainingStock={getRemainingStock(
+            selectedProduct.pId,
+            selectedProduct.quantity,
+          )}
           onAddToCart={addToCart}
         />
       )}
