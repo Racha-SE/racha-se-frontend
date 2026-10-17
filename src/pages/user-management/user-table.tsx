@@ -22,17 +22,13 @@ interface UserTableProps {
   onToggleStatus: (user: User) => void;
 }
 
-function getRoleLabel(user: User) {
-  if (user.role === "admin") {
-    return "Root";
-  }
-
+function getUserTypeLabel(user: User) {
   switch (user.userType) {
     case "hq":
-      return "Headquarter";
+      return "HQ";
 
     case "branch":
-      return "Branch Manager";
+      return "Branch";
 
     case "cashier":
       return "Cashier";
@@ -40,6 +36,19 @@ function getRoleLabel(user: User) {
     case "customer":
       return "Customer";
   }
+}
+
+function getRoleLabel(user: User) {
+  const userTypeLabel = getUserTypeLabel(user);
+
+  // "Root" alone doesn't say whether this is HQ or a branch manager with
+  // root access — both show up in this table now that branch managers can
+  // get role: admin too.
+  if (user.role === "admin") {
+    return `${userTypeLabel} (Root)`;
+  }
+
+  return userTypeLabel;
 }
 
 export function UserTable({
@@ -53,8 +62,6 @@ export function UserTable({
       <Table>
         <TableHeader>
           <TableRow className="hover:bg-transparent">
-            <TableHead className="border-r border-border">User ID</TableHead>
-
             <TableHead className="border-r border-border">Username</TableHead>
 
             <TableHead className="border-r border-border">Gmail</TableHead>
@@ -75,10 +82,6 @@ export function UserTable({
               key={user.id}
               className="even:bg-textbox hover:bg-primary-subtle"
             >
-              <TableCell className="border-r border-border">
-                {user.id}
-              </TableCell>
-
               <TableCell className="border-r border-border">
                 {user.username}
               </TableCell>
@@ -148,7 +151,7 @@ export function UserTable({
 
           {users.length === 0 && (
             <TableRow>
-              <TableCell colSpan={7} className="h-24 text-center">
+              <TableCell colSpan={6} className="h-24 text-center">
                 No users found.
               </TableCell>
             </TableRow>

@@ -4,6 +4,8 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
+import { StockErrorMessage } from "./stock-error-message";
+
 export interface ProductCardProps {
   productId: number;
   productName: string;
@@ -11,6 +13,7 @@ export interface ProductCardProps {
   category: string;
   price: number;
   onAddToCart: () => void;
+  isOutOfStock?: boolean;
 }
 
 interface ProductInfoProps extends Omit<ProductCardProps, "onAddToCart"> {
@@ -65,17 +68,32 @@ export function ProductInfo({
   );
 }
 
-export function ProductCard({ onAddToCart, ...product }: ProductCardProps) {
+export function ProductCard({
+  onAddToCart,
+  isOutOfStock = false,
+  ...product
+}: ProductCardProps) {
   return (
-    <ProductInfo {...product} className="h-[188px] w-[333px] bg-textbox">
-      <Button
-        type="button"
-        size="lg"
-        className="h-9 px-4 text-sm"
-        onClick={onAddToCart}
+    <div className="flex w-[333px] flex-col gap-1">
+      <ProductInfo
+        {...product}
+        className={cn(
+          "h-[188px] w-[333px] bg-textbox transition-colors",
+          isOutOfStock && "border-2 border-base-red-bright",
+        )}
       >
-        Add to Cart
-      </Button>
-    </ProductInfo>
+        <Button
+          type="button"
+          size="lg"
+          className="h-9 px-4 text-sm"
+          onClick={onAddToCart}
+        >
+          Add to Cart
+        </Button>
+      </ProductInfo>
+      {isOutOfStock && (
+        <StockErrorMessage message="Product’s out of stock" className="px-1" />
+      )}
+    </div>
   );
 }

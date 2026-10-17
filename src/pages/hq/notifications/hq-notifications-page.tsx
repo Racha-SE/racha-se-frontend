@@ -7,12 +7,23 @@ import {
   getHqMinStockNotifications,
   type StockAlert,
 } from "@/api/notifications";
+import { PaginationControls } from "@/components/pagination-controls";
 
 import { NotificationTable } from "./notification-table";
 
+const itemsPerPage = 10;
+
 export function HqNotificationsPage() {
   const [expireItems, setExpireItems] = useState<StockAlert[]>([]);
+  const [expirePage, setExpirePage] = useState(1);
+  const [expireTotal, setExpireTotal] = useState(0);
+  const [expireTotalPages, setExpireTotalPages] = useState(1);
+
   const [minStockItems, setMinStockItems] = useState<StockAlert[]>([]);
+  const [minStockPage, setMinStockPage] = useState(1);
+  const [minStockTotal, setMinStockTotal] = useState(0);
+  const [minStockTotalPages, setMinStockTotalPages] = useState(1);
+
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -24,12 +35,24 @@ export function HqNotificationsPage() {
       setError(null);
       try {
         const [expire, minStock] = await Promise.all([
-          getHqExpireNotifications(),
-          getHqMinStockNotifications(),
+          getHqExpireNotifications({
+            limit: itemsPerPage,
+            offset: (expirePage - 1) * itemsPerPage,
+          }),
+          getHqMinStockNotifications({
+            limit: itemsPerPage,
+            offset: (minStockPage - 1) * itemsPerPage,
+          }),
         ]);
         if (cancelled) return;
-        setExpireItems(expire);
-        setMinStockItems(minStock);
+
+        setExpireItems(expire.result);
+        setExpireTotal(expire.total);
+        setExpireTotalPages(Math.max(expire.totalPages, 1));
+
+        setMinStockItems(minStock.result);
+        setMinStockTotal(minStock.total);
+        setMinStockTotalPages(Math.max(minStock.totalPages, 1));
       } catch (err) {
         if (cancelled) return;
         setError(
@@ -42,12 +65,12 @@ export function HqNotificationsPage() {
       }
     }
 
-    load();
+    void load();
 
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [expirePage, minStockPage]);
 
   return (
     <main className="min-h-screen bg-background p-6 text-left text-foreground">
@@ -78,6 +101,18 @@ export function HqNotificationsPage() {
                 items={minStockItems}
                 emptyMessage="No low stock alerts."
               />
+              {minStockItems.length > 0 && (
+                <div className="flex items-center justify-between text-sm text-foreground">
+                  <span>
+                    Showing {minStockItems.length} of {minStockTotal} items
+                  </span>
+                  <PaginationControls
+                    page={minStockPage}
+                    totalPages={minStockTotalPages}
+                    onPageChange={setMinStockPage}
+                  />
+                </div>
+              )}
             </div>
 
             <div className="space-y-2">
@@ -89,6 +124,18 @@ export function HqNotificationsPage() {
                 items={expireItems}
                 emptyMessage="No expiring stock."
               />
+              {expireItems.length > 0 && (
+                <div className="flex items-center justify-between text-sm text-foreground">
+                  <span>
+                    Showing {expireItems.length} of {expireTotal} items
+                  </span>
+                  <PaginationControls
+                    page={expirePage}
+                    totalPages={expireTotalPages}
+                    onPageChange={setExpirePage}
+                  />
+                </div>
+              )}
             </div>
           </>
         )}

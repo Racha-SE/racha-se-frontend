@@ -14,14 +14,15 @@ export function Sidebar() {
   const isBranch = user?.userType === "branch";
   const firstName = user?.firstname ?? "";
   const initial = firstName.charAt(0).toUpperCase();
+  // Just the userType here, no "(Root)" suffix — this badge sits in the
+  // cramped bottom bar, and the full user management table already shows
+  // root status where there's room for it.
   const roleLabel = user
-    ? isRoot
-      ? "Root"
-      : isCashier
-        ? "Cashier"
-        : isBranch
-          ? "Branch"
-          : "HQ"
+    ? isCashier
+      ? "Cashier"
+      : isBranch
+        ? "Branch"
+        : "HQ"
     : "";
 
   const handleLogout = async () => {
@@ -36,7 +37,7 @@ export function Sidebar() {
   };
 
   return (
-    <div className="flex w-[270px] shrink-0 flex-col bg-sidebar-middle gap-4 text-textbox">
+    <div className="sticky top-0 flex h-screen w-[270px] shrink-0 flex-col overflow-y-auto bg-sidebar-middle gap-4 text-textbox">
       <div className="flex flex-row bg-sidebar-top gap-1 p-[10px] items-center justify-center">
         <Gem className="text-focus" />
         <p className="font-medium text-xl">RachaCPALL</p>
@@ -86,6 +87,21 @@ export function Sidebar() {
                 </Button>
               )}
             </NavLink>
+            {isRoot && (
+              <NavLink to="/user-management" className="flex justify-center">
+                {({ isActive }) => (
+                  <Button
+                    className={
+                      isActive
+                        ? "flex w-[90%] h-[40px] justify-center rounded-xl bg-focus text-white text-sm shadow-xs transition-all hover:-translate-y-0.5 hover:shadow-md active:translate-y-0 active:shadow-xs"
+                        : "flex w-[90%] h-[40px] justify-center rounded-xl bg-sidebar-top text-sm shadow-xs transition-all hover:-translate-y-0.5 hover:shadow-md active:translate-y-0 active:shadow-xs"
+                    }
+                  >
+                    User Management
+                  </Button>
+                )}
+              </NavLink>
+            )}
           </>
         ) : (
           <>
@@ -186,7 +202,7 @@ export function Sidebar() {
           {initial}
         </div>
 
-        <p className="min-w-0 truncate text-sm">{firstName}</p>
+        <p className="min-w-0 flex-1 truncate text-sm">{firstName}</p>
 
         <div className="mt-1 w-fit shrink-0 rounded-md bg-sidebar-top px-2 py-0.5">
           <p className="text-xs">{roleLabel}</p>
@@ -194,17 +210,18 @@ export function Sidebar() {
 
         <div className="ml-auto flex shrink-0">
           <NavLink to="/change-password">
-            <Button>
-              <UserRoundCog className="h-6 w-6 text-foreground" />
+            <Button size="icon-xs">
+              <UserRoundCog className="text-foreground" />
             </Button>
           </NavLink>
 
           <Button
             type="button"
+            size="icon-xs"
             className="bg-sidebar-bottom"
             onClick={handleLogout}
           >
-            <LogOut className="h-4 w-4 text-foreground" />
+            <LogOut className="text-foreground" />
           </Button>
         </div>
       </div>

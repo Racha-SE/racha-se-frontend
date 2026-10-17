@@ -17,35 +17,74 @@ export interface StockAlert {
   barcode: string;
 }
 
+export interface GetNotificationsParams {
+  limit?: number;
+  offset?: number;
+}
+
+export interface NotificationListResult {
+  result: StockAlert[];
+  total: number;
+  page: number;
+  totalPages: number;
+  limit: number;
+  offset: number;
+}
+
 interface NotificationListResponse {
   success: true;
-  data: { result: StockAlert[] | null };
+  data: NotificationListResult;
 }
 
-export async function getHqExpireNotifications() {
-  const response = await apiClient.get<NotificationListResponse>(
-    "/notifications/hq/expire",
-  );
-  return response.data.result ?? [];
+function buildQuery(params: GetNotificationsParams) {
+  const searchParams = new URLSearchParams();
+
+  if (params.limit !== undefined) {
+    searchParams.set("limit", String(params.limit));
+  }
+
+  if (params.offset !== undefined) {
+    searchParams.set("offset", String(params.offset));
+  }
+
+  const query = searchParams.toString();
+  return query ? `?${query}` : "";
 }
 
-export async function getHqMinStockNotifications() {
+export async function getHqExpireNotifications(
+  params: GetNotificationsParams = {},
+) {
   const response = await apiClient.get<NotificationListResponse>(
-    "/notifications/hq/min-stock",
+    `/notifications/hq/expire${buildQuery(params)}`,
   );
-  return response.data.result ?? [];
+  return response.data;
 }
 
-export async function getBranchExpireNotifications(branchId: number) {
+export async function getHqMinStockNotifications(
+  params: GetNotificationsParams = {},
+) {
   const response = await apiClient.get<NotificationListResponse>(
-    `/notifications/branches/${branchId}/expire`,
+    `/notifications/hq/min-stock${buildQuery(params)}`,
   );
-  return response.data.result ?? [];
+  return response.data;
 }
 
-export async function getBranchMinStockNotifications(branchId: number) {
+export async function getBranchExpireNotifications(
+  branchId: number,
+  params: GetNotificationsParams = {},
+) {
   const response = await apiClient.get<NotificationListResponse>(
-    `/notifications/branches/${branchId}/min-stock`,
+    `/notifications/branches/${branchId}/expire${buildQuery(params)}`,
   );
-  return response.data.result ?? [];
+  return response.data;
+}
+
+export async function getBranchMinStockNotifications(
+  branchId: number,
+  params: GetNotificationsParams = {},
+) {
+  const response = await apiClient.get<NotificationListResponse>(
+    `/notifications/branches/${branchId}/min-stock${buildQuery(params)}`,
+  );
+  return response.data;
 }
