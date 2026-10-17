@@ -10,6 +10,7 @@ import {
 import { useSession } from "@/lib/auth-client";
 
 import { AlertSummaryCard } from "./alert-summary-card";
+import { StockAlertTable } from "./stock-alert-table";
 
 export function BranchNotificationsPage() {
   const { data: session } = useSession();
@@ -53,6 +54,10 @@ export function BranchNotificationsPage() {
     };
   }, [branchId]);
 
+  const allItems = [...minStockItems, ...expireItems].sort(
+    (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
+  );
+
   if (branchId == null) {
     return (
       <p className="p-6 text-sm text-muted-foreground">
@@ -89,22 +94,26 @@ export function BranchNotificationsPage() {
             {error}
           </p>
         ) : (
-          <div className="grid max-w-3xl grid-cols-3 gap-3">
-            <AlertSummaryCard
-              label="All open alerts"
-              value={minStockItems.length + expireItems.length}
-            />
-            <AlertSummaryCard
-              label="Low stock"
-              value={minStockItems.length}
-              valueClassName="text-amber-700"
-            />
-            <AlertSummaryCard
-              label="Expiring soon"
-              value={expireItems.length}
-              valueClassName="text-active"
-            />
-          </div>
+          <>
+            <div className="grid max-w-3xl grid-cols-3 gap-3">
+              <AlertSummaryCard
+                label="All open alerts"
+                value={minStockItems.length + expireItems.length}
+              />
+              <AlertSummaryCard
+                label="Low stock"
+                value={minStockItems.length}
+                valueClassName="text-amber-700"
+              />
+              <AlertSummaryCard
+                label="Expiring soon"
+                value={expireItems.length}
+                valueClassName="text-active"
+              />
+            </div>
+
+            <StockAlertTable items={allItems} emptyMessage="No open alerts." />
+          </>
         )}
       </section>
     </main>
