@@ -34,6 +34,8 @@ export function BranchNotificationsPage() {
   const branchId = session?.user.branchId;
   const [expireItems, setExpireItems] = useState<StockAlert[]>([]);
   const [minStockItems, setMinStockItems] = useState<StockAlert[]>([]);
+  const [expireTotal, setExpireTotal] = useState(0);
+  const [minStockTotal, setMinStockTotal] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<AlertTab>("all");
@@ -51,8 +53,10 @@ export function BranchNotificationsPage() {
           getBranchMinStockNotifications(branchId),
         ]);
         if (cancelled) return;
-        setExpireItems(expire);
-        setMinStockItems(minStock);
+        setExpireItems(expire.result);
+        setExpireTotal(expire.total);
+        setMinStockItems(minStock.result);
+        setMinStockTotal(minStock.total);
       } catch (err) {
         if (cancelled) return;
         setError(
@@ -122,16 +126,16 @@ export function BranchNotificationsPage() {
             <div className="grid max-w-3xl grid-cols-3 gap-3">
               <AlertSummaryCard
                 label="All open alerts"
-                value={minStockItems.length + expireItems.length}
+                value={minStockTotal + expireTotal}
               />
               <AlertSummaryCard
                 label="Low stock"
-                value={minStockItems.length}
+                value={minStockTotal}
                 valueClassName="text-amber-700"
               />
               <AlertSummaryCard
                 label="Expiring soon"
-                value={expireItems.length}
+                value={expireTotal}
                 valueClassName="text-active"
               />
             </div>
