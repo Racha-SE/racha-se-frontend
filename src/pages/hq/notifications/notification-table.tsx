@@ -12,7 +12,6 @@ import type { StockAlert, NotificationType } from "@/api/notifications";
 interface NotificationTableProps {
   type: NotificationType;
   items: StockAlert[];
-  productNames: Record<number, string>;
   emptyMessage: string;
 }
 
@@ -24,7 +23,6 @@ function formatDate(value: string | null) {
 export function NotificationTable({
   type,
   items,
-  productNames,
   emptyMessage,
 }: NotificationTableProps) {
   if (items.length === 0) {
@@ -66,7 +64,7 @@ export function NotificationTable({
               className="border-border even:bg-textbox hover:bg-primary-subtle"
             >
               <TableCell className="h-auto border-r border-border px-4 py-2">
-                {productNames[item.pId] ?? `Product #${item.pId}`}
+                {item.productName}
               </TableCell>
               <TableCell
                 className={

@@ -7,14 +7,12 @@ import {
   getHqMinStockNotifications,
   type StockAlert,
 } from "@/api/notifications";
-import { getProductById } from "@/api/product";
 
 import { NotificationTable } from "./notification-table";
 
 export function HqNotificationsPage() {
   const [expireItems, setExpireItems] = useState<StockAlert[]>([]);
   const [minStockItems, setMinStockItems] = useState<StockAlert[]>([]);
-  const [productNames, setProductNames] = useState<Record<number, string>>({});
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -32,24 +30,6 @@ export function HqNotificationsPage() {
         if (cancelled) return;
         setExpireItems(expire);
         setMinStockItems(minStock);
-
-        const uniquePIds = [
-          ...new Set([...expire, ...minStock].map((item) => item.pId)),
-        ];
-        const nameEntries = await Promise.all(
-          uniquePIds.map(async (pId) => {
-            try {
-              const response = await getProductById(pId);
-              return [pId, response.data.name] as const;
-            } catch {
-              return null;
-            }
-          }),
-        );
-        if (cancelled) return;
-        setProductNames(
-          Object.fromEntries(nameEntries.filter((entry) => entry !== null)),
-        );
       } catch (err) {
         if (cancelled) return;
         setError(
@@ -96,7 +76,6 @@ export function HqNotificationsPage() {
               <NotificationTable
                 type="min_stock"
                 items={minStockItems}
-                productNames={productNames}
                 emptyMessage="No low stock alerts."
               />
             </div>
@@ -108,7 +87,6 @@ export function HqNotificationsPage() {
               <NotificationTable
                 type="expire"
                 items={expireItems}
-                productNames={productNames}
                 emptyMessage="No expiring stock."
               />
             </div>
