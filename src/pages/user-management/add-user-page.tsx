@@ -3,11 +3,20 @@ import { UserRoundPlus } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { getBranches, type Branch } from "@/api/branch";
 import { createUser } from "@/api/user";
+import { useSession } from "@/lib/auth-client";
 import { UserForm } from "./user-form";
 import type { UserFormValues } from "./user-form-schema";
 
 export function AddUserPage() {
   const navigate = useNavigate();
+  const { data: session } = useSession();
+
+  // A branch actor can create more branch managers and cashiers, but only
+  // for their own branch — see MANAGEABLE_USER_TYPES in the backend's
+  // hierarchy.ts. Only hq/branch ever reach this page (RequireRoot gates on
+  // role === "admin"), so this is "am I HQ or a branch root".
+  const isBranchActor = session?.user.userType === "branch";
+  const actorBranchId = session?.user.branchId ?? undefined;
 
   const [branches, setBranches] = useState<Branch[]>([]);
 
@@ -51,6 +60,8 @@ export function AddUserPage() {
       <section className="mt-6 px-3">
         <UserForm
           branches={branches}
+          allowedRoles={isBranchActor ? ["branch", "cashier"] : undefined}
+          lockedBranchId={isBranchActor ? actorBranchId : undefined}
           onSubmit={handleSubmit}
           onCancel={handleCancel}
         />

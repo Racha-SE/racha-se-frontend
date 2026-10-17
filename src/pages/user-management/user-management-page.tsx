@@ -3,6 +3,7 @@ import { UsersRound } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { PaginationControls } from "@/components/pagination-controls";
 import { getBranches, type Branch } from "@/api/branch";
 import {
   deactivateUser,
@@ -16,6 +17,8 @@ import {
 } from "./user-filter-popover";
 import { UserTable } from "./user-table";
 
+const itemsPerPage = 10;
+
 export function UserManagementPage() {
   const navigate = useNavigate();
 
@@ -26,6 +29,10 @@ export function UserManagementPage() {
   const [search, setSearch] = useState("");
 
   const [filters, setFilters] = useState<UserFilterValues>({});
+
+  const [page, setPage] = useState(1);
+  const [total, setTotal] = useState(0);
+  const [totalPages, setTotalPages] = useState(1);
 
   const [loading, setLoading] = useState(true);
 
@@ -48,13 +55,26 @@ export function UserManagementPage() {
       setLoading(true);
 
       try {
+        // "root" is better-auth's role column, not a userType value — kept
+        // as its own param (isRoot) rather than overloading userType with
+        // something that isn't one of its enum members. See api/user.ts.
         const response = await getUsers({
-          search,
-          limit: 1000,
-          offset: 0,
+          search: search.trim() || undefined,
+          userType:
+            filters.role && filters.role !== "root" ? filters.role : undefined,
+          isRoot: filters.role === "root" ? true : undefined,
+          status: filters.status,
+          sortId: filters.id,
+          sortUsername: filters.username,
+          sortEmail: filters.email,
+          sortBranch: filters.branch,
+          limit: itemsPerPage,
+          offset: (page - 1) * itemsPerPage,
         });
 
         setUsers(response.data.users);
+        setTotal(response.data.total);
+        setTotalPages(Math.max(response.data.totalPages, 1));
       } catch (error) {
         console.error("Failed to load users:", error);
       } finally {
@@ -63,67 +83,13 @@ export function UserManagementPage() {
     }
 
     void loadUsers();
-  }, [search]);
+  }, [search, filters, page]);
 
   const branchNames = useMemo(() => {
     return Object.fromEntries(
       branches.map((branch) => [branch.branchId, branch.name]),
     ) as Record<number, string>;
   }, [branches]);
-
-  const filteredUsers = useMemo(() => {
-    let result = [...users];
-
-    if (filters.role) {
-      result = result.filter((user) => {
-        if (filters.role === "root") {
-          return user.role === "admin";
-        }
-
-        return user.userType === filters.role;
-      });
-    }
-
-    if (filters.status) {
-      result = result.filter((user) =>
-        filters.status === "active" ? !user.banned : Boolean(user.banned),
-      );
-    }
-
-    const sorters = [
-      ["id", filters.id],
-      ["username", filters.username],
-      ["email", filters.email],
-      ["branch", filters.branch],
-    ] as const;
-
-    const enabledSorters = sorters.filter(
-      ([, direction]) => direction !== undefined,
-    );
-
-    if (enabledSorters.length > 0) {
-      result.sort((a, b) => {
-        for (const [field, direction] of enabledSorters) {
-          const valueA = getSortValue(a, field, branchNames);
-
-          const valueB = getSortValue(b, field, branchNames);
-
-          const comparison = valueA.localeCompare(valueB, undefined, {
-            numeric: true,
-            sensitivity: "base",
-          });
-
-          if (comparison !== 0) {
-            return direction === "asc" ? comparison : -comparison;
-          }
-        }
-
-        return 0;
-      });
-    }
-
-    return result;
-  }, [users, filters, branchNames]);
 
   async function handleToggleStatus(user: User) {
     try {
@@ -158,7 +124,10 @@ export function UserManagementPage() {
             value={search}
             placeholder="Search Username"
             aria-label="Search username"
-            onChange={(event) => setSearch(event.target.value)}
+            onChange={(event) => {
+              setSearch(event.target.value);
+              setPage(1);
+            }}
           />
 
           <div className="flex gap-3">
@@ -171,7 +140,13 @@ export function UserManagementPage() {
               Add User
             </Button>
 
-            <UserFilterPopover value={filters} onChange={setFilters} />
+            <UserFilterPopover
+              value={filters}
+              onChange={(nextFilters) => {
+                setFilters(nextFilters);
+                setPage(1);
+              }}
+            />
           </div>
         </div>
 
@@ -179,7 +154,7 @@ export function UserManagementPage() {
           <div className="py-10 text-center">Loading...</div>
         ) : (
           <UserTable
-            users={filteredUsers}
+            users={users}
             branchNames={branchNames}
             onView={(id) =>
               navigate(`/user-management/${encodeURIComponent(id)}`)
@@ -188,34 +163,17 @@ export function UserManagementPage() {
           />
         )}
 
-        <div className="text-sm text-foreground">
-          Showing {filteredUsers.length} items
+        <div className="flex items-center justify-between text-sm text-foreground">
+          <span>
+            Showing {users.length} of {total} items
+          </span>
+          <PaginationControls
+            page={page}
+            totalPages={totalPages}
+            onPageChange={setPage}
+          />
         </div>
       </section>
     </main>
   );
-}
-
-function getSortValue(
-  user: User,
-  field: "id" | "username" | "email" | "branch",
-  branchNames: Record<number, string>,
-) {
-  switch (field) {
-    case "id":
-      return user.id;
-
-    case "username":
-      return user.username;
-
-    case "email":
-      return user.email;
-
-    case "branch":
-      if (user.branchId === null) {
-        return "";
-      }
-
-      return branchNames[user.branchId] ?? "";
-  }
 }

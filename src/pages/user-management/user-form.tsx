@@ -28,6 +28,15 @@ import {
 interface UserFormProps {
   branches: Branch[];
 
+  // A branch actor can create more branch managers and cashiers, but only
+  // for their own branch (MANAGEABLE_USER_TYPES in the backend's
+  // hierarchy.ts) — narrows the role choices to those two and locks the
+  // branch field instead of offering every branch in the system. Only "hq"
+  // and "branch" ever reach this page at all (RequireRoot gates on
+  // role === "admin"), so this is effectively "am I HQ or a branch root".
+  allowedRoles?: readonly (typeof roleOptions)[number]["value"][];
+  lockedBranchId?: number;
+
   onSubmit: (values: UserFormValues) => void | Promise<void>;
 
   onCancel: () => void;
@@ -61,7 +70,17 @@ function generatePassword() {
   return password;
 }
 
-export function UserForm({ branches, onSubmit, onCancel }: UserFormProps) {
+export function UserForm({
+  branches,
+  allowedRoles,
+  lockedBranchId,
+  onSubmit,
+  onCancel,
+}: UserFormProps) {
+  const visibleRoleOptions = allowedRoles
+    ? roleOptions.filter((role) => allowedRoles.includes(role.value))
+    : roleOptions;
+
   const form = useForm<UserFormInput, unknown, UserFormValues>({
     resolver: zodResolver(userFormSchema),
 
@@ -71,12 +90,16 @@ export function UserForm({ branches, onSubmit, onCancel }: UserFormProps) {
       username: "",
       email: "",
       password: "",
-      role: "hq",
-      branchId: "",
+      role: visibleRoleOptions[0]?.value ?? "hq",
+      branchId: lockedBranchId ? String(lockedBranchId) : "",
     },
   });
 
   const selectedRole = form.watch("role");
+
+  const lockedBranchName = branches.find(
+    (branch) => branch.branchId === lockedBranchId,
+  )?.name;
 
   const branchOptions = branches
     .filter((branch) => branch.isActive)
@@ -243,13 +266,15 @@ export function UserForm({ branches, onSubmit, onCancel }: UserFormProps) {
               </FieldLabel>
 
               <Select
-                items={roleOptions}
+                items={visibleRoleOptions}
                 value={field.value}
                 onValueChange={(value) => {
                   field.onChange(value ?? "");
 
                   if (value === "hq") {
                     form.setValue("branchId", "");
+                  } else if (lockedBranchId) {
+                    form.setValue("branchId", String(lockedBranchId));
                   }
                 }}
               >
@@ -262,7 +287,7 @@ export function UserForm({ branches, onSubmit, onCancel }: UserFormProps) {
                 </SelectTrigger>
 
                 <SelectContent align="start" alignItemWithTrigger={false}>
-                  {roleOptions.map((role) => (
+                  {visibleRoleOptions.map((role) => (
                     <SelectItem key={role.value} value={role.value}>
                       {role.label}
                     </SelectItem>
@@ -288,27 +313,33 @@ export function UserForm({ branches, onSubmit, onCancel }: UserFormProps) {
                   Branch selection *
                 </FieldLabel>
 
-                <Select
-                  items={branchOptions}
-                  value={field.value || null}
-                  onValueChange={(value) => field.onChange(value ?? "")}
-                >
-                  <SelectTrigger
-                    id="branch"
-                    className="h-9! w-[220px]"
-                    aria-invalid={fieldState.invalid}
+                {lockedBranchId ? (
+                  <p className="flex h-9 w-[220px] items-center text-sm text-muted-foreground">
+                    {lockedBranchName ?? `Branch #${lockedBranchId}`}
+                  </p>
+                ) : (
+                  <Select
+                    items={branchOptions}
+                    value={field.value || null}
+                    onValueChange={(value) => field.onChange(value ?? "")}
                   >
-                    <SelectValue placeholder="Select an option" />
-                  </SelectTrigger>
+                    <SelectTrigger
+                      id="branch"
+                      className="h-9! w-[220px]"
+                      aria-invalid={fieldState.invalid}
+                    >
+                      <SelectValue placeholder="Select an option" />
+                    </SelectTrigger>
 
-                  <SelectContent align="start" alignItemWithTrigger={false}>
-                    {branchOptions.map((branch) => (
-                      <SelectItem key={branch.value} value={branch.value}>
-                        {branch.label}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                    <SelectContent align="start" alignItemWithTrigger={false}>
+                      {branchOptions.map((branch) => (
+                        <SelectItem key={branch.value} value={branch.value}>
+                          {branch.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                )}
 
                 <FieldError errors={[fieldState.error]} />
               </Field>
