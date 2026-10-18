@@ -34,6 +34,7 @@ interface CartPanelProps {
   onQuantityChange: (pId: number, quantity: number) => void;
   onRemove: (pId: number) => void;
   onPayment?: () => void;
+  isProcessingPayment?: boolean;
   getAvailable?: GetAvailableStock;
   className?: string;
 }
@@ -43,6 +44,7 @@ export function CartPanel({
   onQuantityChange,
   onRemove,
   onPayment,
+  isProcessingPayment = false,
   getAvailable = () => undefined,
   className,
 }: CartPanelProps) {
@@ -120,11 +122,11 @@ export function CartPanel({
         <Button
           type="button"
           size="lg"
-          className="h-11 self-end px-5 text-base"
-          disabled={items.length === 0 || hasStockIssues}
+          disabled={items.length === 0 || isProcessingPayment || hasStockIssues}
           onClick={onPayment}
+          className="h-11 self-end px-5 text-base"
         >
-          Payment
+          {isProcessingPayment ? "Processing..." : "Payment"}
         </Button>
       </div>
     </aside>
