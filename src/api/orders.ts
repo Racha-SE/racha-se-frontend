@@ -47,6 +47,28 @@ export function createHqOrder(body: CreateHqOrderBody) {
   );
 }
 
+export type CreateCustomerOrderItem = {
+  pId: number;
+  quantity: number;
+};
+
+export type CreateCustomerOrderBody = {
+  paymentMethod: "cash" | "qr";
+  items: CreateCustomerOrderItem[];
+};
+
+type CreateCustomerOrderResponse = {
+  success: true;
+  data: unknown;
+};
+
+export function createCustomerOrder(body: CreateCustomerOrderBody) {
+  return apiClient.post<CreateCustomerOrderResponse, CreateCustomerOrderBody>(
+    "/orders/customer",
+    body,
+  );
+}
+
 export function getOrderProducts(search = "") {
   const params = new URLSearchParams({
     isActive: "true",
