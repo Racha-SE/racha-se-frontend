@@ -1,13 +1,12 @@
 import { useCallback, useEffect, useState } from "react";
-import { ShoppingCart } from "lucide-react";
+import { ClipboardList, ShoppingCart } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 import { getCategories, type Category } from "@/api/category";
-import { isInsufficientStockError } from "@/api/client";
 import {
   getBranchInventoryByProduct,
   type BranchInventoryProduct,
 } from "@/api/inventory";
-import { createCustomerOrder } from "@/api/orders";
 import { PaginationControls } from "@/components/pagination-controls";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -15,16 +14,13 @@ import { useSession } from "@/lib/auth-client";
 import { cn } from "@/lib/utils";
 
 import { AddToCartDialog } from "./add-to-cart-dialog";
-import { CartIcon, CartPanel, type CartItem } from "./cart-panel";
+import { useCart } from "./cart-context";
+import { CartIcon, CartPanel } from "./cart-panel";
 import {
   CashierFilterDialog,
   type CashierFilterValues,
 } from "./cashier-filter-dialog";
 import { ProductCard } from "./product-card";
-import {
-  StockConflictDialog,
-  type StockConflictItem,
-} from "./stock-conflict-dialog";
 import { useBranchStock } from "./use-branch-stock";
 
 const itemsPerPage = 12;
@@ -34,9 +30,17 @@ function formatCategories(product: BranchInventoryProduct) {
 }
 
 export function CashierPage() {
+  const navigate = useNavigate();
   const { data: session } = useSession();
   const branchId = session?.user.branchId;
-  const { getAvailable, refresh: refreshStock } = useBranchStock(branchId);
+  const {
+    cartItems,
+    addToCart,
+    updateCartQuantity,
+    removeFromCart,
+    cartCount,
+  } = useCart();
+  const { getAvailable } = useBranchStock(branchId);
   const [search, setSearch] = useState("");
   const [products, setProducts] = useState<BranchInventoryProduct[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
@@ -44,17 +48,15 @@ export function CashierPage() {
     useState<BranchInventoryProduct | null>(null);
   const [isAddToCartOpen, setIsAddToCartOpen] = useState(false);
   const [filters, setFilters] = useState<CashierFilterValues>({});
-  const [cartItems, setCartItems] = useState<CartItem[]>([]);
+
   const [outOfStockProductIds, setOutOfStockProductIds] = useState<Set<number>>(
     () => new Set(),
   );
   const [knownStockMap, setKnownStockMap] = useState<Map<number, number>>(
     () => new Map(),
   );
+
   const [isCartOpen, setIsCartOpen] = useState(false);
-  const [conflictItems, setConflictItems] = useState<StockConflictItem[]>([]);
-  const [isConflictDialogOpen, setIsConflictDialogOpen] = useState(false);
-  const [isProcessingPayment, setIsProcessingPayment] = useState(false);
   const [page, setPage] = useState(1);
   const [totalCount, setTotalCount] = useState(0);
 
@@ -156,7 +158,7 @@ export function CashierPage() {
     openAddToCart(product);
   };
 
-  const addToCart = (quantity: number) => {
+  const handleAddToCart = (quantity: number) => {
     if (selectedProduct) {
       const { pId, productName: name, price } = selectedProduct;
       const remaining = getRemainingStock(pId, selectedProduct.quantity);
@@ -165,149 +167,11 @@ export function CashierPage() {
         return;
       }
 
-      setCartItems((current) =>
-        current.some((item) => item.pId === pId)
-          ? current.map((item) =>
-              item.pId === pId
-                ? { ...item, quantity: item.quantity + quantity }
-                : item,
-            )
-          : [...current, { pId, name, price, quantity }],
-      );
+      addToCart({ pId, name, price }, quantity);
     }
 
     setIsAddToCartOpen(false);
   };
-
-  const updateCartQuantity = (pId: number, quantity: number) => {
-    setCartItems((current) =>
-      current.map((item) => (item.pId === pId ? { ...item, quantity } : item)),
-    );
-  };
-
-  const removeFromCart = (pId: number) => {
-    setCartItems((current) => current.filter((item) => item.pId !== pId));
-  };
-
-  const handlePayment = async () => {
-    if (cartItems.length === 0 || branchId == null || isProcessingPayment) {
-      return;
-    }
-
-    setIsProcessingPayment(true);
-
-    try {
-      // 1. Re-fetch fresh branch stock on payment click
-      const freshStock = await refreshStock();
-
-      // ถ้ารีเฟรชสต็อกสำเร็จ (เน็ตไม่หลุด) ค่อยเช็คตรงนี้
-      // ถ้าเน็ตหลุด (freshStock = null) ให้ข้ามไปยิง Backend เลย
-      if (freshStock) {
-        // 2. Validate current cart items against fresh stock
-        const conflicts: StockConflictItem[] = [];
-        for (const item of cartItems) {
-          const available = freshStock.get(item.pId) ?? 0;
-          if (item.quantity > available) {
-            conflicts.push({
-              pId: item.pId,
-              productName: item.name,
-              requested: item.quantity,
-              available: Math.max(0, available),
-            });
-          }
-        }
-
-        if (conflicts.length > 0) {
-          setConflictItems(conflicts);
-          setIsConflictDialogOpen(true);
-          return;
-        }
-      }
-
-      // 3. Attempt customer order creation
-      try {
-        await createCustomerOrder({
-          paymentMethod: "cash",
-          items: cartItems.map((item) => ({
-            pId: item.pId,
-            quantity: item.quantity,
-          })),
-        });
-
-        setCartItems([]);
-        await refreshStock();
-      } catch (err) {
-        if (isInsufficientStockError(err)) {
-          const latestStock = await refreshStock();
-          const pId = err.body.error.context?.pId;
-          const requested = err.body.error.context?.requested;
-          const availableAmount = err.body.error.context?.availableAmount;
-
-          const raceConflicts: StockConflictItem[] = [];
-          for (const item of cartItems) {
-            const avail = latestStock
-              ? (latestStock.get(item.pId) ?? 0)
-              : item.pId === pId && typeof availableAmount === "number"
-                ? availableAmount
-                : item.quantity;
-            if (item.quantity > avail) {
-              raceConflicts.push({
-                pId: item.pId,
-                productName: item.name,
-                requested: item.quantity,
-                available: Math.max(0, avail),
-              });
-            }
-          }
-
-          if (raceConflicts.length === 0 && typeof pId === "number") {
-            const matchedItem = cartItems.find((i) => i.pId === pId);
-            raceConflicts.push({
-              pId,
-              productName: matchedItem?.name ?? `Product #${pId}`,
-              requested:
-                typeof requested === "number"
-                  ? requested
-                  : (matchedItem?.quantity ?? 1),
-              available:
-                typeof availableAmount === "number"
-                  ? Math.max(0, availableAmount)
-                  : 0,
-            });
-          }
-
-          setConflictItems(raceConflicts);
-          setIsConflictDialogOpen(true);
-        } else {
-          console.error("Payment failed:", err);
-        }
-      }
-    } finally {
-      setIsProcessingPayment(false);
-    }
-  };
-
-  const handleAdjustCart = () => {
-    const conflictMap = new Map(conflictItems.map((c) => [c.pId, c.available]));
-
-    setCartItems((current) =>
-      current
-        .map((item) => {
-          if (!conflictMap.has(item.pId)) return item;
-          const available = conflictMap.get(item.pId)!;
-          return available > 0 ? { ...item, quantity: available } : null;
-        })
-        .filter((item): item is CartItem => item !== null),
-    );
-
-    setIsConflictDialogOpen(false);
-  };
-
-  const handleBackToCart = () => {
-    setIsConflictDialogOpen(false);
-  };
-
-  const cartCount = cartItems.reduce((sum, item) => sum + item.quantity, 0);
 
   return (
     <main className="min-h-screen bg-background p-6 text-left text-foreground">
@@ -317,7 +181,7 @@ export function CashierPage() {
           aria-hidden="true"
         />
         <h1 className="m-0 text-xl font-semibold tracking-normal text-active">
-          Selling
+          POS
         </h1>
       </header>
 
@@ -342,6 +206,18 @@ export function CashierPage() {
                 setPage(1);
               }}
             />
+            <Button
+              type="button"
+              variant="ghost"
+              className="h-10 px-1.5"
+              aria-label="Order lists"
+              onClick={() => navigate("/cashier/order-lists")}
+            >
+              <ClipboardList
+                className="size-8 text-sidebar-top"
+                aria-hidden="true"
+              />
+            </Button>
             <Button
               type="button"
               variant="ghost"
@@ -395,8 +271,7 @@ export function CashierPage() {
               getAvailable={getAvailableStock}
               onQuantityChange={updateCartQuantity}
               onRemove={removeFromCart}
-              onPayment={handlePayment}
-              isProcessingPayment={isProcessingPayment}
+              onPayment={() => navigate("/cashier/payment")}
             />
           )}
         </div>
@@ -429,17 +304,9 @@ export function CashierPage() {
             selectedProduct.pId,
             selectedProduct.quantity,
           )}
-          onAddToCart={addToCart}
+          onAddToCart={handleAddToCart}
         />
       )}
-
-      <StockConflictDialog
-        open={isConflictDialogOpen}
-        onOpenChange={setIsConflictDialogOpen}
-        conflicts={conflictItems}
-        onBackToCart={handleBackToCart}
-        onAdjustCart={handleAdjustCart}
-      />
     </main>
   );
 }
