@@ -275,23 +275,23 @@ export function ReportsPage() {
             ) : visibleRows.length === 0 ? (
               <div className="py-10 text-center">No data for this range.</div>
             ) : (
-              <div className="border border-border">
-                <Table>
+              <div className="w-fit border border-border">
+                <Table className="w-auto table-fixed">
                   <TableHeader>
                     <TableRow className="border-border hover:bg-transparent">
-                      <TableHead className="h-auto border-r border-border px-4 py-2 font-semibold">
+                      <TableHead className="h-auto w-28 border-r border-border px-4 py-2 font-semibold">
                         Product ID
                       </TableHead>
-                      <TableHead className="h-auto border-r border-border px-4 py-2 font-semibold">
+                      <TableHead className="h-auto w-64 border-r border-border px-4 py-2 font-semibold">
                         Product Name
                       </TableHead>
-                      <TableHead className="h-auto border-r border-border px-4 py-2 font-semibold">
+                      <TableHead className="h-auto w-48 border-r border-border px-4 py-2 font-semibold">
                         Categories
                       </TableHead>
-                      <TableHead className="h-auto border-r border-border px-4 py-2 font-semibold">
+                      <TableHead className="h-auto w-36 border-r border-border px-4 py-2 text-right font-semibold">
                         Sales Quantity
                       </TableHead>
-                      <TableHead className="h-auto px-4 py-2 font-semibold">
+                      <TableHead className="h-auto w-36 px-4 py-2 text-right font-semibold">
                         Revenue
                       </TableHead>
                     </TableRow>
@@ -305,16 +305,16 @@ export function ReportsPage() {
                         <TableCell className="h-auto border-r border-border px-4 py-2">
                           {row.productId}
                         </TableCell>
-                        <TableCell className="h-auto border-r border-border px-4 py-2">
+                        <TableCell className="h-auto truncate border-r border-border px-4 py-2">
                           {row.productName}
                         </TableCell>
-                        <TableCell className="h-auto border-r border-border px-4 py-2">
+                        <TableCell className="h-auto truncate border-r border-border px-4 py-2">
                           {row.categories.join(", ") || "—"}
                         </TableCell>
-                        <TableCell className="h-auto border-r border-border px-4 py-2">
+                        <TableCell className="h-auto border-r border-border px-4 py-2 text-right">
                           {row.salesQuantity}
                         </TableCell>
-                        <TableCell className="h-auto px-4 py-2">
+                        <TableCell className="h-auto px-4 py-2 text-right">
                           ฿{row.revenue.toFixed(2)}
                         </TableCell>
                       </TableRow>
@@ -335,23 +335,23 @@ export function ReportsPage() {
             ) : visibleRows.length === 0 ? (
               <div className="py-10 text-center">No data for this range.</div>
             ) : (
-              <div className="border border-border">
-                <Table>
+              <div className="w-fit border border-border">
+                <Table className="w-auto table-fixed">
                   <TableHeader>
                     <TableRow className="border-border hover:bg-transparent">
-                      <TableHead className="h-auto border-r border-border px-4 py-2 font-semibold">
+                      <TableHead className="h-auto w-28 border-r border-border px-4 py-2 font-semibold">
                         Product ID
                       </TableHead>
-                      <TableHead className="h-auto border-r border-border px-4 py-2 font-semibold">
+                      <TableHead className="h-auto w-64 border-r border-border px-4 py-2 font-semibold">
                         Product Name
                       </TableHead>
-                      <TableHead className="h-auto border-r border-border px-4 py-2 font-semibold">
+                      <TableHead className="h-auto w-48 border-r border-border px-4 py-2 font-semibold">
                         Categories
                       </TableHead>
-                      <TableHead className="h-auto border-r border-border px-4 py-2 font-semibold">
+                      <TableHead className="h-auto w-36 border-r border-border px-4 py-2 text-right font-semibold">
                         Cost
                       </TableHead>
-                      <TableHead className="h-auto px-4 py-2 font-semibold">
+                      <TableHead className="h-auto w-36 px-4 py-2 text-right font-semibold">
                         Profit
                       </TableHead>
                     </TableRow>
@@ -365,16 +365,16 @@ export function ReportsPage() {
                         <TableCell className="h-auto border-r border-border px-4 py-2">
                           {row.productId}
                         </TableCell>
-                        <TableCell className="h-auto border-r border-border px-4 py-2">
+                        <TableCell className="h-auto truncate border-r border-border px-4 py-2">
                           {row.productName}
                         </TableCell>
-                        <TableCell className="h-auto border-r border-border px-4 py-2">
+                        <TableCell className="h-auto truncate border-r border-border px-4 py-2">
                           {row.categories.join(", ") || "—"}
                         </TableCell>
-                        <TableCell className="h-auto border-r border-border px-4 py-2">
+                        <TableCell className="h-auto border-r border-border px-4 py-2 text-right">
                           ฿{row.cost.toFixed(2)}
                         </TableCell>
-                        <TableCell className="h-auto px-4 py-2">
+                        <TableCell className="h-auto px-4 py-2 text-right">
                           ฿{row.profit.toFixed(2)}
                         </TableCell>
                       </TableRow>
