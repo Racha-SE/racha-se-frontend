@@ -70,6 +70,14 @@ http://localhost:6767/api/v1
 
 API calls should go through `src/api/client.ts`, not direct `fetch(...)` calls inside pages. Feature-specific API wrappers can live beside it, for example `src/api/mock-users.ts`.
 
+## Docker
+
+`Dockerfile` is a multi-stage build (bun build → `nginx:alpine` serving the static output) for production — there's no compose file in this repo, because this image has nothing else to orchestrate on its own (no dependent services). It's built as part of [`racha-se-backend`](https://github.com/Racha-SE/racha-se-backend)'s `docker-compose.prod.yml`, which treats this repo as a sibling directory (`context: ../racha-se-frontend`) and drives the actual `docker compose up` — see that repo's README for the full production deploy steps.
+
+`VITE_API_BASE_URL` is baked in at **build time** (passed as a `--build-arg`, same env var name as local dev), since Vite inlines it into the static JS bundle — it can't be changed at container runtime without rebuilding the image.
+
+`nginx.conf` serves the build on internal port `8080` and proxies `/api/v1` and `/openapi` to the `backend` service; it doesn't terminate TLS or publish any host port — that's handled by a separate shared reverse-proxy on the deploy host.
+
 ## Routing
 
 Routes are registered in `src/router.tsx`. Current top-level route groups are:
