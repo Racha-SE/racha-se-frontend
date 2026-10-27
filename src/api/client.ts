@@ -95,6 +95,22 @@ async function parseResponseBody(response: Response): Promise<unknown> {
   }
 }
 
+function redirectIfUnauthenticated(response: Response) {
+  if (
+    response.status === 401 &&
+    window.location.pathname !== "/sign-in" &&
+    !isRedirectingToSignIn
+  ) {
+    isRedirectingToSignIn = true;
+    window.location.replace("/sign-in");
+  }
+}
+
+function filenameFromContentDisposition(header: string | null): string | null {
+  if (!header) return null;
+  return /filename="?([^";]+)"?/.exec(header)?.[1] ?? null;
+}
+
 async function request<TResponse>(
   path: string,
   options: RequestInit,
@@ -111,15 +127,7 @@ async function request<TResponse>(
   const body = await parseResponseBody(response);
 
   if (!response.ok) {
-    if (
-      response.status === 401 &&
-      window.location.pathname !== "/sign-in" &&
-      !isRedirectingToSignIn
-    ) {
-      isRedirectingToSignIn = true;
-      window.location.replace("/sign-in");
-    }
-
+    redirectIfUnauthenticated(response);
     throw new ApiError(response.status, body);
   }
 
@@ -194,5 +202,29 @@ export const apiClient = {
       ...options,
       method: "DELETE",
     });
+  },
+
+  async getBlob(
+    path: string,
+    options?: ApiClientOptions,
+  ): Promise<{ blob: Blob; filename: string | null }> {
+    const response = await fetch(`${API_BASE_URL}${path}`, {
+      ...options,
+      method: "GET",
+      credentials: "include",
+    });
+
+    if (!response.ok) {
+      const body = await parseResponseBody(response);
+      redirectIfUnauthenticated(response);
+      throw new ApiError(response.status, body);
+    }
+
+    return {
+      blob: await response.blob(),
+      filename: filenameFromContentDisposition(
+        response.headers.get("Content-Disposition"),
+      ),
+    };
   },
 };
