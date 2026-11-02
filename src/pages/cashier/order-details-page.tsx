@@ -7,7 +7,10 @@ import {
   getAllBranchStock,
   type BranchInventoryProduct,
 } from "@/api/inventory";
-import { getCustomerOrderById, type CustomerOrder } from "@/api/orders";
+import {
+  getCustomerOrderById,
+  type CustomerOrder,
+} from "@/api/orders-customer";
 import { Button } from "@/components/ui/button";
 import { useSession } from "@/lib/auth-client";
 

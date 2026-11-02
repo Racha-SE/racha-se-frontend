@@ -2,7 +2,8 @@ import { useEffect, useState } from "react";
 import { PackagePlus } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
-import { createHqOrder, getOrderSuppliers } from "@/api/orders";
+import { createHqOrder } from "@/api/orders-hq";
+import { getOrderSuppliers } from "@/api/orders";
 
 import { OrderForm } from "./order-form";
 import type { OrderFormValues } from "./order-form-schema";
