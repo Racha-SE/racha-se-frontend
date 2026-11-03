@@ -64,6 +64,10 @@ export type CreateBranchOrdersResponse = BranchOrder;
 
 export type ApproveBranchOrdersResponse = BranchOrder;
 
+type RejectBranchOrdersBody = {
+  rejectReason: string;
+};
+
 export type RejectBranchOrdersResponse = BranchOrder;
 
 export type ReceiveBranchOrdersResponse = {
@@ -103,11 +107,11 @@ export async function approveBranchOrder(lotId: number) {
   );
 }
 
-export async function rejectBranchOrder(lotId: number) {
-  return apiClient.patch<ApiResponse<RejectBranchOrdersResponse>, null>(
-    `/orders/branch/${lotId}/reject`,
-    null,
-  );
+export async function rejectBranchOrder(lotId: number, rejectReason: string) {
+  return apiClient.patch<
+    ApiResponse<RejectBranchOrdersResponse>,
+    RejectBranchOrdersBody
+  >(`/orders/branch/${lotId}/reject`, { rejectReason });
 }
 
 export async function receiveBranchOrder(lotId: number) {
