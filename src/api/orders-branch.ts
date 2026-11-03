@@ -40,11 +40,11 @@ type BranchOrder = {
   items: BranchOrderItem[];
 };
 
-export type BranchOrderGetByLotIdResponse = Omit<BranchOrder, "items"> & {
+export type GetBranchOrderByLotIdResponse = Omit<BranchOrder, "items"> & {
   items: (BranchOrderItem & { availableAmount: number })[];
 };
 
-export type BranchOrdersGetResponse = {
+export type GetBranchOrdersResponse = {
   orders: BranchOrder[];
   limit: number;
   offset: number;
@@ -55,13 +55,13 @@ export type CreateBranchOrdersBody = {
   items: BranchOrderItemRequest[];
 };
 
-export type BranchOrdersCreateResponse = BranchOrder;
+export type CreateBranchOrdersResponse = BranchOrder;
 
-export type BranchOrdersApproveResponse = BranchOrder;
+export type ApproveBranchOrdersResponse = BranchOrder;
 
-export type BranchOrdersRejectResponse = BranchOrder;
+export type RejectBranchOrdersResponse = BranchOrder;
 
-export type BranchOrdersReceiveResponse = {
+export type ReceiveBranchOrdersResponse = {
   message: string;
 };
 
@@ -73,38 +73,38 @@ export async function getBranchOrders(query: GetBranchOrdersQuery = {}) {
   if (query.limit) params.set("limit", query.limit.toString());
   if (query.offset) params.set("offset", query.offset.toString());
 
-  return apiClient.get<BranchOrdersGetResponse>(`/orders/branch?${params}`);
+  return apiClient.get<GetBranchOrdersResponse>(`/orders/branch?${params}`);
 }
 
 export async function getBranchOrderByLotId(lotId: number) {
-  return apiClient.get<BranchOrderGetByLotIdResponse>(
+  return apiClient.get<GetBranchOrderByLotIdResponse>(
     `/orders/branch/${lotId}`,
   );
 }
 
 export async function createBranchOrder(body: CreateBranchOrdersBody) {
-  return apiClient.post<BranchOrdersCreateResponse, CreateBranchOrdersBody>(
+  return apiClient.post<CreateBranchOrdersResponse, CreateBranchOrdersBody>(
     "/orders/branch",
     body,
   );
 }
 
 export async function approveBranchOrder(lotId: number) {
-  return apiClient.patch<BranchOrdersApproveResponse, null>(
+  return apiClient.patch<ApproveBranchOrdersResponse, null>(
     `/orders/branch/${lotId}/approve`,
     null,
   );
 }
 
 export async function rejectBranchOrder(lotId: number) {
-  return apiClient.patch<BranchOrdersRejectResponse, null>(
+  return apiClient.patch<RejectBranchOrdersResponse, null>(
     `/orders/branch/${lotId}/reject`,
     null,
   );
 }
 
 export async function receiveBranchOrder(lotId: number) {
-  return apiClient.patch<BranchOrdersReceiveResponse, null>(
+  return apiClient.patch<ReceiveBranchOrdersResponse, null>(
     `/orders/branch/${lotId}/receive`,
     null,
   );
