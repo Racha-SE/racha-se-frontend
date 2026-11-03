@@ -56,21 +56,21 @@ export type GetBranchOrdersResponse = {
   totals: number;
 };
 
-export type CreateBranchOrdersBody = {
+export type CreateBranchOrderBody = {
   items: BranchOrderItemRequest[];
 };
 
-export type CreateBranchOrdersResponse = BranchOrder;
+export type CreateBranchOrderResponse = BranchOrder;
 
-export type ApproveBranchOrdersResponse = BranchOrder;
+export type ApproveBranchOrderResponse = BranchOrder;
 
-type RejectBranchOrdersBody = {
+type RejectBranchOrderBody = {
   rejectReason: string;
 };
 
-export type RejectBranchOrdersResponse = BranchOrder;
+export type RejectBranchOrderResponse = BranchOrder;
 
-export type ReceiveBranchOrdersResponse = {
+export type ReceiveBranchOrderResponse = {
   message: string;
 };
 
@@ -93,15 +93,15 @@ export async function getBranchOrderByLotId(lotId: number) {
   );
 }
 
-export async function createBranchOrder(body: CreateBranchOrdersBody) {
+export async function createBranchOrder(body: CreateBranchOrderBody) {
   return apiClient.post<
-    ApiResponse<CreateBranchOrdersResponse>,
-    CreateBranchOrdersBody
+    ApiResponse<CreateBranchOrderResponse>,
+    CreateBranchOrderBody
   >("/orders/branch", body);
 }
 
 export async function approveBranchOrder(lotId: number) {
-  return apiClient.patch<ApiResponse<ApproveBranchOrdersResponse>, null>(
+  return apiClient.patch<ApiResponse<ApproveBranchOrderResponse>, null>(
     `/orders/branch/${lotId}/approve`,
     null,
   );
@@ -109,13 +109,13 @@ export async function approveBranchOrder(lotId: number) {
 
 export async function rejectBranchOrder(lotId: number, rejectReason: string) {
   return apiClient.patch<
-    ApiResponse<RejectBranchOrdersResponse>,
-    RejectBranchOrdersBody
+    ApiResponse<RejectBranchOrderResponse>,
+    RejectBranchOrderBody
   >(`/orders/branch/${lotId}/reject`, { rejectReason });
 }
 
 export async function receiveBranchOrder(lotId: number) {
-  return apiClient.patch<ApiResponse<ReceiveBranchOrdersResponse>, null>(
+  return apiClient.patch<ApiResponse<ReceiveBranchOrderResponse>, null>(
     `/orders/branch/${lotId}/receive`,
     null,
   );
