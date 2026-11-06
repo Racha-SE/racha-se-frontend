@@ -5,17 +5,9 @@ import { useNavigate } from "react-router-dom";
 import { getCategories, type Category } from "@/api/category";
 import { createProduct } from "@/api/product";
 
+import { toCreateProductBody } from "./create-product-body";
 import { ProductForm } from "./product-form";
 import type { ProductFormValues } from "./product-form-schema";
-
-function generateBarcode() {
-  const timestamp = Date.now().toString();
-  const random = Math.floor(Math.random() * 1000000)
-    .toString()
-    .padStart(6, "0");
-
-  return `${timestamp}${random}`;
-}
 
 export function AddProductPage() {
   const navigate = useNavigate();
@@ -31,16 +23,7 @@ export function AddProductPage() {
   }, []);
 
   async function handleSubmit(values: ProductFormValues) {
-    await createProduct({
-      name: values.productName,
-      description: values.description || null,
-      barcode: generateBarcode(),
-      price: values.sellingPrice,
-      minStockHq: values.minStockHq,
-      minStockBranch: values.minStockBranch,
-      isActive: values.status === "active",
-      categoryIds: [Number(values.category)],
-    });
+    await createProduct(toCreateProductBody(values));
 
     navigate("/hq/products");
   }
