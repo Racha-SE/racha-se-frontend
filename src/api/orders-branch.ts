@@ -8,13 +8,13 @@ type ApiResponse<T> = {
 
 export type BranchOrderItem = {
   branchId: number;
-  createdAt: Date;
-  updatedAt: Date;
+  createdAt: string;
+  updatedAt: string;
   pId: number;
   price: number;
   amount: number;
   remain: number;
-  expiredDate: Date | null;
+  expiredDate: string | null;
   costPrice: number;
   bodId: number;
 };
@@ -31,16 +31,17 @@ export type GetBranchOrdersQuery = {
   offset?: number;
 };
 
-type BranchOrder = {
+export type BranchOrder = {
   status: OrderStatus;
-  createdAt: Date;
-  updatedAt: Date;
+  createdAt: string;
+  updatedAt: string;
   userId: string;
   lotId: number;
   orderType: "branch";
+  branchId?: number;
   approvedBy: string | null;
-  approvedAt: Date | null;
-  receivedAt: Date | null;
+  approvedAt: string | null;
+  receivedAt: string | null;
   rejectReason: string | null;
   items: BranchOrderItem[];
 };
@@ -78,12 +79,15 @@ export async function getBranchOrders(query: GetBranchOrdersQuery = {}) {
   const params = new URLSearchParams();
 
   if (query.status) params.set("status", query.status);
-  if (query.branchId) params.set("branchId", query.branchId.toString());
-  if (query.limit) params.set("limit", query.limit.toString());
-  if (query.offset) params.set("offset", query.offset.toString());
+  if (query.branchId !== undefined)
+    params.set("branchId", query.branchId.toString());
+  if (query.limit !== undefined) params.set("limit", query.limit.toString());
+  if (query.offset !== undefined) params.set("offset", query.offset.toString());
+
+  const qs = params.toString();
 
   return apiClient.get<ApiResponse<GetBranchOrdersResponse>>(
-    `/orders/branch?${params}`,
+    `/orders/branch${qs ? `?${qs}` : ""}`,
   );
 }
 
@@ -101,10 +105,10 @@ export async function createBranchOrder(body: CreateBranchOrderBody) {
 }
 
 export async function approveBranchOrder(lotId: number) {
-  return apiClient.patch<ApiResponse<ApproveBranchOrderResponse>, null>(
-    `/orders/branch/${lotId}/approve`,
-    null,
-  );
+  return apiClient.patch<
+    ApiResponse<ApproveBranchOrderResponse>,
+    Record<string, never>
+  >(`/orders/branch/${lotId}/approve`, {});
 }
 
 export async function rejectBranchOrder(lotId: number, rejectReason: string) {
@@ -115,8 +119,8 @@ export async function rejectBranchOrder(lotId: number, rejectReason: string) {
 }
 
 export async function receiveBranchOrder(lotId: number) {
-  return apiClient.patch<ApiResponse<ReceiveBranchOrderResponse>, null>(
-    `/orders/branch/${lotId}/receive`,
-    null,
-  );
+  return apiClient.patch<
+    ApiResponse<ReceiveBranchOrderResponse>,
+    Record<string, never>
+  >(`/orders/branch/${lotId}/receive`, {});
 }
