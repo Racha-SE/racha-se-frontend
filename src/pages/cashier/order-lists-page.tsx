@@ -3,7 +3,7 @@ import { Eye, ShoppingCart } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 import { getBranches, type Branch } from "@/api/branch";
-import { getCustomerOrders, type CustomerOrder } from "@/api/orders";
+import { getCustomerOrders, type CustomerOrder } from "@/api/orders-customer";
 import { PaginationControls } from "@/components/pagination-controls";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";

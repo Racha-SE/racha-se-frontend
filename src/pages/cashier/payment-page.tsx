@@ -9,7 +9,10 @@ import {
 import { useNavigate } from "react-router-dom";
 
 import { isInsufficientStockError } from "@/api/client";
-import { confirmCustomerOrderPayment, createCustomerOrder } from "@/api/orders";
+import {
+  confirmCustomerOrderPayment,
+  createCustomerOrder,
+} from "@/api/orders-customer";
 import { Button } from "@/components/ui/button";
 import { useSession } from "@/lib/auth-client";
 import { cn } from "@/lib/utils";
