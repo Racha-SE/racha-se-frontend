@@ -4,6 +4,7 @@ import { LogOut, UserRoundCog, Gem } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { signOut } from "@/api/auth";
 import { useSession } from "@/lib/auth-client";
+import { HqRequisitionsNav } from "@/components/hq-requisitions-nav";
 
 export function Sidebar() {
   const navigate = useNavigate();
@@ -105,6 +106,8 @@ export function Sidebar() {
           </>
         ) : (
           <>
+            {user?.userType === "hq" && <HqRequisitionsNav />}
+
             <NavLink to="/hq/products" end className="flex justify-center">
               {({ isActive }) => (
                 <Button
