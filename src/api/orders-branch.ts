@@ -112,10 +112,18 @@ export async function approveBranchOrder(lotId: number) {
 }
 
 export async function rejectBranchOrder(lotId: number, rejectReason: string) {
+  const reason = rejectReason.trim();
+  if (!reason) {
+    throw new Error("Please provide a rejection reason.");
+  }
+
+  if (reason.length > 255) {
+    throw new Error("Rejection reason must not exceed 255 characters.");
+  }
   return apiClient.patch<
     ApiResponse<RejectBranchOrderResponse>,
     RejectBranchOrderBody
-  >(`/orders/branch/${lotId}/reject`, { rejectReason });
+  >(`/orders/branch/${lotId}/reject`, { rejectReason: reason });
 }
 
 export async function receiveBranchOrder(lotId: number) {
@@ -123,4 +131,14 @@ export async function receiveBranchOrder(lotId: number) {
     ApiResponse<ReceiveBranchOrderResponse>,
     Record<string, never>
   >(`/orders/branch/${lotId}/receive`, {});
+}
+
+export async function getPendingBranchOrderCount() {
+  const response = await getBranchOrders({
+    status: "pending",
+    limit: 1,
+    offset: 0,
+  });
+
+  return response.data.totals;
 }
