@@ -14,6 +14,8 @@ export function HqRequisitionsNav() {
     let version = 0;
 
     async function refresh() {
+      if (!active || document.visibilityState !== "visible") return;
+
       const request = ++version;
 
       try {
@@ -34,14 +36,14 @@ export function HqRequisitionsNav() {
 
     const timer = window.setInterval(refresh, 30000);
 
-    window.addEventListener("focus", refresh);
+    document.addEventListener("visibilitychange", refresh);
     window.addEventListener(REQUISITIONS_CHANGED_EVENT, refresh);
 
     return () => {
       active = false;
 
       window.clearInterval(timer);
-      window.removeEventListener("focus", refresh);
+      document.removeEventListener("visibilitychange", refresh);
       window.removeEventListener(REQUISITIONS_CHANGED_EVENT, refresh);
     };
   }, []);

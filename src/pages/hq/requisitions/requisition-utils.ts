@@ -1,17 +1,20 @@
 import { ApiError, isInsufficientStockError } from "@/api/client";
 
-export function requisitionError(error: unknown) {
+export function requisitionError(
+  error: unknown,
+  fallback = "Unable to load requisitions. Please try again.",
+) {
   if (isInsufficientStockError(error)) {
     const context = error.body.error.context;
 
     return `Insufficient HQ stock${
       context?.pId ? ` for product #${context.pId}` : ""
-    }. Refresh the request to review availability.`;
+    }. The requested quantities cannot be approved.`;
   }
 
   if (error instanceof ApiError) {
     if (error.status === 400) {
-      return "The request could not be processed. Check its current status and try again.";
+      return "The requisition could not be processed. Its status may have changed. Reload its details before making another decision.";
     }
 
     if (error.status === 403) {
@@ -26,12 +29,16 @@ export function requisitionError(error: unknown) {
       return "Your session has expired. Please sign in again.";
     }
 
-    return "The server could not process the request. Please try again.";
+    if (error.status === 409) {
+      return "The requisition conflicts with the current action. Reload its details before making another decision.";
+    }
+
+    if (error.status === 422) {
+      return "The submitted data is invalid. Check the form and try again.";
+    }
   }
 
-  return error instanceof Error
-    ? error.message
-    : "Unable to load requisitions. Please try again.";
+  return fallback;
 }
 
 export function requisitionDate(value: string | null) {

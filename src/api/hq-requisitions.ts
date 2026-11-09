@@ -62,7 +62,7 @@ export async function getHqRequisitions(query: GetBranchOrdersQuery = {}) {
 export async function getHqRequisition(lotId: number) {
   const { data: order } = await getBranchOrderByLotId(lotId);
 
-  const branchId = order.items[0]?.branchId ?? order.branchId;
+  const branchId = order.branchId ?? order.items[0]?.branchId;
   const productIds = [...new Set(order.items.map((item) => item.pId))];
 
   const [branchResult, products] = await Promise.all([
@@ -99,7 +99,7 @@ export async function approveHqRequisition(lotId: number) {
 }
 
 export async function rejectHqRequisition(lotId: number, reason: string) {
-  const response = await rejectBranchOrder(lotId, reason.trim());
+  const response = await rejectBranchOrder(lotId, reason);
 
   window.dispatchEvent(new Event(REQUISITIONS_CHANGED_EVENT));
 

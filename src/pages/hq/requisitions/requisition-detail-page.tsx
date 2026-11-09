@@ -43,7 +43,6 @@ function RequisitionDetail({ lotId }: { lotId: number }) {
   const [detail, setDetail] = useState<HqRequisitionDetail | null>(null);
 
   const [loadError, setLoadError] = useState("");
-  const [actionError, setActionError] = useState("");
   const [notice, setNotice] = useState("");
 
   const [dialog, setDialog] = useState<"approve" | "reject" | null>(null);
@@ -64,7 +63,12 @@ function RequisitionDetail({ lotId }: { lotId: number }) {
       })
       .catch((failure: unknown) => {
         if (active) {
-          setLoadError(requisitionError(failure));
+          setLoadError(
+            requisitionError(
+              failure,
+              "Unable to load this requisition. Please retry.",
+            ),
+          );
           setRefreshing(false);
         }
       });
@@ -84,7 +88,7 @@ function RequisitionDetail({ lotId }: { lotId: number }) {
       return;
     }
 
-    setActionError("");
+    setNotice("");
 
     try {
       const updated =
@@ -106,7 +110,6 @@ function RequisitionDetail({ lotId }: { lotId: number }) {
       setDialog(null);
       setNotice(`Requisition #${lotId} ${updated.status} successfully.`);
     } catch (failure) {
-      setActionError(requisitionError(failure));
       refresh();
       throw failure;
     }
@@ -146,16 +149,19 @@ function RequisitionDetail({ lotId }: { lotId: number }) {
         </p>
       )}
 
-      {actionError && (
-        <p role="alert" className="text-destructive">
-          {actionError}
-        </p>
-      )}
-
       {loadError && (
-        <p role="alert" className="text-destructive">
-          {loadError}
-        </p>
+        <div role="alert" className="space-y-2">
+          <p className="text-destructive">{loadError}</p>
+
+          <Button
+            type="button"
+            variant="outline"
+            disabled={refreshing}
+            onClick={refresh}
+          >
+            {refreshing ? "Retrying..." : "Retry"}
+          </Button>
+        </div>
       )}
 
       {!order ? (

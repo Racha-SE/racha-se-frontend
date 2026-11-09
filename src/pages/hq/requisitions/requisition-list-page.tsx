@@ -6,6 +6,7 @@ import { getBranches, type Branch } from "@/api/branch";
 import { getHqRequisitions, requisitionStatuses } from "@/api/hq-requisitions";
 
 import { PaginationControls } from "@/components/pagination-controls";
+import { Label } from "@/components/ui/label";
 import {
   Select,
   SelectContent,
@@ -179,12 +180,13 @@ export function RequisitionListPage() {
       <section className="mt-6 space-y-4">
         <div className="flex flex-wrap items-end gap-4">
           <div className="space-y-2">
-            <label
+            <Label
               id="requisition-branch-label"
+              htmlFor="requisition-branch"
               className="text-sm font-medium"
             >
               Branch
-            </label>
+            </Label>
 
             <Select
               items={branchOptions}
@@ -192,6 +194,7 @@ export function RequisitionListPage() {
               onValueChange={(value) => filter("branchId", value)}
             >
               <SelectTrigger
+                id="requisition-branch"
                 className="w-60"
                 aria-labelledby="requisition-branch-label"
               >
@@ -209,12 +212,13 @@ export function RequisitionListPage() {
           </div>
 
           <div className="space-y-2">
-            <label
+            <Label
               id="requisition-status-label"
+              htmlFor="requisition-status"
               className="text-sm font-medium"
             >
               Status
-            </label>
+            </Label>
 
             <Select
               items={statusOptions}
@@ -222,6 +226,7 @@ export function RequisitionListPage() {
               onValueChange={(value) => filter("status", value)}
             >
               <SelectTrigger
+                id="requisition-status"
                 className="w-44"
                 aria-labelledby="requisition-status-label"
               >
@@ -279,44 +284,46 @@ export function RequisitionListPage() {
                 </TableHeader>
 
                 <TableBody>
-                  {data?.orders.map((order) => (
-                    <TableRow key={order.lotId}>
-                      <TableCell>#{order.lotId}</TableCell>
+                  {data?.orders.map((order) => {
+                    const bId = order.branchId ?? order.items[0]?.branchId;
 
-                      <TableCell>
-                        {branches.find(
-                          (branch) => branch.branchId === order.branchId,
-                        )?.name ??
-                          `Branch #${
-                            order.branchId ?? order.items[0]?.branchId ?? "—"
-                          }`}
-                      </TableCell>
+                    return (
+                      <TableRow key={order.lotId}>
+                        <TableCell>#{order.lotId}</TableCell>
 
-                      <TableCell>{requisitionDate(order.createdAt)}</TableCell>
+                        <TableCell>
+                          {branches.find((branch) => branch.branchId === bId)
+                            ?.name ?? `Branch #${bId ?? "—"}`}
+                        </TableCell>
 
-                      <TableCell>{order.items.length}</TableCell>
+                        <TableCell>
+                          {requisitionDate(order.createdAt)}
+                        </TableCell>
 
-                      <TableCell>
-                        {order.items.reduce(
-                          (sum, item) => sum + item.amount,
-                          0,
-                        )}
-                      </TableCell>
+                        <TableCell>{order.items.length}</TableCell>
 
-                      <TableCell>
-                        <RequisitionStatus status={order.status} />
-                      </TableCell>
+                        <TableCell>
+                          {order.items.reduce(
+                            (sum, item) => sum + item.amount,
+                            0,
+                          )}
+                        </TableCell>
 
-                      <TableCell>
-                        <Link
-                          className="font-medium text-primary underline"
-                          to={`/hq/requisitions/${order.lotId}?${params.toString()}`}
-                        >
-                          Review
-                        </Link>
-                      </TableCell>
-                    </TableRow>
-                  ))}
+                        <TableCell>
+                          <RequisitionStatus status={order.status} />
+                        </TableCell>
+
+                        <TableCell>
+                          <Link
+                            className="font-medium text-primary underline"
+                            to={`/hq/requisitions/${order.lotId}?${params.toString()}`}
+                          >
+                            Review
+                          </Link>
+                        </TableCell>
+                      </TableRow>
+                    );
+                  })}
 
                   {!data?.orders.length && (
                     <TableRow>

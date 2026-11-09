@@ -5,6 +5,7 @@ import { z } from "zod";
 
 import { Button } from "@/components/ui/button";
 import { Field, FieldError, FieldLabel } from "@/components/ui/field";
+import { Textarea } from "@/components/ui/textarea";
 import {
   Dialog,
   DialogContent,
@@ -61,7 +62,12 @@ export function RequisitionDecisionDialog({
     try {
       await onConfirm(reason);
     } catch (failure) {
-      setError(requisitionError(failure));
+      setError(
+        requisitionError(
+          failure,
+          `Unable to ${action} this requisition. Check your connection and try again.`,
+        ),
+      );
     } finally {
       submitting.current = false;
       setBusy(false);
@@ -108,7 +114,7 @@ export function RequisitionDecisionDialog({
                 Rejection reason (required)
               </FieldLabel>
 
-              <textarea
+              <Textarea
                 id="rejection-reason"
                 rows={4}
                 required
@@ -117,7 +123,6 @@ export function RequisitionDecisionDialog({
                 aria-describedby={
                   form.formState.errors.reason ? "rejection-error" : undefined
                 }
-                className="w-full rounded-md border border-input bg-background p-3 text-sm focus-visible:outline-2 focus-visible:outline-ring"
                 {...form.register("reason")}
               />
 
