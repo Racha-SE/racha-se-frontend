@@ -1,11 +1,16 @@
 import { useEffect, useState } from "react";
 import { BarChart3 } from "lucide-react";
 
+import {
+  getHqBestSellers,
+  getHqWorstSellers,
+  type SellerRank,
+  type SellerRankingQuery,
+  type SellerSortBy,
+} from "@/api/analytics";
 import { getBranches, type Branch } from "@/api/branch";
-import { getReportPreview, exportReport, type ReportRow } from "@/api/reports";
-import { downloadBlob } from "@/lib/download-file";
+import { DatePickerInput } from "@/components/date-picker-input";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import {
   Select,
   SelectContent,
@@ -13,378 +18,369 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { localISODateDaysAgo, toLocalISODate, toTimeframe } from "@/lib/date";
 
-type ReportType = "sales" | "profit";
-type ReportFormat = "csv" | "xlsx";
+import { SalesAnalyticsTable } from "./sales-analytics-table";
 
-const formatOptions: Array<{ label: string; value: ReportFormat }> = [
-  { label: "CSV", value: "csv" },
-  { label: "XLSX", value: "xlsx" },
-];
+type TimeframePreset = "7d" | "30d" | "90d" | "custom";
 
-function toLocalISODate(date: Date): string {
-  const year = date.getFullYear();
-  const month = String(date.getMonth() + 1).padStart(2, "0");
-  const day = String(date.getDate()).padStart(2, "0");
-  return `${year}-${month}-${day}`;
-}
-
-const today = new Date();
-const defaultEndDate = toLocalISODate(today);
-const defaultStartDate = toLocalISODate(
-  new Date(today.getFullYear(), today.getMonth(), today.getDate() - 29),
-);
+const defaultEndDate = toLocalISODate(new Date());
+const defaultStartDate = localISODateDaysAgo(29);
 
 export function ReportsPage() {
-  const [branches, setBranches] = useState<Branch[]>([]);
+  // Preset selector
+  const [preset, setPreset] = useState<TimeframePreset>("30d");
+
+  // Filter form state
   const [startDate, setStartDate] = useState(defaultStartDate);
   const [endDate, setEndDate] = useState(defaultEndDate);
   const [branchId, setBranchId] = useState("all");
-  const [format, setFormat] = useState<ReportFormat>("csv");
-  const [reportType, setReportType] = useState<ReportType>("sales");
+  const [sortBy, setSortBy] = useState<SellerSortBy>("quantity");
 
-  const [rows, setRows] = useState<ReportRow[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [loadError, setLoadError] = useState(false);
-  const [isExporting, setIsExporting] = useState(false);
-  const [exportError, setExportError] = useState(false);
+  // Applied filter state (only refreshed on mount or when clicking Apply)
+  const [appliedRange, setAppliedRange] = useState({
+    startDate: defaultStartDate,
+    endDate: defaultEndDate,
+  });
+  const [appliedBranchId, setAppliedBranchId] = useState("all");
+  const [appliedSortBy, setAppliedSortBy] = useState<SellerSortBy>("quantity");
 
+  // Data state
+  const [branches, setBranches] = useState<Branch[]>([]);
+  const [bestSellers, setBestSellers] = useState<SellerRank[]>([]);
+  const [worstSellers, setWorstSellers] = useState<SellerRank[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  // Load branches list
   useEffect(() => {
+    let cancelled = false;
     getBranches()
-      .then((response) => setBranches(response.data.result))
+      .then((res) => {
+        if (!cancelled) {
+          setBranches(res.data.result);
+        }
+      })
       .catch(() => {});
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
-  const isRangeValid =
-    Boolean(startDate) && Boolean(endDate) && startDate <= endDate;
-  const selectedBranchId = branchId === "all" ? undefined : Number(branchId);
-
-  const branchOptions = [
-    { label: "All Branches", value: "all" },
-    ...branches.map((branch) => ({
-      label: branch.name,
-      value: String(branch.branchId),
-    })),
-  ];
-
+  // Fetch analytics rankings when applied filters change
   useEffect(() => {
-    if (!isRangeValid) return;
-
     let cancelled = false;
 
-    async function loadPreview() {
-      setLoading(true);
-      setLoadError(false);
+    async function loadRankings() {
+      setError(null);
       try {
-        const response = await getReportPreview({
-          startDate,
-          endDate,
-          branchId: selectedBranchId,
-        });
-        if (!cancelled) setRows(response.data.result);
+        const { from, to } = toTimeframe(
+          appliedRange.startDate,
+          appliedRange.endDate,
+        );
+        const query: SellerRankingQuery = {
+          from,
+          to,
+          sortBy: appliedSortBy,
+          limit: 50,
+          branchId:
+            appliedBranchId === "all" ? undefined : Number(appliedBranchId),
+        };
+
+        const [bestRes, worstRes] = await Promise.all([
+          getHqBestSellers(query),
+          getHqWorstSellers(query),
+        ]);
+
+        if (cancelled) return;
+        setBestSellers(bestRes.data.result);
+        setWorstSellers(worstRes.data.result);
       } catch {
-        if (!cancelled) setLoadError(true);
+        if (cancelled) return;
+        setError("Could not load sales analytics. Please try again.");
       } finally {
-        if (!cancelled) setLoading(false);
+        if (!cancelled) {
+          setIsLoading(false);
+        }
       }
     }
 
-    void loadPreview();
+    void loadRankings();
 
     return () => {
       cancelled = true;
     };
-  }, [startDate, endDate, selectedBranchId, isRangeValid]);
+  }, [appliedRange, appliedBranchId, appliedSortBy]);
 
-  const visibleRows = isRangeValid ? rows : [];
-  const isLoading = isRangeValid && loading;
-  const hasLoadError = isRangeValid && loadError;
+  const isRangeValid =
+    Boolean(startDate) && Boolean(endDate) && startDate <= endDate;
 
-  async function handleExport() {
-    if (!isRangeValid) return;
-    setIsExporting(true);
-    setExportError(false);
-    try {
-      const { blob, filename } = await exportReport({
-        startDate,
-        endDate,
-        branchId: selectedBranchId,
-        format,
-      });
-      const scope = selectedBranchId
-        ? `branch-${selectedBranchId}`
-        : "all-branches";
-      downloadBlob(
-        blob,
-        filename ??
-          `sales_report_${scope}_${startDate}_to_${endDate}.${format}`,
-      );
-    } catch {
-      setExportError(true);
-    } finally {
-      setIsExporting(false);
+  function handlePresetChange(nextPreset: TimeframePreset) {
+    setPreset(nextPreset);
+    const today = toLocalISODate(new Date());
+
+    if (nextPreset === "7d") {
+      setStartDate(localISODateDaysAgo(6));
+      setEndDate(today);
+    } else if (nextPreset === "30d") {
+      setStartDate(localISODateDaysAgo(29));
+      setEndDate(today);
+    } else if (nextPreset === "90d") {
+      setStartDate(localISODateDaysAgo(89));
+      setEndDate(today);
     }
   }
 
+  function handleDateChange(type: "start" | "end", value: string) {
+    setPreset("custom");
+    if (type === "start") {
+      setStartDate(value);
+    } else {
+      setEndDate(value);
+    }
+  }
+
+  function handleApply() {
+    if (!isRangeValid) return;
+    setIsLoading(true);
+    setAppliedRange({ startDate, endDate });
+    setAppliedBranchId(branchId);
+    setAppliedSortBy(sortBy);
+  }
+
+  const branchOptions = [
+    { label: "All branches", value: "all" },
+    ...branches.map((b) => ({
+      label: b.name,
+      value: String(b.branchId),
+    })),
+  ];
+
   return (
     <main className="min-h-screen bg-background p-6 text-left text-foreground">
+      {/* Header bar consistent with other HQ pages */}
       <header className="flex h-12 items-center gap-3 rounded-md bg-textbox px-3">
         <BarChart3 className="size-4.5 text-sidebar-top" aria-hidden="true" />
         <h1 className="m-0 text-xl font-semibold tracking-normal text-active">
-          Reports
+          Sales Analytics
         </h1>
       </header>
 
-      <section className="mt-4 space-y-4 px-2">
-        <div className="flex flex-wrap items-end justify-between gap-3">
-          <div className="flex flex-wrap items-end gap-3">
-            <div className="flex flex-col gap-1">
-              <label
-                className="text-sm text-foreground"
-                htmlFor="report-start-date"
-              >
-                Start date
+      <section className="mt-4 space-y-6 px-2">
+        {/* Filter Card */}
+        <div className="rounded-xl border border-border/70 bg-card p-4 shadow-xs">
+          <div className="flex flex-wrap items-end gap-4">
+            {/* Timeframe Presets */}
+            <div className="flex flex-col gap-1.5">
+              <label className="text-xs font-medium text-muted-foreground">
+                Timeframe
               </label>
-              <Input
-                id="report-start-date"
-                type="date"
-                className="h-8 w-[160px]"
+              <div className="inline-flex rounded-md border border-border/70 bg-background p-0.5">
+                <Button
+                  type="button"
+                  variant={preset === "7d" ? "default" : "ghost"}
+                  size="xs"
+                  className={
+                    preset === "7d"
+                      ? "rounded-sm bg-focus font-medium text-white shadow-xs"
+                      : "rounded-sm text-foreground hover:bg-muted"
+                  }
+                  onClick={() => handlePresetChange("7d")}
+                >
+                  7 days
+                </Button>
+                <Button
+                  type="button"
+                  variant={preset === "30d" ? "default" : "ghost"}
+                  size="xs"
+                  className={
+                    preset === "30d"
+                      ? "rounded-sm bg-focus font-medium text-white shadow-xs"
+                      : "rounded-sm text-foreground hover:bg-muted"
+                  }
+                  onClick={() => handlePresetChange("30d")}
+                >
+                  30 days
+                </Button>
+                <Button
+                  type="button"
+                  variant={preset === "90d" ? "default" : "ghost"}
+                  size="xs"
+                  className={
+                    preset === "90d"
+                      ? "rounded-sm bg-focus font-medium text-white shadow-xs"
+                      : "rounded-sm text-foreground hover:bg-muted"
+                  }
+                  onClick={() => handlePresetChange("90d")}
+                >
+                  90 days
+                </Button>
+                <Button
+                  type="button"
+                  variant={preset === "custom" ? "default" : "ghost"}
+                  size="xs"
+                  className={
+                    preset === "custom"
+                      ? "rounded-sm bg-focus font-medium text-white shadow-xs"
+                      : "rounded-sm text-foreground hover:bg-muted"
+                  }
+                  onClick={() => handlePresetChange("custom")}
+                >
+                  Custom
+                </Button>
+              </div>
+            </div>
+
+            {/* From Date */}
+            <div className="flex flex-col gap-1.5">
+              <label
+                htmlFor="sales-start-date"
+                className="text-xs font-medium text-muted-foreground"
+              >
+                From
+              </label>
+              <DatePickerInput
+                id="sales-start-date"
                 value={startDate}
-                onChange={(event) => setStartDate(event.target.value)}
+                onChange={(val) => handleDateChange("start", val)}
               />
             </div>
 
-            <div className="flex flex-col gap-1">
+            {/* To Date */}
+            <div className="flex flex-col gap-1.5">
               <label
-                className="text-sm text-foreground"
-                htmlFor="report-end-date"
+                htmlFor="sales-end-date"
+                className="text-xs font-medium text-muted-foreground"
               >
-                End date
+                To
               </label>
-              <Input
-                id="report-end-date"
-                type="date"
-                className="h-8 w-[160px]"
+              <DatePickerInput
+                id="sales-end-date"
                 value={endDate}
-                onChange={(event) => setEndDate(event.target.value)}
+                onChange={(val) => handleDateChange("end", val)}
               />
             </div>
 
-            <div className="flex flex-col gap-1">
-              <label className="text-sm text-foreground">Branch</label>
+            {/* Branch Selector */}
+            <div className="flex flex-col gap-1.5">
+              <label className="text-xs font-medium text-muted-foreground">
+                Branch
+              </label>
               <Select
                 items={branchOptions}
                 value={branchId}
-                onValueChange={(value) => setBranchId(value ?? "all")}
+                onValueChange={(val) => setBranchId(val ?? "all")}
               >
                 <SelectTrigger
-                  className="h-8! w-[204px] rounded-sm bg-surface px-3 text-sm"
+                  className="h-8! w-[180px] rounded-md bg-surface text-xs"
                   aria-label="Filter by branch"
                 >
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent align="start" alignItemWithTrigger={false}>
-                  {branchOptions.map((option) => (
-                    <SelectItem key={option.value} value={option.value}>
-                      {option.label}
+                  {branchOptions.map((opt) => (
+                    <SelectItem key={opt.value} value={opt.value}>
+                      {opt.label}
                     </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
             </div>
-          </div>
 
-          <div className="relative flex items-center gap-3 px-3">
-            <div
-              aria-hidden="true"
-              className="absolute inset-x-0 -top-3 -bottom-3 -z-10 rounded-md border border-border bg-textbox"
-            />
-            <label className="text-sm text-foreground">Export as</label>
-            <Select
-              items={formatOptions}
-              value={format}
-              onValueChange={(value) =>
-                setFormat((value as ReportFormat) ?? "csv")
-              }
-            >
-              <SelectTrigger
-                className="h-8! w-[140px] rounded-sm bg-surface px-3 text-sm"
-                aria-label="Export format"
-              >
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent align="start" alignItemWithTrigger={false}>
-                {formatOptions.map((option) => (
-                  <SelectItem key={option.value} value={option.value}>
-                    {option.label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            {/* Rank By Toggle (Unit / Revenue) */}
+            <div className="flex flex-col gap-1.5">
+              <label className="text-xs font-medium text-muted-foreground">
+                Rank by
+              </label>
+              <div className="inline-flex rounded-md border border-border/70 bg-background p-0.5">
+                <Button
+                  type="button"
+                  variant={sortBy === "quantity" ? "default" : "ghost"}
+                  size="xs"
+                  className={
+                    sortBy === "quantity"
+                      ? "rounded-sm bg-focus font-medium text-white shadow-xs"
+                      : "rounded-sm text-foreground hover:bg-muted"
+                  }
+                  onClick={() => setSortBy("quantity")}
+                >
+                  Unit
+                </Button>
+                <Button
+                  type="button"
+                  variant={sortBy === "revenue" ? "default" : "ghost"}
+                  size="xs"
+                  className={
+                    sortBy === "revenue"
+                      ? "rounded-sm bg-focus font-medium text-white shadow-xs"
+                      : "rounded-sm text-foreground hover:bg-muted"
+                  }
+                  onClick={() => setSortBy("revenue")}
+                >
+                  Revenue
+                </Button>
+              </div>
+            </div>
 
+            {/* Apply Button */}
             <Button
               type="button"
               size="sm"
-              className="h-8 bg-primary text-sm text-primary-foreground hover:bg-active"
-              disabled={!isRangeValid || isExporting}
-              onClick={() => void handleExport()}
+              className="h-8 rounded-md bg-focus px-5 text-xs font-medium text-white hover:bg-active"
+              disabled={!isRangeValid || isLoading}
+              onClick={handleApply}
             >
-              {isExporting ? "Exporting…" : "Export"}
+              Apply
             </Button>
           </div>
+
+          {!isRangeValid && (
+            <p className="mt-2 text-xs text-destructive">
+              End date cannot be earlier than start date.
+            </p>
+          )}
         </div>
 
-        {!isRangeValid && (
-          <p className="text-sm text-destructive">
-            End date can&apos;t be before start date.
-          </p>
-        )}
-        {exportError && (
-          <p className="text-sm text-destructive">
-            Couldn&apos;t export report. Please try again.
-          </p>
+        {error && (
+          <div className="rounded-md border border-destructive/20 bg-destructive/10 p-3 text-sm text-destructive">
+            {error}
+          </div>
         )}
 
-        <Tabs
-          value={reportType}
-          onValueChange={(value) =>
-            setReportType((value as ReportType) ?? "sales")
-          }
-        >
-          <TabsList>
-            <TabsTrigger value="sales">Sales</TabsTrigger>
-            <TabsTrigger value="profit">Profit</TabsTrigger>
-          </TabsList>
+        {/* Tables Section */}
+        <div className="space-y-8">
+          <SalesAnalyticsTable
+            title="Best sellers"
+            subtitle={
+              appliedSortBy === "revenue"
+                ? "Ranked by revenue, highest first"
+                : "Ranked by units sold, highest first"
+            }
+            items={bestSellers}
+            type="best"
+            sortBy={appliedSortBy}
+            isLoading={isLoading}
+          />
 
-          <TabsContent value="sales">
-            {isLoading ? (
-              <div className="py-10 text-center">Loading...</div>
-            ) : hasLoadError ? (
-              <div className="py-10 text-center text-destructive">
-                Couldn&apos;t load report. Please try again.
-              </div>
-            ) : visibleRows.length === 0 ? (
-              <div className="py-10 text-center">No data for this range.</div>
-            ) : (
-              <div className="w-fit border border-border">
-                <Table className="w-auto table-fixed">
-                  <TableHeader>
-                    <TableRow className="border-border hover:bg-transparent">
-                      <TableHead className="h-auto w-28 border-r border-border px-4 py-2 font-semibold">
-                        Product ID
-                      </TableHead>
-                      <TableHead className="h-auto w-64 border-r border-border px-4 py-2 font-semibold">
-                        Product Name
-                      </TableHead>
-                      <TableHead className="h-auto w-48 border-r border-border px-4 py-2 font-semibold">
-                        Categories
-                      </TableHead>
-                      <TableHead className="h-auto w-36 border-r border-border px-4 py-2 text-right font-semibold">
-                        Sales Quantity
-                      </TableHead>
-                      <TableHead className="h-auto w-36 px-4 py-2 text-right font-semibold">
-                        Revenue
-                      </TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {visibleRows.map((row) => (
-                      <TableRow
-                        key={row.productId}
-                        className="border-border even:bg-textbox hover:bg-primary-subtle"
-                      >
-                        <TableCell className="h-auto border-r border-border px-4 py-2">
-                          {row.productId}
-                        </TableCell>
-                        <TableCell className="h-auto truncate border-r border-border px-4 py-2">
-                          {row.productName}
-                        </TableCell>
-                        <TableCell className="h-auto truncate border-r border-border px-4 py-2">
-                          {row.categories.join(", ") || "—"}
-                        </TableCell>
-                        <TableCell className="h-auto border-r border-border px-4 py-2 text-right">
-                          {row.salesQuantity}
-                        </TableCell>
-                        <TableCell className="h-auto px-4 py-2 text-right">
-                          ฿{row.revenue.toFixed(2)}
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </div>
-            )}
-          </TabsContent>
+          <SalesAnalyticsTable
+            title="Worst sellers"
+            subtitle={
+              appliedSortBy === "revenue"
+                ? "Ranked by revenue, lowest first. Products with zero sales rank lowest; ties sorted A-Z."
+                : "Ranked by units sold, lowest first. Products with zero sales rank lowest; ties sorted A-Z."
+            }
+            items={worstSellers}
+            type="worst"
+            sortBy={appliedSortBy}
+            isLoading={isLoading}
+          />
+        </div>
 
-          <TabsContent value="profit">
-            {isLoading ? (
-              <div className="py-10 text-center">Loading...</div>
-            ) : hasLoadError ? (
-              <div className="py-10 text-center text-destructive">
-                Couldn&apos;t load report. Please try again.
-              </div>
-            ) : visibleRows.length === 0 ? (
-              <div className="py-10 text-center">No data for this range.</div>
-            ) : (
-              <div className="w-fit border border-border">
-                <Table className="w-auto table-fixed">
-                  <TableHeader>
-                    <TableRow className="border-border hover:bg-transparent">
-                      <TableHead className="h-auto w-28 border-r border-border px-4 py-2 font-semibold">
-                        Product ID
-                      </TableHead>
-                      <TableHead className="h-auto w-64 border-r border-border px-4 py-2 font-semibold">
-                        Product Name
-                      </TableHead>
-                      <TableHead className="h-auto w-48 border-r border-border px-4 py-2 font-semibold">
-                        Categories
-                      </TableHead>
-                      <TableHead className="h-auto w-36 border-r border-border px-4 py-2 text-right font-semibold">
-                        Cost
-                      </TableHead>
-                      <TableHead className="h-auto w-36 px-4 py-2 text-right font-semibold">
-                        Profit
-                      </TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {visibleRows.map((row) => (
-                      <TableRow
-                        key={row.productId}
-                        className="border-border even:bg-textbox hover:bg-primary-subtle"
-                      >
-                        <TableCell className="h-auto border-r border-border px-4 py-2">
-                          {row.productId}
-                        </TableCell>
-                        <TableCell className="h-auto truncate border-r border-border px-4 py-2">
-                          {row.productName}
-                        </TableCell>
-                        <TableCell className="h-auto truncate border-r border-border px-4 py-2">
-                          {row.categories.join(", ") || "—"}
-                        </TableCell>
-                        <TableCell className="h-auto border-r border-border px-4 py-2 text-right">
-                          ฿{row.cost.toFixed(2)}
-                        </TableCell>
-                        <TableCell className="h-auto px-4 py-2 text-right">
-                          ฿{row.profit.toFixed(2)}
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </div>
-            )}
-          </TabsContent>
-        </Tabs>
+        {/* Footer sample note */}
+        <footer className="text-xs text-muted-foreground">
+          Sample data. Both rankings load together on open (default: last 30
+          days) and refresh when a timeframe is applied.
+        </footer>
       </section>
     </main>
   );
