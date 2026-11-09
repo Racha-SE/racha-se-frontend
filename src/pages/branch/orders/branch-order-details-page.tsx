@@ -255,7 +255,9 @@ export function BranchOrderDetailsPage() {
         )}
 
         <div className="flex max-w-[960px] items-center justify-between text-sm">
-          <span>Showing {orders.length} orders</span>
+          <span>
+            Showing {orders.length} of {totals} orders
+          </span>
           <PaginationControls
             page={page}
             totalPages={totalPages}
