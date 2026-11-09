@@ -87,6 +87,23 @@ export function Sidebar() {
                 </Button>
               )}
             </NavLink>
+
+            <NavLink
+              to="/branch/orders/details"
+              className="flex justify-center"
+            >
+              {({ isActive }) => (
+                <Button
+                  className={
+                    isActive
+                      ? "flex w-[90%] h-[40px] justify-center rounded-xl bg-focus text-white text-sm shadow-xs transition-all hover:-translate-y-0.5 hover:shadow-md active:translate-y-0 active:shadow-xs"
+                      : "flex w-[90%] h-[40px] justify-center rounded-xl bg-sidebar-top text-sm shadow-xs transition-all hover:-translate-y-0.5 hover:shadow-md active:translate-y-0 active:shadow-xs"
+                  }
+                >
+                  Branch Orders
+                </Button>
+              )}
+            </NavLink>
             {isRoot && (
               <NavLink to="/user-management" className="flex justify-center">
                 {({ isActive }) => (
@@ -202,6 +219,23 @@ export function Sidebar() {
                   }
                 >
                   Reports
+                </Button>
+              )}
+            </NavLink>
+
+            <NavLink
+              to="/branch/orders/details"
+              className="flex justify-center"
+            >
+              {({ isActive }) => (
+                <Button
+                  className={
+                    isActive
+                      ? "flex w-[90%] h-[40px] justify-center rounded-xl bg-focus text-white text-sm shadow-xs transition-all hover:-translate-y-0.5 hover:shadow-md active:translate-y-0 active:shadow-xs"
+                      : "flex w-[90%] h-[40px] justify-center rounded-xl bg-sidebar-top text-sm shadow-xs transition-all hover:-translate-y-0.5 hover:shadow-md active:translate-y-0 active:shadow-xs"
+                  }
+                >
+                  Branch Orders
                 </Button>
               )}
             </NavLink>
