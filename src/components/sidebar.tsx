@@ -201,7 +201,7 @@ export function Sidebar() {
                       : "flex w-[90%] h-[40px] justify-center rounded-xl bg-sidebar-top text-sm shadow-xs transition-all hover:-translate-y-0.5 hover:shadow-md active:translate-y-0 active:shadow-xs"
                   }
                 >
-                  Reports
+                  Analytics and Report
                 </Button>
               )}
             </NavLink>
