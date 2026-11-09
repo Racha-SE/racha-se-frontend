@@ -1,9 +1,30 @@
 import { useState } from "react";
 import { Cookie } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useSession } from "@/lib/auth-client";
+import {
+  acceptConsent,
+  declineConsent,
+  hasConsent,
+  rememberUsername,
+} from "@/lib/cookie-consent";
 
 export function CookieConsentBanner() {
-  const [visible, setVisible] = useState(true);
+  const { data: session } = useSession();
+  const [visible, setVisible] = useState(() => !hasConsent());
+
+  const handleAccept = () => {
+    acceptConsent();
+    if (session) {
+      rememberUsername(session.user.email);
+    }
+    setVisible(false);
+  };
+
+  const handleDecline = () => {
+    declineConsent();
+    setVisible(false);
+  };
 
   if (!visible) {
     return null;
@@ -29,7 +50,7 @@ export function CookieConsentBanner() {
           type="button"
           variant="outline"
           size="lg"
-          onClick={() => setVisible(false)}
+          onClick={handleDecline}
         >
           Decline
         </Button>
@@ -37,7 +58,7 @@ export function CookieConsentBanner() {
           type="button"
           className="bg-focus"
           size="lg"
-          onClick={() => setVisible(false)}
+          onClick={handleAccept}
         >
           Accept
         </Button>
