@@ -18,6 +18,10 @@ export function declineConsent() {
   deleteCookie(USERNAME_COOKIE);
 }
 
+export function getRememberedUsername() {
+  return getCookie(USERNAME_COOKIE);
+}
+
 export function rememberUsername(username: string) {
   setCookie(USERNAME_COOKIE, username, COOKIE_MAX_AGE_DAYS);
 }
