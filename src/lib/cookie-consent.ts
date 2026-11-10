@@ -19,7 +19,7 @@ export function declineConsent() {
 }
 
 export function getRememberedUsername() {
-  return getCookie(USERNAME_COOKIE);
+  return hasConsent() ? getCookie(USERNAME_COOKIE) : null;
 }
 
 export function rememberUsername(username: string) {
