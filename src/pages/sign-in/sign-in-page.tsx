@@ -22,6 +22,7 @@ import {
   hasConsent,
   rememberUsername,
 } from "@/lib/cookie-consent";
+import { TermsDialog } from "./terms-dialog";
 import { z } from "zod";
 import {
   Field,
@@ -258,7 +259,7 @@ export function SignInPage() {
                       </FieldLabel>
 
                       <FieldDescription>
-                        You agree to our Terms of Service and Privacy Policy
+                        You agree to our <TermsDialog />
                       </FieldDescription>
                     </FieldContent>
                   </Field>
