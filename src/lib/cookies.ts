@@ -6,7 +6,15 @@ export function getCookie(name: string): string | null {
     .split("; ")
     .find((cookie) => cookie.startsWith(prefix));
 
-  return match ? decodeURIComponent(match.slice(prefix.length)) : null;
+  if (!match) {
+    return null;
+  }
+
+  try {
+    return decodeURIComponent(match.slice(prefix.length));
+  } catch {
+    return null;
+  }
 }
 
 export function setCookie(name: string, value: string, maxAgeDays: number) {
