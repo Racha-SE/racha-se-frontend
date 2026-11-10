@@ -11,6 +11,8 @@ import {
   TableRow,
 } from "@/components/ui/table";
 
+import { formatExpiryDate } from "@/lib/format-expiry-date";
+
 import { formatDateTime } from "./branch-order-format";
 
 // Same grid look as the order list: vertical rules between columns only.
@@ -113,7 +115,7 @@ export function BranchOrderInfo({
                   <>
                     <TableCell className={cell}>{item.remain}</TableCell>
                     <TableCell className={cell}>
-                      {formatDateTime(item.expiredDate)}
+                      {formatExpiryDate(item.expiredDate)}
                     </TableCell>
                   </>
                 )}
