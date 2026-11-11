@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
-import { ClipboardList, Eye } from "lucide-react";
+import { ClipboardList, Eye, Plus } from "lucide-react";
+import { Link } from "react-router-dom";
 
 import { getBranches, type Branch } from "@/api/branch";
 import type { OrderStatus } from "@/api/orders";
@@ -178,6 +179,16 @@ export function BranchOrderDetailsPage() {
               ))}
             </SelectContent>
           </Select>
+
+          {isBranchUser && (
+            <Button
+              className="ml-auto h-8 rounded-sm px-3 text-sm"
+              render={<Link to="/orders/branch/new" />}
+            >
+              <Plus />
+              Create Branch Order
+            </Button>
+          )}
         </div>
 
         {missingBranch ? (

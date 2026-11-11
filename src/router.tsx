@@ -5,6 +5,7 @@ import { BranchPage } from "./pages/branch/branch-page";
 import { BranchInventoryPage } from "./pages/branch/inventory/branch-inventory-page";
 import { BranchNotificationsPage } from "./pages/branch/notifications/branch-notifications-page";
 import { BranchOrderDetailsPage } from "./pages/branch/orders/branch-order-details-page";
+import { CreateBranchOrderPage } from "./pages/branch/orders/create-branch-order-page";
 import { BranchOrderPage } from "./pages/branch/orders/branch-order-page";
 import { CartProvider } from "./pages/cashier/cart-provider";
 import { CashierPage } from "./pages/cashier/cashier-page";
@@ -106,6 +107,10 @@ export const router = createBrowserRouter([
             // Shared by hq and branch users: only RequireAuth guards it.
             path: "/branch/orders/details",
             element: <BranchOrderDetailsPage />,
+          },
+          {
+            path: "/orders/branch/new",
+            element: <CreateBranchOrderPage />,
           },
           {
             path: "/branch/orders/details/:lotId",
