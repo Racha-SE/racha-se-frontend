@@ -124,3 +124,13 @@ export async function receiveBranchOrder(lotId: number) {
     Record<string, never>
   >(`/orders/branch/${lotId}/receive`, {});
 }
+
+export async function getPendingBranchOrderCount() {
+  const response = await getBranchOrders({
+    status: "pending",
+    limit: 1,
+    offset: 0,
+  });
+
+  return response.data.totals;
+}
