@@ -77,6 +77,26 @@ export function isInsufficientStockError(
   );
 }
 
+export type ApiErrorDetails = {
+  status: number;
+  code: ApiErrorCode;
+  context?: Record<string, unknown>;
+};
+
+/**
+ * The status, error code and context of a failed request, or null when the
+ * error didn't come from our API envelope (network failure, proxy page...).
+ * Use it to pick a message; never show `context.message` to users as is -
+ * it's written for developers and can carry database detail on a 500.
+ */
+export function getApiErrorDetails(error: unknown): ApiErrorDetails | null {
+  if (!(error instanceof ApiError) || !isApiErrorBody(error.body)) {
+    return null;
+  }
+
+  return { status: error.status, ...error.body.error };
+}
+
 async function parseResponseBody(response: Response): Promise<unknown> {
   if (response.status === 204) {
     return null;
