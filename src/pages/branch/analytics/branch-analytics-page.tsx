@@ -7,13 +7,10 @@ import { useSession } from "@/lib/auth-client";
 import { DeadStockList } from "./dead-stock-list";
 import { TopSellersTable } from "./top-sellers-table";
 
-const defaultStartDate = localISODateDaysAgo(29);
-const defaultEndDate = localISODateDaysAgo(0);
-
 export function BranchAnalyticsPage() {
   const { data: session } = useSession();
-  const [startDate, setStartDate] = useState(defaultStartDate);
-  const [endDate, setEndDate] = useState(defaultEndDate);
+  const [startDate, setStartDate] = useState(() => localISODateDaysAgo(29));
+  const [endDate, setEndDate] = useState(() => localISODateDaysAgo(0));
 
   const isRangeValid =
     Boolean(startDate) && Boolean(endDate) && startDate <= endDate;
