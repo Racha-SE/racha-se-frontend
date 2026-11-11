@@ -3,6 +3,7 @@ import { RequireAuth } from "@/components/require-auth";
 import { RequireRoot } from "@/components/require-root";
 import { BranchPage } from "./pages/branch/branch-page";
 import { BranchInventoryPage } from "./pages/branch/inventory/branch-inventory-page";
+import { StockAdjustmentPage } from "./pages/branch/inventory/stock-adjustment-page";
 import { BranchNotificationsPage } from "./pages/branch/notifications/branch-notifications-page";
 import { CartProvider } from "./pages/cashier/cart-provider";
 import { CashierPage } from "./pages/cashier/cashier-page";
@@ -95,6 +96,10 @@ export const router = createBrowserRouter([
           {
             path: "/branch/inventory",
             element: <BranchInventoryPage />,
+          },
+          {
+            path: "/branch/inventory/adjust",
+            element: <StockAdjustmentPage />,
           },
           {
             path: "/branch/notifications",

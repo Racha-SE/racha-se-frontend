@@ -1,4 +1,4 @@
-import { apiClient } from "@/api/client";
+import { ApiError, apiClient, isInsufficientStockError } from "@/api/client";
 
 export type HqInventoryItem = {
   pId: number;
@@ -138,4 +138,74 @@ export async function getAllBranchStock(
   );
 
   return [...inventory, ...otherPages.flatMap((page) => page.data.inventory)];
+}
+
+export type StockAdjustmentBody = {
+  pId: number;
+  /** signed and non-zero: + found more, − damaged/lost/miscounted */
+  quantityChange: number;
+  /** required, max 255 characters */
+  reason: string;
+};
+
+export type StockAdjustment = {
+  adjustmentId: number;
+  branchId: number;
+  pId: number;
+  quantityChange: number;
+  reason: string;
+  userId: string;
+  createdAt: string;
+  /** the product's on-hand total at the branch after the adjustment */
+  onHand: number;
+};
+
+type StockAdjustmentResponse = {
+  success: true;
+  data: StockAdjustment;
+};
+
+/**
+ * Corrects one product's stock at a branch so the system matches the shelf.
+ * A minus comes off on-hand lots nearest-expiry first; a plus goes onto the
+ * newest unexpired lot.
+ */
+export function createBranchStockAdjustment(
+  branchId: number,
+  body: StockAdjustmentBody,
+) {
+  return apiClient.post<StockAdjustmentResponse, StockAdjustmentBody>(
+    `/inventory/branches/${branchId}/adjustments`,
+    body,
+  );
+}
+
+const ADJUSTMENT_ERROR_FALLBACK =
+  "Couldn't save the stock adjustment. Please try again.";
+
+/**
+ * Text the adjustment form can show for a failed save. Our own messages,
+ * picked by status - the backend's `context.message` is written for
+ * developers and is never shown.
+ */
+export function getStockAdjustmentErrorMessage(error: unknown): string {
+  if (isInsufficientStockError(error)) {
+    const available = error.body.error.context?.availableAmount;
+    return available === undefined
+      ? "You can't remove more than is on hand."
+      : `You can't remove more than is on hand (${available}).`;
+  }
+
+  if (!(error instanceof ApiError)) return ADJUSTMENT_ERROR_FALLBACK;
+
+  switch (error.status) {
+    case 400:
+      return "This adjustment can't be saved. Check the quantity and reason. Stock can only be added to a product this branch has received and that hasn't expired.";
+    case 403:
+      return "You can only adjust stock for your own branch.";
+    case 404:
+      return "Product not found.";
+    default:
+      return ADJUSTMENT_ERROR_FALLBACK;
+  }
 }
