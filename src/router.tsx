@@ -4,6 +4,7 @@ import { RequireRoot } from "@/components/require-root";
 import { BranchPage } from "./pages/branch/branch-page";
 import { BranchInventoryPage } from "./pages/branch/inventory/branch-inventory-page";
 import { BranchNotificationsPage } from "./pages/branch/notifications/branch-notifications-page";
+import { ReceiveStockPage } from "./pages/branch/requisitions/receive-stock-page";
 import { CartProvider } from "./pages/cashier/cart-provider";
 import { CashierPage } from "./pages/cashier/cashier-page";
 import { OrderDetailsPage } from "./pages/cashier/order-details-page";
@@ -99,6 +100,10 @@ export const router = createBrowserRouter([
           {
             path: "/branch/notifications",
             element: <BranchNotificationsPage />,
+          },
+          {
+            path: "/branch/requisitions/:lotId/receive",
+            element: <ReceiveStockPage />,
           },
           {
             element: (
