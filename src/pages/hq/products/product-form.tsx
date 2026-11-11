@@ -31,6 +31,7 @@ import {
 interface ProductFormProps {
   categories: { label: string; value: string }[];
   initialValues?: Partial<ProductFormInput>;
+  showStatus?: boolean;
   onCategoryCreated?: (category: Category) => void;
   onSubmit: (values: ProductFormValues) => void | Promise<void>;
   onCancel: () => void;
@@ -46,6 +47,7 @@ const addCategoryValue = "__add-category__";
 export function ProductForm({
   categories,
   initialValues = {},
+  showStatus = true,
   onCategoryCreated,
   onSubmit,
   onCancel,
@@ -272,50 +274,52 @@ export function ProductForm({
           />
         </div>
 
-        <Controller
-          name="status"
-          control={form.control}
-          render={({ field, fieldState }) => (
-            <Field className="gap-1" data-invalid={fieldState.invalid}>
-              <FieldLabel
-                htmlFor="product-status"
-                className="text-sm font-normal text-active"
-              >
-                Status *
-              </FieldLabel>
-              <Select
-                items={statusOptions}
-                value={field.value || null}
-                onValueChange={(value) => field.onChange(value ?? "")}
-              >
-                <SelectTrigger
-                  id="product-status"
-                  className="h-9! w-[150px] rounded-md px-3 py-2 text-sm"
-                  aria-invalid={fieldState.invalid}
-                  onBlur={field.onBlur}
+        {showStatus && (
+          <Controller
+            name="status"
+            control={form.control}
+            render={({ field, fieldState }) => (
+              <Field className="gap-1" data-invalid={fieldState.invalid}>
+                <FieldLabel
+                  htmlFor="product-status"
+                  className="text-sm font-normal text-active"
                 >
-                  <SelectValue placeholder="Select a status" />
-                </SelectTrigger>
-                <SelectContent
-                  align="start"
-                  alignItemWithTrigger={false}
-                  className="min-w-0 text-sm"
+                  Status *
+                </FieldLabel>
+                <Select
+                  items={statusOptions}
+                  value={field.value || null}
+                  onValueChange={(value) => field.onChange(value ?? "")}
                 >
-                  {statusOptions.map((status) => (
-                    <SelectItem
-                      key={status.value}
-                      value={status.value}
-                      className="py-2 pr-3 pl-8 text-sm"
-                    >
-                      {status.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              <FieldError errors={[fieldState.error]} />
-            </Field>
-          )}
-        />
+                  <SelectTrigger
+                    id="product-status"
+                    className="h-9! w-[150px] rounded-md px-3 py-2 text-sm"
+                    aria-invalid={fieldState.invalid}
+                    onBlur={field.onBlur}
+                  >
+                    <SelectValue placeholder="Select a status" />
+                  </SelectTrigger>
+                  <SelectContent
+                    align="start"
+                    alignItemWithTrigger={false}
+                    className="min-w-0 text-sm"
+                  >
+                    {statusOptions.map((status) => (
+                      <SelectItem
+                        key={status.value}
+                        value={status.value}
+                        className="py-2 pr-3 pl-8 text-sm"
+                      >
+                        {status.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <FieldError errors={[fieldState.error]} />
+              </Field>
+            )}
+          />
+        )}
 
         <div className="flex gap-3">
           <Button
