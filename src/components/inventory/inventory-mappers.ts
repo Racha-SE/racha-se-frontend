@@ -12,7 +12,12 @@ function formatDate(value: string) {
   );
 }
 
-function toProduct(item: HqInventoryItem | HqInventoryGroup): InventoryProduct {
+export function toProduct(
+  item: Pick<
+    HqInventoryItem,
+    "pId" | "categories" | "productName" | "description" | "barcode"
+  >,
+): InventoryProduct {
   return {
     productId: String(item.pId),
     category:

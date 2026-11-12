@@ -1,3 +1,5 @@
+import type { ReactNode } from "react";
+
 import {
   Dialog,
   DialogContent,
@@ -11,6 +13,8 @@ import type { InventoryProduct } from "./inventory-types";
 interface InventoryProductDetailDialogProps {
   product: InventoryProduct | null;
   onOpenChange: (open: boolean) => void;
+  /** Extra content shown under the product details. */
+  children?: ReactNode;
 }
 
 function Detail({ label, value }: { label: string; value: string }) {
@@ -27,6 +31,7 @@ function Detail({ label, value }: { label: string; value: string }) {
 export function InventoryProductDetailDialog({
   product,
   onOpenChange,
+  children,
 }: InventoryProductDetailDialogProps) {
   return (
     <Dialog open={product !== null} onOpenChange={onOpenChange}>
@@ -50,6 +55,7 @@ export function InventoryProductDetailDialog({
             <Detail label="Product Name" value={product.productName} />
             <Detail label="Category" value={product.category} />
             <Detail label="Description" value={product.description} />
+            {children}
           </div>
         )}
       </DialogContent>
