@@ -1,5 +1,6 @@
 import type { StockAlert } from "@/api/notifications";
 import { Badge } from "@/components/ui/badge";
+import { formatExpiryDate } from "@/lib/format-expiry-date";
 import {
   Table,
   TableBody,
@@ -79,7 +80,7 @@ export function StockAlertTable({ items, emptyMessage }: StockAlertTableProps) {
                 {item.quantity}
               </TableCell>
               <TableCell className="h-auto border-r border-border px-4 py-2">
-                {item.expiredDate ? formatDate(item.expiredDate) : "—"}
+                {formatExpiryDate(item.expiredDate)}
               </TableCell>
               <TableCell className="h-auto px-4 py-2">
                 {formatDate(item.createdAt)}
