@@ -109,7 +109,7 @@ export const router = createBrowserRouter([
             element: <BranchOrderDetailsPage />,
           },
           {
-            path: "/orders/branch/new",
+            path: "/branch/orders/new",
             element: <CreateBranchOrderPage />,
           },
           {

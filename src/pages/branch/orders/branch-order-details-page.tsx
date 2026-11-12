@@ -183,7 +183,7 @@ export function BranchOrderDetailsPage() {
           {isBranchUser && (
             <Button
               className="ml-auto h-8 rounded-sm px-3 text-sm"
-              render={<Link to="/orders/branch/new" />}
+              render={<Link to="/branch/orders/new" />}
             >
               <Plus />
               Create Branch Order
