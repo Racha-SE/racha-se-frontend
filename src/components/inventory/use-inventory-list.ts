@@ -15,6 +15,7 @@ import { toInventoryGroup, toInventoryItem } from "./inventory-mappers";
 import type { InventoryItem, InventoryProductGroup } from "./inventory-types";
 
 const searchDebounceMs = 300;
+const pollIntervalMs = 30_000;
 
 const sortOptions: Record<
   InventorySortBy,
@@ -49,9 +50,13 @@ export function useInventoryList({
 
   useEffect(() => {
     let cancelled = false;
-    const timeout = window.setTimeout(async () => {
-      setIsLoading(true);
-      setError(null);
+
+    // silent = background poll: keep the current list on screen, no spinner, no error.
+    async function load(silent: boolean) {
+      if (!silent) {
+        setIsLoading(true);
+        setError(null);
+      }
 
       try {
         const response = await fetchInventory({
@@ -80,19 +85,25 @@ export function useInventoryList({
           setGroups([]);
         }
       } catch {
-        if (!cancelled) {
+        if (!cancelled && !silent) {
           setError("Couldn't load inventory. Please try again.");
           setItems([]);
           setGroups([]);
         }
       } finally {
-        if (!cancelled) setIsLoading(false);
+        if (!cancelled && !silent) setIsLoading(false);
       }
-    }, searchDebounceMs);
+    }
+
+    const timeout = window.setTimeout(() => void load(false), searchDebounceMs);
+    const interval = window.setInterval(() => {
+      if (!document.hidden) void load(true);
+    }, pollIntervalMs);
 
     return () => {
       cancelled = true;
       window.clearTimeout(timeout);
+      window.clearInterval(interval);
     };
   }, [fetchInventory, filters, groupByProduct, itemsPerPage, page, search]);
 
