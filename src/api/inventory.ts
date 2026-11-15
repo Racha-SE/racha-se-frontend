@@ -105,6 +105,33 @@ export function getBranchInventoryByProduct(
   );
 }
 
+export type ProductBranchStock = {
+  branchId: number;
+  branchName: string;
+  quantity: number;
+};
+
+type ProductStockByBranchResponse = {
+  success: true;
+  data: { branches: ProductBranchStock[] };
+};
+
+export function getProductStockByBranch(pId: number) {
+  return apiClient.get<ProductStockByBranchResponse>(
+    `/inventory/products/${pId}/branches`,
+  );
+}
+
+export function getAllBranchesStockByProduct(
+  query: BranchInventoryQuery = {},
+  options?: RequestInit,
+) {
+  return apiClient.get<BranchInventoryResponse>(
+    `/inventory/branches${toQueryString({ ...query, groupBy: true })}`,
+    options,
+  );
+}
+
 const branchStockPageSize = 100;
 
 export async function getAllBranchStock(
