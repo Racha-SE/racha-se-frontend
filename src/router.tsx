@@ -30,6 +30,9 @@ import { ProductListPage } from "./pages/hq/products/product-list-page";
 import { ReportsPage } from "./pages/hq/reports/reports-page";
 import { AddUserPage } from "./pages/user-management/add-user-page";
 import { UserDetailPage } from "./pages/user-management/user-detail-page";
+import { RequireHq } from "@/components/require-hq";
+import { RequisitionListPage } from "@/pages/hq/requisitions/requisition-list-page";
+import { RequisitionDetailPage } from "@/pages/hq/requisitions/requisition-detail-page";
 
 export const router = createBrowserRouter([
   {
@@ -159,6 +162,19 @@ export const router = createBrowserRouter([
           {
             path: "/change-password",
             element: <ChangePasswordPage />,
+          },
+          {
+            element: <RequireHq />,
+            children: [
+              {
+                path: "/hq/requisitions",
+                element: <RequisitionListPage />,
+              },
+              {
+                path: "/hq/requisitions/:lotId",
+                element: <RequisitionDetailPage />,
+              },
+            ],
           },
         ],
       },
