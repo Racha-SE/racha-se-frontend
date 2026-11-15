@@ -55,6 +55,7 @@ export function CombinedStockView({ headerActions }: CombinedStockViewProps) {
           offset: (page - 1) * itemsPerPage,
         });
         if (cancelled) return;
+        setError(null);
 
         setItems(response.data.inventory);
         setTotalCount(response.data.totalCount);
@@ -149,7 +150,7 @@ export function CombinedStockView({ headerActions }: CombinedStockViewProps) {
                         {item.pId}
                       </TableCell>
                       <TableCell className="h-auto border-r border-border px-4 py-2">
-                        {item.productCategory.join(", ") || "—"}
+                        {toProduct(item).category}
                       </TableCell>
                       <TableCell className="h-auto border-r border-border px-4 py-2">
                         {item.productName}

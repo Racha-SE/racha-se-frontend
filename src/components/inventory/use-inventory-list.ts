@@ -69,6 +69,7 @@ export function useInventoryList({
           sortOrder: filters.sortOrder,
         });
         if (cancelled) return;
+        setError(null);
 
         setTotalCount(response.data.totalCount);
         if (groupByProduct) {

@@ -23,7 +23,7 @@ import { CombinedStockView } from "./combined-stock-view";
 export function InventoryListPage() {
   const navigate = useNavigate();
   const [branches, setBranches] = useState<Branch[]>([]);
-  const [scope, setScope] = useState("all");
+  const [scope, setScope] = useState("hq");
 
   useEffect(() => {
     getBranches()
@@ -57,7 +57,7 @@ export function InventoryListPage() {
       <Select
         items={scopeOptions}
         value={scope}
-        onValueChange={(value) => setScope(value ?? "all")}
+        onValueChange={(value) => setScope(value ?? "hq")}
       >
         <SelectTrigger
           className="h-8! w-[204px] rounded-sm bg-surface px-3 text-sm"
