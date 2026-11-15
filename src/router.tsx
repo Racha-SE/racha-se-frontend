@@ -30,6 +30,7 @@ import { EditBranchPage } from "./pages/hq/branches/edit-branch-page";
 import { AddProductPage } from "./pages/hq/products/add-product-page";
 import { EditProductPage } from "./pages/hq/products/edit-product-page";
 import { ProductListPage } from "./pages/hq/products/product-list-page";
+import { AnalyticsPage } from "./pages/hq/analytics/analytics-page";
 import { ReportsPage } from "./pages/hq/reports/reports-page";
 import { AddUserPage } from "./pages/user-management/add-user-page";
 import { UserDetailPage } from "./pages/user-management/user-detail-page";
@@ -91,6 +92,10 @@ export const router = createBrowserRouter([
           {
             path: "/hq/branches/:branchId/edit",
             element: <EditBranchPage />,
+          },
+          {
+            path: "/hq/analytics",
+            element: <AnalyticsPage />,
           },
           {
             path: "/hq/reports",
