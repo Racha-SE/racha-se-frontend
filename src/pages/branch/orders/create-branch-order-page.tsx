@@ -5,7 +5,7 @@ import { Controller, useFieldArray, useForm } from "react-hook-form";
 import { Navigate, useNavigate } from "react-router-dom";
 import { z } from "zod";
 
-import { ApiError } from "@/api/client";
+import { getApiErrorDetails } from "@/api/client";
 import { createBranchOrder } from "@/api/orders-branch";
 import { Button } from "@/components/ui/button";
 import { Field, FieldError, FieldLabel } from "@/components/ui/field";
@@ -16,14 +16,15 @@ import { ProductSearchSelect } from "@/pages/hq/orders/product-search-select";
 // type="number" gives "" for non-numeric text too, so empty and invalid share one message.
 const INVALID_AMOUNT = "Quantity must be an integer greater than 0";
 
-// Backend puts a human-readable reason in error.context (message, or summary for schema errors).
-function backendMessage(err: unknown) {
-  if (!(err instanceof ApiError)) return null;
-  const context = (
-    err.body as { error?: { context?: Record<string, unknown> } }
-  )?.error?.context;
-  const message = context?.message ?? context?.summary;
-  return typeof message === "string" ? message : null;
+function createOrderErrorMessage(err: unknown) {
+  switch (getApiErrorDetails(err)?.status) {
+    case 400:
+      return "Check the products and quantities, then try again.";
+    case 404:
+      return "One of the selected products no longer exists.";
+    default:
+      return "Couldn't create the order. Please try again.";
+  }
 }
 
 const schema = z.object({
@@ -97,9 +98,7 @@ export function CreateBranchOrderPage() {
       await createBranchOrder(values);
       navigate(LIST_PATH);
     } catch (err) {
-      setError(
-        backendMessage(err) ?? "Couldn't create the order. Please try again.",
-      );
+      setError(createOrderErrorMessage(err));
     }
   }
 

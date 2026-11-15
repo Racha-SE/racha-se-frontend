@@ -23,6 +23,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { useSession } from "@/lib/auth-client";
+import { RequisitionStatus } from "@/pages/hq/requisitions/requisition-status";
 
 import { BranchOrderItemsDialog } from "./branch-order-items-dialog";
 import { formatDateTime, formatOrderId } from "./branch-order-format";
@@ -233,8 +234,8 @@ export function BranchOrderDetailsPage() {
                     <TableCell className="border-r border-border">
                       {branchName(orderBranchId(order))}
                     </TableCell>
-                    <TableCell className="border-r border-border capitalize">
-                      {order.status}
+                    <TableCell className="border-r border-border">
+                      <RequisitionStatus status={order.status} />
                     </TableCell>
                     <TableCell className="border-r border-border">
                       {formatDateTime(order.createdAt)}
