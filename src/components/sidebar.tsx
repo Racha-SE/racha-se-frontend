@@ -89,10 +89,7 @@ export function Sidebar() {
               )}
             </NavLink>
 
-            <NavLink
-              to="/branch/orders/details"
-              className="flex justify-center"
-            >
+            <NavLink to="/branch/orders" className="flex justify-center">
               {({ isActive }) => (
                 <Button
                   className={
@@ -254,10 +251,7 @@ export function Sidebar() {
               )}
             </NavLink>
 
-            <NavLink
-              to="/branch/orders/details"
-              className="flex justify-center"
-            >
+            <NavLink to="/branch/orders" className="flex justify-center">
               {({ isActive }) => (
                 <Button
                   className={

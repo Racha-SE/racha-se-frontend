@@ -53,7 +53,7 @@ export function BranchOrderPage() {
   return (
     <main className="min-h-screen bg-background p-6 text-left text-foreground">
       <Link
-        to="/branch/orders/details"
+        to="/branch/orders"
         className="inline-flex items-center gap-1 text-sm text-searchbar"
       >
         <ArrowLeft className="size-4" aria-hidden="true" />

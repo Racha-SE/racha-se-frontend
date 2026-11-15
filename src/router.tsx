@@ -110,7 +110,7 @@ export const router = createBrowserRouter([
           },
           {
             // Shared by hq and branch users: only RequireAuth guards it.
-            path: "/branch/orders/details",
+            path: "/branch/orders",
             element: <BranchOrderDetailsPage />,
           },
           {
@@ -118,7 +118,7 @@ export const router = createBrowserRouter([
             element: <CreateBranchOrderPage />,
           },
           {
-            path: "/branch/orders/details/:lotId",
+            path: "/branch/orders/:lotId",
             element: <BranchOrderPage />,
           },
           {

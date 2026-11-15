@@ -48,7 +48,7 @@ export function BranchOrderItemsDialog({
               type="button"
               variant="outline"
               className="mt-2 self-end"
-              onClick={() => navigate(`/branch/orders/details/${order.lotId}`)}
+              onClick={() => navigate(`/branch/orders/${order.lotId}`)}
             >
               View full details
             </Button>

@@ -70,7 +70,7 @@ type FormInput = z.input<typeof schema>;
 type FormValues = z.output<typeof schema>;
 
 const emptyItem = { pId: "", amount: "" };
-const LIST_PATH = "/branch/orders/details";
+const LIST_PATH = "/branch/orders";
 
 export function CreateBranchOrderPage() {
   const { data: session, isPending } = useSession();
