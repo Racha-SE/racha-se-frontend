@@ -17,6 +17,12 @@ import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useSearchParams } from "react-router-dom";
 import { requestPasswordReset, signInWithEmail } from "@/api/auth";
+import {
+  getRememberedUsername,
+  hasConsent,
+  rememberUsername,
+} from "@/lib/cookie-consent";
+import { TermsDialog } from "./terms-dialog";
 import { z } from "zod";
 import {
   Field,
@@ -106,6 +112,10 @@ export function SignInPage() {
     }
     const user = result.data.user;
 
+    if (hasConsent()) {
+      rememberUsername(user.email);
+    }
+
     // A full navigation here, not react-router's navigate() — RequireAuth
     // on the destination route reads the session via useSession(), and a
     // plain client-side route change can land there before that hook's
@@ -132,7 +142,7 @@ export function SignInPage() {
   } = useForm<SignInForm>({
     resolver: zodResolver(SignInSchema),
     defaultValues: {
-      email: "",
+      email: getRememberedUsername() ?? "",
       password: "",
       terms: false,
     },
@@ -249,7 +259,7 @@ export function SignInPage() {
                       </FieldLabel>
 
                       <FieldDescription>
-                        You agree to our Terms of Service and Privacy Policy
+                        You agree to our <TermsDialog />
                       </FieldDescription>
                     </FieldContent>
                   </Field>
