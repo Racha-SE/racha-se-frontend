@@ -2,11 +2,13 @@ import { Navigate, Outlet, createBrowserRouter } from "react-router-dom";
 import { RequireAuth } from "@/components/require-auth";
 import { RequireRoot } from "@/components/require-root";
 import { BranchPage } from "./pages/branch/branch-page";
+import { BranchAnalyticsPage } from "./pages/branch/analytics/branch-analytics-page";
 import { BranchInventoryPage } from "./pages/branch/inventory/branch-inventory-page";
 import { BranchNotificationsPage } from "./pages/branch/notifications/branch-notifications-page";
 import { BranchOrderDetailsPage } from "./pages/branch/orders/branch-order-details-page";
 import { CreateBranchOrderPage } from "./pages/branch/orders/create-branch-order-page";
 import { BranchOrderPage } from "./pages/branch/orders/branch-order-page";
+import { BranchReportsPage } from "./pages/branch/reports/branch-reports-page";
 import { CartProvider } from "./pages/cashier/cart-provider";
 import { CashierPage } from "./pages/cashier/cashier-page";
 import { OrderDetailsPage } from "./pages/cashier/order-details-page";
@@ -31,6 +33,9 @@ import { ProductListPage } from "./pages/hq/products/product-list-page";
 import { ReportsPage } from "./pages/hq/reports/reports-page";
 import { AddUserPage } from "./pages/user-management/add-user-page";
 import { UserDetailPage } from "./pages/user-management/user-detail-page";
+import { RequireHq } from "@/components/require-hq";
+import { RequisitionListPage } from "@/pages/hq/requisitions/requisition-list-page";
+import { RequisitionDetailPage } from "@/pages/hq/requisitions/requisition-detail-page";
 
 export const router = createBrowserRouter([
   {
@@ -117,6 +122,14 @@ export const router = createBrowserRouter([
             element: <BranchOrderPage />,
           },
           {
+            path: "/branch/analytics",
+            element: <BranchAnalyticsPage />,
+          },
+          {
+            path: "/branch/reports",
+            element: <BranchReportsPage />,
+          },
+          {
             element: (
               <CartProvider>
                 <Outlet />
@@ -165,6 +178,19 @@ export const router = createBrowserRouter([
           {
             path: "/change-password",
             element: <ChangePasswordPage />,
+          },
+          {
+            element: <RequireHq />,
+            children: [
+              {
+                path: "/hq/requisitions",
+                element: <RequisitionListPage />,
+              },
+              {
+                path: "/hq/requisitions/:lotId",
+                element: <RequisitionDetailPage />,
+              },
+            ],
           },
         ],
       },

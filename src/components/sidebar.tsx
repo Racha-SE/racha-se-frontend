@@ -4,6 +4,7 @@ import { LogOut, UserRoundCog, Gem } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { signOut } from "@/api/auth";
 import { useSession } from "@/lib/auth-client";
+import { HqRequisitionsNav } from "@/components/hq-requisitions-nav";
 
 export function Sidebar() {
   const navigate = useNavigate();
@@ -104,6 +105,34 @@ export function Sidebar() {
                 </Button>
               )}
             </NavLink>
+
+            <NavLink to="/branch/analytics" className="flex justify-center">
+              {({ isActive }) => (
+                <Button
+                  className={
+                    isActive
+                      ? "flex w-[90%] h-[40px] justify-center rounded-xl bg-focus text-white text-sm shadow-xs transition-all hover:-translate-y-0.5 hover:shadow-md active:translate-y-0 active:shadow-xs"
+                      : "flex w-[90%] h-[40px] justify-center rounded-xl bg-sidebar-top text-sm shadow-xs transition-all hover:-translate-y-0.5 hover:shadow-md active:translate-y-0 active:shadow-xs"
+                  }
+                >
+                  Analytics
+                </Button>
+              )}
+            </NavLink>
+
+            <NavLink to="/branch/reports" className="flex justify-center">
+              {({ isActive }) => (
+                <Button
+                  className={
+                    isActive
+                      ? "flex w-[90%] h-[40px] justify-center rounded-xl bg-focus text-white text-sm shadow-xs transition-all hover:-translate-y-0.5 hover:shadow-md active:translate-y-0 active:shadow-xs"
+                      : "flex w-[90%] h-[40px] justify-center rounded-xl bg-sidebar-top text-sm shadow-xs transition-all hover:-translate-y-0.5 hover:shadow-md active:translate-y-0 active:shadow-xs"
+                  }
+                >
+                  Reports
+                </Button>
+              )}
+            </NavLink>
             {isRoot && (
               <NavLink to="/user-management" className="flex justify-center">
                 {({ isActive }) => (
@@ -122,6 +151,8 @@ export function Sidebar() {
           </>
         ) : (
           <>
+            {user?.userType === "hq" && <HqRequisitionsNav />}
+
             <NavLink to="/hq/products" end className="flex justify-center">
               {({ isActive }) => (
                 <Button
