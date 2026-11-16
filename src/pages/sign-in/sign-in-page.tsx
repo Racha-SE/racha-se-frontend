@@ -32,6 +32,7 @@ import {
   FieldGroup,
   FieldLabel,
 } from "@/components/ui/field";
+import { getHomePath } from "@/lib/home-path";
 
 const SignInSchema = z.object({
   email: z.email(),
@@ -123,15 +124,7 @@ export function SignInPage() {
     // set (timing that's easy to win on a fast local backend but isn't
     // guaranteed). Reloading forces a clean fetch of the session using the
     // cookie that's already set by this point, no client cache involved.
-    if (user.role === "admin") {
-      window.location.replace("/user-management");
-    } else if (user.userType === "cashier") {
-      window.location.replace("/cashier");
-    } else if (user.userType === "branch") {
-      window.location.replace("/branch/inventory");
-    } else {
-      window.location.replace("/hq/products");
-    }
+    window.location.replace(getHomePath(user));
   };
 
   const {

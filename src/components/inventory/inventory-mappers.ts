@@ -1,4 +1,5 @@
 import type { HqInventoryGroup, HqInventoryItem } from "@/api/inventory";
+import { formatExpiryDate } from "@/lib/format-expiry-date";
 
 import type {
   InventoryItem,
@@ -6,13 +7,12 @@ import type {
   InventoryProductGroup,
 } from "./inventory-types";
 
-function formatDate(value: string) {
-  return new Intl.DateTimeFormat("en-GB", { timeZone: "UTC" }).format(
-    new Date(value),
-  );
-}
-
-function toProduct(item: HqInventoryItem | HqInventoryGroup): InventoryProduct {
+export function toProduct(
+  item: Pick<
+    HqInventoryItem,
+    "pId" | "categories" | "productName" | "description" | "barcode"
+  >,
+): InventoryProduct {
   return {
     productId: String(item.pId),
     category:
@@ -33,7 +33,7 @@ export function toInventoryItem(
     lotId: `${item.pId}-${item.expiredDate}-${index}`,
     quantity: item.quantity,
     costPrice: item.costPrice,
-    expiryDate: formatDate(item.expiredDate),
+    expiryDate: formatExpiryDate(item.expiredDate),
   };
 }
 
@@ -46,7 +46,7 @@ export function toInventoryGroup(
       lotId: `${item.pId}-${stock.expiredDate}-${index}`,
       quantity: stock.quantity,
       costPrice: stock.costPrice,
-      expiryDate: formatDate(stock.expiredDate),
+      expiryDate: formatExpiryDate(stock.expiredDate),
     })),
   };
 }

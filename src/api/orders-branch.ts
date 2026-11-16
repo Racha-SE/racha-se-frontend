@@ -189,3 +189,13 @@ export function getReceiveBranchOrderErrorMessage(error: unknown): string {
       return RECEIVE_ERROR_FALLBACK;
   }
 }
+
+export async function getPendingBranchOrderCount() {
+  const response = await getBranchOrders({
+    status: "pending",
+    limit: 1,
+    offset: 0,
+  });
+
+  return response.data.totals;
+}
