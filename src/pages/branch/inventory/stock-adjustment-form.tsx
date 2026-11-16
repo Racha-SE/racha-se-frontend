@@ -2,7 +2,6 @@ import { useMemo } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Controller, useForm, useWatch } from "react-hook-form";
 
-import type { BranchInventoryProduct } from "@/api/inventory";
 import { Button } from "@/components/ui/button";
 import { Field, FieldError, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
@@ -20,8 +19,14 @@ import {
   type StockAdjustmentFormValues,
 } from "./stock-adjustment-form-schema";
 
+export type AdjustableProduct = {
+  pId: number;
+  productName: string;
+  quantity: number;
+};
+
 interface StockAdjustmentFormProps {
-  products: readonly BranchInventoryProduct[];
+  products: readonly AdjustableProduct[];
   onSubmit: (values: StockAdjustmentFormValues) => Promise<void>;
   onCancel: () => void;
 }

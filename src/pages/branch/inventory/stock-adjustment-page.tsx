@@ -6,12 +6,15 @@ import {
   createBranchStockAdjustment,
   getAllBranchStock,
   getStockAdjustmentErrorMessage,
-  type BranchInventoryProduct,
 } from "@/api/inventory";
+import { getProducts } from "@/api/product";
 import { Button } from "@/components/ui/button";
 import { useSession } from "@/lib/auth-client";
 
-import { StockAdjustmentForm } from "./stock-adjustment-form";
+import {
+  StockAdjustmentForm,
+  type AdjustableProduct,
+} from "./stock-adjustment-form";
 import type { StockAdjustmentFormValues } from "./stock-adjustment-form-schema";
 
 type SavedAdjustment = {
@@ -20,14 +23,57 @@ type SavedAdjustment = {
   onHand: number;
 };
 
+const productPageSize = 100;
+
+async function getAllActiveProducts() {
+  const firstPage = await getProducts({
+    isActive: true,
+    limit: productPageSize,
+    offset: 0,
+  });
+  const { products, total } = firstPage.data;
+
+  const offsets: number[] = [];
+  for (
+    let offset = productPageSize;
+    offset < total;
+    offset += productPageSize
+  ) {
+    offsets.push(offset);
+  }
+
+  const otherPages = await Promise.all(
+    offsets.map((offset) =>
+      getProducts({ isActive: true, limit: productPageSize, offset }),
+    ),
+  );
+
+  return [...products, ...otherPages.flatMap((page) => page.data.products)];
+}
+
+async function loadAdjustableProducts(
+  branchId: number,
+  signal?: AbortSignal,
+): Promise<AdjustableProduct[]> {
+  const [products, stock] = await Promise.all([
+    getAllActiveProducts(),
+    getAllBranchStock(branchId, signal),
+  ]);
+  const onHandByPId = new Map(stock.map((item) => [item.pId, item.quantity]));
+
+  return products.map((product) => ({
+    pId: product.pId,
+    productName: product.name,
+    quantity: onHandByPId.get(product.pId) ?? 0,
+  }));
+}
+
 export function StockAdjustmentPage() {
   const navigate = useNavigate();
   const { data: session } = useSession();
   const branchId = session?.user.branchId ?? null;
 
-  const [products, setProducts] = useState<BranchInventoryProduct[] | null>(
-    null,
-  );
+  const [products, setProducts] = useState<AdjustableProduct[] | null>(null);
   const [loadError, setLoadError] = useState<string | null>(null);
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [saved, setSaved] = useState<SavedAdjustment | null>(null);
@@ -39,9 +85,10 @@ export function StockAdjustmentPage() {
 
     const controller = new AbortController();
 
-    getAllBranchStock(branchId, controller.signal).then(
-      (stock) => {
-        setProducts(stock);
+    loadAdjustableProducts(branchId, controller.signal).then(
+      (adjustable) => {
+        if (controller.signal.aborted) return;
+        setProducts(adjustable);
         setLoadError(null);
       },
       () => {
@@ -78,7 +125,7 @@ export function StockAdjustmentPage() {
     // The save already succeeded; refresh the on-hand counts the form
     // validates against. A failed refresh keeps the old list.
     try {
-      setProducts(await getAllBranchStock(branchId));
+      setProducts(await loadAdjustableProducts(branchId));
     } catch {
       // keep the previous counts
     }
@@ -118,7 +165,7 @@ export function StockAdjustmentPage() {
           </p>
         ) : products.length === 0 ? (
           <p className="py-6 text-sm text-muted-foreground">
-            This branch has no stock on hand to adjust.
+            There are no active products to adjust.
           </p>
         ) : (
           <>

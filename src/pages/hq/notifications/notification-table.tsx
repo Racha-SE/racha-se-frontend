@@ -8,16 +8,12 @@ import {
 } from "@/components/ui/table";
 
 import type { StockAlert, NotificationType } from "@/api/notifications";
+import { formatExpiryDate } from "@/lib/format-expiry-date";
 
 interface NotificationTableProps {
   type: NotificationType;
   items: StockAlert[];
   emptyMessage: string;
-}
-
-function formatDate(value: string | null) {
-  if (!value) return "—";
-  return new Date(value).toLocaleDateString();
 }
 
 export function NotificationTable({
@@ -77,7 +73,7 @@ export function NotificationTable({
               </TableCell>
               {type === "expire" && (
                 <TableCell className="h-auto px-4 py-2">
-                  {formatDate(item.expiredDate)}
+                  {formatExpiryDate(item.expiredDate)}
                 </TableCell>
               )}
             </TableRow>

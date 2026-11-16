@@ -14,7 +14,7 @@ export function RequireRoot() {
   }
 
   if (session.user.role !== "admin") {
-    return <Navigate to="/hq/products" replace />;
+    return <Navigate to="/access-denied" replace />;
   }
 
   return <Outlet />;
