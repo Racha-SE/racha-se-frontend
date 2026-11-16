@@ -7,6 +7,7 @@ import { AccessDeniedPage } from "./pages/access-denied/access-denied-page";
 import { BranchPage } from "./pages/branch/branch-page";
 import { BranchAnalyticsPage } from "./pages/branch/analytics/branch-analytics-page";
 import { BranchInventoryPage } from "./pages/branch/inventory/branch-inventory-page";
+import { StockAdjustmentPage } from "./pages/branch/inventory/stock-adjustment-page";
 import { BranchNotificationsPage } from "./pages/branch/notifications/branch-notifications-page";
 import { BranchOrderDetailsPage } from "./pages/branch/orders/branch-order-details-page";
 import { CreateBranchOrderPage } from "./pages/branch/orders/create-branch-order-page";
@@ -134,6 +135,10 @@ export const router = createBrowserRouter([
               {
                 path: "/branch/inventory",
                 element: <BranchInventoryPage />,
+              },
+              {
+                path: "/branch/inventory/adjust",
+                element: <StockAdjustmentPage />,
               },
               {
                 path: "/branch/notifications",
