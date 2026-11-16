@@ -13,6 +13,7 @@ import { BranchOrderDetailsPage } from "./pages/branch/orders/branch-order-detai
 import { CreateBranchOrderPage } from "./pages/branch/orders/create-branch-order-page";
 import { BranchOrderPage } from "./pages/branch/orders/branch-order-page";
 import { BranchReportsPage } from "./pages/branch/reports/branch-reports-page";
+import { ReceiveStockPage } from "./pages/branch/requisitions/receive-stock-page";
 import { CartProvider } from "./pages/cashier/cart-provider";
 import { CashierPage } from "./pages/cashier/cashier-page";
 import { OrderDetailsPage } from "./pages/cashier/order-details-page";
@@ -151,6 +152,10 @@ export const router = createBrowserRouter([
               {
                 path: "/branch/reports",
                 element: <BranchReportsPage />,
+              },
+              {
+                path: "/branch/orders/:lotId/receive",
+                element: <ReceiveStockPage />,
               },
             ],
           },

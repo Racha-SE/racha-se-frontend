@@ -7,6 +7,8 @@ import {
   getBranchOrderByLotId,
   type GetBranchOrderByLotIdResponse,
 } from "@/api/orders-branch";
+import { buttonVariants } from "@/components/ui/button";
+import { useSession } from "@/lib/auth-client";
 
 import { formatOrderId } from "./branch-order-format";
 import { BranchOrderInfo } from "./branch-order-info";
@@ -15,6 +17,7 @@ const plural = (n: number, word: string) => `${n} ${word}${n === 1 ? "" : "s"}`;
 
 export function BranchOrderPage() {
   const { lotId } = useParams();
+  const { data: session } = useSession();
   const [order, setOrder] = useState<GetBranchOrderByLotIdResponse | null>(
     null,
   );
@@ -82,6 +85,15 @@ export function BranchOrderPage() {
             Total: {plural(productCount, "product")},{" "}
             {plural(itemCount, "item")}
           </p>
+          {order.status === "approved" &&
+            session?.user.userType === "branch" && (
+              <Link
+                to={`/branch/orders/${order.lotId}/receive`}
+                className={buttonVariants({ className: "mt-4" })}
+              >
+                Receive stock
+              </Link>
+            )}
         </section>
       )}
     </main>
